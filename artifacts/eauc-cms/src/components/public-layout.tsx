@@ -1,99 +1,88 @@
 import { ReactNode } from 'react';
 import { Link, useLocation } from 'wouter';
-import { useListNavigation, useGetSettings } from '@workspace/api-client-react';
-import { Button } from '@/components/ui/button';
+import { Heart } from 'lucide-react';
+
+const NAVY = '#0d1117';
+const GOLD = '#e8b400';
 
 export function PublicLayout({ children }: { children: ReactNode }) {
-  const [location] = useLocation();
-  const { data: navItems } = useListNavigation();
-  const { data: settings } = useGetSettings();
-
-  const mainNav = navItems?.filter((item) => !item.parentId && item.visible).sort((a, b) => a.order - b.order) || [];
-
   return (
-    <div className="min-h-screen flex flex-col bg-white">
-      {/* Header */}
-      <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Link href="/" className="flex items-center gap-2 font-semibold text-lg tracking-tight text-primary">
-              {settings?.logo ? (
-                <img src={settings.logo} alt={settings.siteName} className="h-8" />
-              ) : (
-                <div className="w-8 h-8 rounded bg-primary flex items-center justify-center text-white font-bold text-sm">
-                  EN
-                </div>
-              )}
-              {settings?.siteName || 'EAUC Nordic'}
-            </Link>
-          </div>
-
-          <nav className="hidden md:flex items-center gap-6">
-            {mainNav.map((item) => (
-              <Link
-                key={item.id}
-                href={item.url || '/'}
-                className={`text-sm font-medium transition-colors hover:text-primary ${
-                  location === item.url ? 'text-primary' : 'text-gray-600'
-                }`}
-              >
-                {item.label}
-              </Link>
-            ))}
-          </nav>
-
-          <div className="flex items-center gap-4">
-            <Link href="/contact" className="hidden md:block">
-              <Button size="sm" className="rounded-full px-6">Get Involved</Button>
-            </Link>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Content */}
-      <main className="flex-1">
-        {children}
-      </main>
-
-      {/* Footer */}
-      <footer className="bg-gray-900 text-gray-300 py-12 md:py-16">
-        <div className="container mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-8">
-          <div className="col-span-1 md:col-span-2 space-y-4">
-            <div className="flex items-center gap-2 font-semibold text-xl text-white">
-              <div className="w-8 h-8 rounded bg-primary flex items-center justify-center text-white font-bold text-sm">
-                EN
-              </div>
-              {settings?.siteName || 'EAUC Nordic'}
-            </div>
-            <p className="text-sm text-gray-400 max-w-sm">
-              {settings?.siteDescription || 'Advancing sustainability and green energy across the Nordic region through collaboration and innovation.'}
-            </p>
-          </div>
-          <div>
-            <h4 className="text-white font-medium mb-4">Quick Links</h4>
-            <ul className="space-y-2 text-sm">
-              <li><Link href="/about" className="hover:text-white transition-colors">About Us</Link></li>
-              <li><Link href="/projects" className="hover:text-white transition-colors">Projects</Link></li>
-              <li><Link href="/news" className="hover:text-white transition-colors">News</Link></li>
-              <li><Link href="/events" className="hover:text-white transition-colors">Events</Link></li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="text-white font-medium mb-4">Contact</h4>
-            <ul className="space-y-2 text-sm text-gray-400">
-              <li>{settings?.contactEmail || 'contact@eaucnordic.com'}</li>
-              <li>{settings?.contactPhone || '+46 8 123 4567'}</li>
-              <li>{settings?.address || 'Stockholm, Sweden'}</li>
-            </ul>
-          </div>
-        </div>
-        <div className="container mx-auto px-4 mt-12 pt-8 border-t border-gray-800 text-sm text-gray-500 flex flex-col md:flex-row items-center justify-between">
-          <p>{settings?.footerCopyright || `© ${new Date().getFullYear()} EAUC Nordic. All rights reserved.`}</p>
-          <div className="flex items-center gap-4 mt-4 md:mt-0">
-            <Link href="/admin/login" className="hover:text-white transition-colors">Admin Login</Link>
-          </div>
-        </div>
-      </footer>
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <Header />
+      <main style={{ flex: 1 }}>{children}</main>
+      <Footer />
     </div>
+  );
+}
+
+function Header() {
+  const [location] = useLocation();
+  // On the home route, show minimal nav matching the original
+  return (
+    <header style={{
+      position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
+      background: 'rgba(10,12,20,0.95)',
+      backdropFilter: 'blur(8px)',
+      borderBottom: '1px solid rgba(255,255,255,0.06)',
+      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      padding: '0 28px', height: 52,
+    }}>
+      <Link href="/" style={{ textDecoration: 'none' }}>
+        <span style={{ fontFamily: 'Inter, sans-serif', fontWeight: 700, fontSize: 15, color: '#fff', letterSpacing: '0.04em' }}>
+          EAUC
+        </span>
+      </Link>
+
+      <nav style={{ display: 'flex', alignItems: 'center', gap: 28 }}>
+        <Link href="/#mission" style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: 'rgba(255,255,255,0.7)', textDecoration: 'none' }}>
+          Om os
+        </Link>
+        <Link href="/#donér" style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: 'rgba(255,255,255,0.7)', textDecoration: 'none' }}>
+          Donér
+        </Link>
+        <Link href="/admin/login" style={{
+          fontFamily: 'Inter, sans-serif', fontSize: 12, color: 'rgba(255,255,255,0.4)',
+          textDecoration: 'none', borderLeft: '1px solid rgba(255,255,255,0.15)', paddingLeft: 20,
+        }}>
+          Admin
+        </Link>
+        {/* Language toggle matching original */}
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 6,
+          border: '1px solid rgba(255,255,255,0.2)', borderRadius: 999,
+          padding: '5px 12px',
+        }}>
+          <span style={{ fontSize: 13, color: '#fff', fontFamily: 'Inter, sans-serif', fontWeight: 600 }}>🌐</span>
+          <span style={{ fontSize: 12, color: '#fff', fontFamily: 'Inter, sans-serif' }}>DA</span>
+          <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', fontFamily: 'Inter, sans-serif' }}>DK</span>
+        </div>
+      </nav>
+    </header>
+  );
+}
+
+function Footer() {
+  return (
+    <footer style={{
+      background: '#0d1117',
+      borderTop: '1px solid rgba(255,255,255,0.06)',
+      padding: '28px 40px',
+      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      flexWrap: 'wrap', gap: 16,
+    }}>
+      <span style={{ fontFamily: 'Inter, sans-serif', fontWeight: 700, fontSize: 14, color: 'rgba(255,255,255,0.9)' }}>
+        EAUC
+      </span>
+      <nav style={{ display: 'flex', gap: 24 }}>
+        {['Om os', 'Kontakt', 'Privatlivspolitik'].map(l => (
+          <a key={l} href="#" style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: 'rgba(255,255,255,0.55)', textDecoration: 'none' }}>
+            {l}
+          </a>
+        ))}
+      </nav>
+      <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: 'rgba(255,255,255,0.35)' }}>
+        © 2026 Håb for Ukraine. Alle rettigheder forbeholdes.
+      </span>
+    </footer>
   );
 }
