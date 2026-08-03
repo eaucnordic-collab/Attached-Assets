@@ -33,7 +33,7 @@ const ADMIN_LINKS = [
   { href: '/admin/submissions', label: 'Submissions', icon: Inbox },
   { href: '/admin/media', label: 'Media', icon: ImageIcon },
   { href: '/admin/navigation', label: 'Navigation', icon: Navigation },
-  { href: '/admin/design', label: 'Design', icon: Palette },
+  { href: '/admin/design', label: 'Sidedesigner', icon: Palette },
   { href: '/admin/settings', label: 'Settings', icon: Settings },
 ];
 

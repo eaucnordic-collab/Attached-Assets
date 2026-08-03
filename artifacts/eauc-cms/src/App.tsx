@@ -35,6 +35,7 @@ import AdminSubmissions from '@/pages/admin/submissions';
 import AdminMedia from '@/pages/admin/media';
 import AdminNavigation from '@/pages/admin/navigation';
 import AdminSettings from '@/pages/admin/settings';
+import AdminSiteEditor from '@/pages/admin/site-editor';
 
 import NotFound from '@/pages/not-found';
 
@@ -117,6 +118,9 @@ function Router() {
       </Route>
       <Route path="/admin/settings">
         <ProtectedRoute><AdminSettings /></ProtectedRoute>
+      </Route>
+      <Route path="/admin/design">
+        <ProtectedRoute><AdminSiteEditor /></ProtectedRoute>
       </Route>
 
       <Route component={NotFound} />
