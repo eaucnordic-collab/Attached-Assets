@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "EAUC Nordic CMS"
+description = "A full-featured website builder and CMS for EAUC Nordic. Includes a public-facing website that mirrors eaucnordic.com, a visual page constructor with drag-and-drop block editing, admin panel with content management for news, events, projects, team, partners, forms, media library, multi-language support (Danish, Ukrainian, English), SEO tools, and draft/publish workflow."
+version = "1.0.0"
+id = "artifacts/eauc-cms"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 25163
+
+[services.development]
+run = "pnpm --filter @workspace/eauc-cms run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/eauc-cms", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/eauc-cms/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "25163"
+BASE_PATH = "/"

@@ -3,20 +3,48 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: EAUC Nordic CMS API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: auth
+    description: Authentication
+  - name: pages
+    description: Page management
+  - name: blocks
+    description: Page block management
+  - name: navigation
+    description: Navigation management
+  - name: news
+    description: News management
+  - name: events
+    description: Events management
+  - name: projects
+    description: Projects management
+  - name: team
+    description: Team members management
+  - name: partners
+    description: Partners management
+  - name: media
+    description: Media library
+  - name: forms
+    description: Forms management
+  - name: submissions
+    description: Form submissions
+  - name: settings
+    description: Site settings
+  - name: dashboard
+    description: Dashboard stats
+
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,6 +52,1229 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  # ─── AUTH ────────────────────────────────────────────────────────────────────
+  /auth/login:
+    post:
+      operationId: login
+      tags: [auth]
+      summary: Login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginInput"
+      responses:
+        "200":
+          description: Authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthUser"
+        "401":
+          description: Invalid credentials
+
+  /auth/logout:
+    post:
+      operationId: logout
+      tags: [auth]
+      summary: Logout
+      responses:
+        "200":
+          description: Logged out
+
+  /auth/me:
+    get:
+      operationId: getMe
+      tags: [auth]
+      summary: Get current user
+      responses:
+        "200":
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthUser"
+        "401":
+          description: Not authenticated
+
+  # ─── PAGES ───────────────────────────────────────────────────────────────────
+  /pages:
+    get:
+      operationId: listPages
+      tags: [pages]
+      summary: List all pages
+      parameters:
+        - in: query
+          name: status
+          schema:
+            type: string
+            enum: [draft, published, all]
+          required: false
+      responses:
+        "200":
+          description: List of pages
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Page"
+    post:
+      operationId: createPage
+      tags: [pages]
+      summary: Create a page
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PageInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Page"
+
+  /pages/{id}:
+    get:
+      operationId: getPage
+      tags: [pages]
+      summary: Get page by ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Page
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PageWithBlocks"
+        "404":
+          description: Not found
+    patch:
+      operationId: updatePage
+      tags: [pages]
+      summary: Update a page
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PageUpdate"
+      responses:
+        "200":
+          description: Updated page
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Page"
+    delete:
+      operationId: deletePage
+      tags: [pages]
+      summary: Delete a page
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: number
+      responses:
+        "204":
+          description: Deleted
+
+  /pages/{id}/publish:
+    post:
+      operationId: publishPage
+      tags: [pages]
+      summary: Publish a page
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Published
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Page"
+
+  /pages/{id}/unpublish:
+    post:
+      operationId: unpublishPage
+      tags: [pages]
+      summary: Unpublish a page
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Unpublished
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Page"
+
+  /pages/{id}/duplicate:
+    post:
+      operationId: duplicatePage
+      tags: [pages]
+      summary: Duplicate a page
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: number
+      responses:
+        "201":
+          description: Duplicated page
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Page"
+
+  # ─── BLOCKS ──────────────────────────────────────────────────────────────────
+  /pages/{pageId}/blocks:
+    get:
+      operationId: listBlocks
+      tags: [blocks]
+      summary: List blocks for a page
+      parameters:
+        - in: path
+          name: pageId
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Blocks
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Block"
+    post:
+      operationId: createBlock
+      tags: [blocks]
+      summary: Create a block
+      parameters:
+        - in: path
+          name: pageId
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BlockInput"
+      responses:
+        "201":
+          description: Created block
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Block"
+
+  /pages/{pageId}/blocks/reorder:
+    post:
+      operationId: reorderBlocks
+      tags: [blocks]
+      summary: Reorder blocks
+      parameters:
+        - in: path
+          name: pageId
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BlockReorderInput"
+      responses:
+        "200":
+          description: Reordered blocks
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Block"
+
+  /pages/{pageId}/blocks/{blockId}:
+    patch:
+      operationId: updateBlock
+      tags: [blocks]
+      summary: Update a block
+      parameters:
+        - in: path
+          name: pageId
+          required: true
+          schema:
+            type: number
+        - in: path
+          name: blockId
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BlockUpdate"
+      responses:
+        "200":
+          description: Updated block
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Block"
+    delete:
+      operationId: deleteBlock
+      tags: [blocks]
+      summary: Delete a block
+      parameters:
+        - in: path
+          name: pageId
+          required: true
+          schema:
+            type: number
+        - in: path
+          name: blockId
+          required: true
+          schema:
+            type: number
+      responses:
+        "204":
+          description: Deleted
+
+  /pages/{pageId}/blocks/{blockId}/duplicate:
+    post:
+      operationId: duplicateBlock
+      tags: [blocks]
+      summary: Duplicate a block
+      parameters:
+        - in: path
+          name: pageId
+          required: true
+          schema:
+            type: number
+        - in: path
+          name: blockId
+          required: true
+          schema:
+            type: number
+      responses:
+        "201":
+          description: Duplicated block
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Block"
+
+  # ─── NAVIGATION ──────────────────────────────────────────────────────────────
+  /navigation:
+    get:
+      operationId: listNavigation
+      tags: [navigation]
+      summary: List navigation items
+      responses:
+        "200":
+          description: Navigation items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/NavItem"
+    post:
+      operationId: createNavItem
+      tags: [navigation]
+      summary: Create navigation item
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NavItemInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NavItem"
+
+  /navigation/{id}:
+    patch:
+      operationId: updateNavItem
+      tags: [navigation]
+      summary: Update navigation item
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NavItemUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NavItem"
+    delete:
+      operationId: deleteNavItem
+      tags: [navigation]
+      summary: Delete navigation item
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: number
+      responses:
+        "204":
+          description: Deleted
+
+  /navigation/reorder:
+    post:
+      operationId: reorderNavItems
+      tags: [navigation]
+      summary: Reorder navigation items
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NavReorderInput"
+      responses:
+        "200":
+          description: Reordered items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/NavItem"
+
+  # ─── NEWS ────────────────────────────────────────────────────────────────────
+  /news:
+    get:
+      operationId: listNews
+      tags: [news]
+      summary: List news posts
+      parameters:
+        - in: query
+          name: status
+          schema:
+            type: string
+            enum: [draft, published, all]
+          required: false
+        - in: query
+          name: category
+          schema:
+            type: string
+          required: false
+        - in: query
+          name: page
+          schema:
+            type: number
+          required: false
+        - in: query
+          name: limit
+          schema:
+            type: number
+          required: false
+      responses:
+        "200":
+          description: News list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NewsListResponse"
+    post:
+      operationId: createNewsPost
+      tags: [news]
+      summary: Create news post
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NewsInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NewsPost"
+
+  /news/{id}:
+    get:
+      operationId: getNewsPost
+      tags: [news]
+      summary: Get news post
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: News post
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NewsPost"
+    patch:
+      operationId: updateNewsPost
+      tags: [news]
+      summary: Update news post
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NewsUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NewsPost"
+    delete:
+      operationId: deleteNewsPost
+      tags: [news]
+      summary: Delete news post
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: number
+      responses:
+        "204":
+          description: Deleted
+
+  /news/{id}/publish:
+    post:
+      operationId: publishNewsPost
+      tags: [news]
+      summary: Publish or unpublish a news post
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PublishToggleInput"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NewsPost"
+
+  # ─── EVENTS ──────────────────────────────────────────────────────────────────
+  /events:
+    get:
+      operationId: listEvents
+      tags: [events]
+      summary: List events
+      parameters:
+        - in: query
+          name: type
+          schema:
+            type: string
+            enum: [upcoming, past, all]
+          required: false
+      responses:
+        "200":
+          description: Events list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Event"
+    post:
+      operationId: createEvent
+      tags: [events]
+      summary: Create event
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EventInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Event"
+
+  /events/{id}:
+    get:
+      operationId: getEvent
+      tags: [events]
+      summary: Get event
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Event
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Event"
+    patch:
+      operationId: updateEvent
+      tags: [events]
+      summary: Update event
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EventUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Event"
+    delete:
+      operationId: deleteEvent
+      tags: [events]
+      summary: Delete event
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: number
+      responses:
+        "204":
+          description: Deleted
+
+  # ─── PROJECTS ────────────────────────────────────────────────────────────────
+  /projects:
+    get:
+      operationId: listProjects
+      tags: [projects]
+      summary: List projects
+      parameters:
+        - in: query
+          name: featured
+          schema:
+            type: boolean
+          required: false
+      responses:
+        "200":
+          description: Projects list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Project"
+    post:
+      operationId: createProject
+      tags: [projects]
+      summary: Create project
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProjectInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+
+  /projects/{id}:
+    get:
+      operationId: getProject
+      tags: [projects]
+      summary: Get project
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Project
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+    patch:
+      operationId: updateProject
+      tags: [projects]
+      summary: Update project
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProjectUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+    delete:
+      operationId: deleteProject
+      tags: [projects]
+      summary: Delete project
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: number
+      responses:
+        "204":
+          description: Deleted
+
+  # ─── TEAM ────────────────────────────────────────────────────────────────────
+  /team:
+    get:
+      operationId: listTeamMembers
+      tags: [team]
+      summary: List team members
+      responses:
+        "200":
+          description: Team members
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TeamMember"
+    post:
+      operationId: createTeamMember
+      tags: [team]
+      summary: Create team member
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TeamMemberInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TeamMember"
+
+  /team/{id}:
+    patch:
+      operationId: updateTeamMember
+      tags: [team]
+      summary: Update team member
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TeamMemberUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TeamMember"
+    delete:
+      operationId: deleteTeamMember
+      tags: [team]
+      summary: Delete team member
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: number
+      responses:
+        "204":
+          description: Deleted
+
+  # ─── PARTNERS ────────────────────────────────────────────────────────────────
+  /partners:
+    get:
+      operationId: listPartners
+      tags: [partners]
+      summary: List partners
+      responses:
+        "200":
+          description: Partners
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Partner"
+    post:
+      operationId: createPartner
+      tags: [partners]
+      summary: Create partner
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PartnerInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Partner"
+
+  /partners/{id}:
+    patch:
+      operationId: updatePartner
+      tags: [partners]
+      summary: Update partner
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PartnerUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Partner"
+    delete:
+      operationId: deletePartner
+      tags: [partners]
+      summary: Delete partner
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: number
+      responses:
+        "204":
+          description: Deleted
+
+  # ─── MEDIA ───────────────────────────────────────────────────────────────────
+  /media:
+    get:
+      operationId: listMedia
+      tags: [media]
+      summary: List media items
+      parameters:
+        - in: query
+          name: category
+          schema:
+            type: string
+          required: false
+        - in: query
+          name: search
+          schema:
+            type: string
+          required: false
+      responses:
+        "200":
+          description: Media items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MediaItem"
+    post:
+      operationId: createMediaItem
+      tags: [media]
+      summary: Upload/create media item
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MediaInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MediaItem"
+
+  /media/{id}:
+    patch:
+      operationId: updateMediaItem
+      tags: [media]
+      summary: Update media item
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MediaUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MediaItem"
+    delete:
+      operationId: deleteMediaItem
+      tags: [media]
+      summary: Delete media item
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: number
+      responses:
+        "204":
+          description: Deleted
+
+  # ─── FORMS ───────────────────────────────────────────────────────────────────
+  /forms:
+    get:
+      operationId: listForms
+      tags: [forms]
+      summary: List forms
+      responses:
+        "200":
+          description: Forms
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Form"
+    post:
+      operationId: createForm
+      tags: [forms]
+      summary: Create form
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FormInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Form"
+
+  /forms/{id}:
+    get:
+      operationId: getForm
+      tags: [forms]
+      summary: Get form
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Form
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Form"
+    patch:
+      operationId: updateForm
+      tags: [forms]
+      summary: Update form
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FormUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Form"
+    delete:
+      operationId: deleteForm
+      tags: [forms]
+      summary: Delete form
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: number
+      responses:
+        "204":
+          description: Deleted
+
+  /forms/{id}/submit:
+    post:
+      operationId: submitForm
+      tags: [forms]
+      summary: Submit a form (public)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FormSubmitInput"
+      responses:
+        "201":
+          description: Submitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FormSubmission"
+
+  # ─── SUBMISSIONS ─────────────────────────────────────────────────────────────
+  /submissions:
+    get:
+      operationId: listSubmissions
+      tags: [submissions]
+      summary: List form submissions
+      parameters:
+        - in: query
+          name: formId
+          schema:
+            type: number
+          required: false
+      responses:
+        "200":
+          description: Submissions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/FormSubmission"
+
+  /submissions/{id}:
+    delete:
+      operationId: deleteSubmission
+      tags: [submissions]
+      summary: Delete submission
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: number
+      responses:
+        "204":
+          description: Deleted
+
+  # ─── SETTINGS ────────────────────────────────────────────────────────────────
+  /settings:
+    get:
+      operationId: getSettings
+      tags: [settings]
+      summary: Get site settings
+      responses:
+        "200":
+          description: Settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SiteSettings"
+    patch:
+      operationId: updateSettings
+      tags: [settings]
+      summary: Update site settings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SiteSettingsUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SiteSettings"
+
+  /settings/theme:
+    get:
+      operationId: getTheme
+      tags: [settings]
+      summary: Get theme settings
+      responses:
+        "200":
+          description: Theme
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ThemeSettings"
+    patch:
+      operationId: updateTheme
+      tags: [settings]
+      summary: Update theme settings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ThemeSettingsUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ThemeSettings"
+
+  # ─── DASHBOARD ───────────────────────────────────────────────────────────────
+  /dashboard/stats:
+    get:
+      operationId: getDashboardStats
+      tags: [dashboard]
+      summary: Get dashboard statistics
+      responses:
+        "200":
+          description: Stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardStats"
+
+  /dashboard/activity:
+    get:
+      operationId: getDashboardActivity
+      tags: [dashboard]
+      summary: Get recent activity
+      responses:
+        "200":
+          description: Activity
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ActivityItem"
+
 components:
   schemas:
     HealthStatus:
@@ -31,6 +1282,1095 @@ components:
       properties:
         status:
           type: string
-      required:
-        - status
+      required: [status]
 
+    # ─── AUTH ─────────────────────────────────────────────────────────────────
+    LoginInput:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+
+    AuthUser:
+      type: object
+      required: [id, email, name]
+      properties:
+        id:
+          type: number
+        email:
+          type: string
+        name:
+          type: string
+
+    # ─── PAGE ─────────────────────────────────────────────────────────────────
+    Page:
+      type: object
+      required: [id, title, slug, status, order, isHome, createdAt, updatedAt]
+      properties:
+        id:
+          type: number
+        title:
+          type: string
+        slug:
+          type: string
+        status:
+          type: string
+          enum: [draft, published]
+        isHome:
+          type: boolean
+        showInMenu:
+          type: boolean
+        order:
+          type: number
+        seoTitle:
+          type: ["string", "null"]
+        seoDescription:
+          type: ["string", "null"]
+        ogImage:
+          type: ["string", "null"]
+        publishedAt:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+
+    PageWithBlocks:
+      allOf:
+        - $ref: "#/components/schemas/Page"
+        - type: object
+          properties:
+            blocks:
+              type: array
+              items:
+                $ref: "#/components/schemas/Block"
+
+    PageInput:
+      type: object
+      required: [title, slug]
+      properties:
+        title:
+          type: string
+        slug:
+          type: string
+        seoTitle:
+          type: string
+        seoDescription:
+          type: string
+        showInMenu:
+          type: boolean
+        isHome:
+          type: boolean
+
+    PageUpdate:
+      type: object
+      properties:
+        title:
+          type: string
+        slug:
+          type: string
+        seoTitle:
+          type: ["string", "null"]
+        seoDescription:
+          type: ["string", "null"]
+        ogImage:
+          type: ["string", "null"]
+        showInMenu:
+          type: boolean
+        isHome:
+          type: boolean
+        order:
+          type: number
+
+    # ─── BLOCK ────────────────────────────────────────────────────────────────
+    Block:
+      type: object
+      required: [id, pageId, type, order, visible, content, styles, createdAt, updatedAt]
+      properties:
+        id:
+          type: number
+        pageId:
+          type: number
+        type:
+          type: string
+        order:
+          type: number
+        visible:
+          type: boolean
+        content:
+          type: object
+          additionalProperties: true
+        styles:
+          type: object
+          additionalProperties: true
+        translations:
+          type: object
+          additionalProperties: true
+        responsiveSettings:
+          type: object
+          additionalProperties: true
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+
+    BlockInput:
+      type: object
+      required: [type, order]
+      properties:
+        type:
+          type: string
+        order:
+          type: number
+        visible:
+          type: boolean
+        content:
+          type: object
+          additionalProperties: true
+        styles:
+          type: object
+          additionalProperties: true
+        translations:
+          type: object
+          additionalProperties: true
+        responsiveSettings:
+          type: object
+          additionalProperties: true
+
+    BlockUpdate:
+      type: object
+      properties:
+        type:
+          type: string
+        order:
+          type: number
+        visible:
+          type: boolean
+        content:
+          type: object
+          additionalProperties: true
+        styles:
+          type: object
+          additionalProperties: true
+        translations:
+          type: object
+          additionalProperties: true
+        responsiveSettings:
+          type: object
+          additionalProperties: true
+
+    BlockReorderInput:
+      type: object
+      required: [blockIds]
+      properties:
+        blockIds:
+          type: array
+          items:
+            type: number
+
+    # ─── NAVIGATION ───────────────────────────────────────────────────────────
+    NavItem:
+      type: object
+      required: [id, label, order, visible, createdAt, updatedAt]
+      properties:
+        id:
+          type: number
+        label:
+          type: string
+        url:
+          type: ["string", "null"]
+        pageId:
+          type: ["number", "null"]
+        parentId:
+          type: ["number", "null"]
+        order:
+          type: number
+        visible:
+          type: boolean
+        openInNewTab:
+          type: boolean
+        children:
+          type: array
+          items:
+            $ref: "#/components/schemas/NavItem"
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+
+    NavItemInput:
+      type: object
+      required: [label]
+      properties:
+        label:
+          type: string
+        url:
+          type: string
+        pageId:
+          type: number
+        parentId:
+          type: number
+        order:
+          type: number
+        visible:
+          type: boolean
+        openInNewTab:
+          type: boolean
+
+    NavItemUpdate:
+      type: object
+      properties:
+        label:
+          type: string
+        url:
+          type: ["string", "null"]
+        pageId:
+          type: ["number", "null"]
+        parentId:
+          type: ["number", "null"]
+        order:
+          type: number
+        visible:
+          type: boolean
+        openInNewTab:
+          type: boolean
+
+    NavReorderInput:
+      type: object
+      required: [itemIds]
+      properties:
+        itemIds:
+          type: array
+          items:
+            type: number
+
+    # ─── NEWS ─────────────────────────────────────────────────────────────────
+    NewsPost:
+      type: object
+      required: [id, title, slug, status, createdAt, updatedAt]
+      properties:
+        id:
+          type: number
+        title:
+          type: string
+        slug:
+          type: string
+        excerpt:
+          type: ["string", "null"]
+        content:
+          type: ["string", "null"]
+        coverImage:
+          type: ["string", "null"]
+        author:
+          type: ["string", "null"]
+        category:
+          type: ["string", "null"]
+        tags:
+          type: array
+          items:
+            type: string
+        status:
+          type: string
+          enum: [draft, published]
+        pinned:
+          type: boolean
+        publishedAt:
+          type: ["string", "null"]
+        seoTitle:
+          type: ["string", "null"]
+        seoDescription:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+
+    NewsListResponse:
+      type: object
+      required: [items, total, page, limit]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/NewsPost"
+        total:
+          type: number
+        page:
+          type: number
+        limit:
+          type: number
+
+    NewsInput:
+      type: object
+      required: [title, slug]
+      properties:
+        title:
+          type: string
+        slug:
+          type: string
+        excerpt:
+          type: string
+        content:
+          type: string
+        coverImage:
+          type: string
+        author:
+          type: string
+        category:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        pinned:
+          type: boolean
+
+    NewsUpdate:
+      type: object
+      properties:
+        title:
+          type: string
+        slug:
+          type: string
+        excerpt:
+          type: ["string", "null"]
+        content:
+          type: ["string", "null"]
+        coverImage:
+          type: ["string", "null"]
+        author:
+          type: ["string", "null"]
+        category:
+          type: ["string", "null"]
+        tags:
+          type: array
+          items:
+            type: string
+        pinned:
+          type: boolean
+        seoTitle:
+          type: ["string", "null"]
+        seoDescription:
+          type: ["string", "null"]
+
+    PublishToggleInput:
+      type: object
+      required: [publish]
+      properties:
+        publish:
+          type: boolean
+
+    # ─── EVENT ────────────────────────────────────────────────────────────────
+    Event:
+      type: object
+      required: [id, title, startDate, status, createdAt, updatedAt]
+      properties:
+        id:
+          type: number
+        title:
+          type: string
+        description:
+          type: ["string", "null"]
+        startDate:
+          type: string
+        endDate:
+          type: ["string", "null"]
+        time:
+          type: ["string", "null"]
+        location:
+          type: ["string", "null"]
+        address:
+          type: ["string", "null"]
+        image:
+          type: ["string", "null"]
+        registrationUrl:
+          type: ["string", "null"]
+        capacity:
+          type: ["number", "null"]
+        organizer:
+          type: ["string", "null"]
+        status:
+          type: string
+          enum: [draft, published]
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+
+    EventInput:
+      type: object
+      required: [title, startDate]
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        startDate:
+          type: string
+        endDate:
+          type: string
+        time:
+          type: string
+        location:
+          type: string
+        address:
+          type: string
+        image:
+          type: string
+        registrationUrl:
+          type: string
+        capacity:
+          type: number
+        organizer:
+          type: string
+        status:
+          type: string
+          enum: [draft, published]
+
+    EventUpdate:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: ["string", "null"]
+        startDate:
+          type: string
+        endDate:
+          type: ["string", "null"]
+        time:
+          type: ["string", "null"]
+        location:
+          type: ["string", "null"]
+        address:
+          type: ["string", "null"]
+        image:
+          type: ["string", "null"]
+        registrationUrl:
+          type: ["string", "null"]
+        capacity:
+          type: ["number", "null"]
+        organizer:
+          type: ["string", "null"]
+        status:
+          type: string
+          enum: [draft, published]
+
+    # ─── PROJECT ──────────────────────────────────────────────────────────────
+    Project:
+      type: object
+      required: [id, title, status, featured, createdAt, updatedAt]
+      properties:
+        id:
+          type: number
+        title:
+          type: string
+        shortDescription:
+          type: ["string", "null"]
+        fullDescription:
+          type: ["string", "null"]
+        images:
+          type: array
+          items:
+            type: string
+        status:
+          type: string
+          enum: [active, completed, planned]
+        startDate:
+          type: ["string", "null"]
+        endDate:
+          type: ["string", "null"]
+        partners:
+          type: array
+          items:
+            type: string
+        buttonLabel:
+          type: ["string", "null"]
+        buttonUrl:
+          type: ["string", "null"]
+        featured:
+          type: boolean
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+
+    ProjectInput:
+      type: object
+      required: [title]
+      properties:
+        title:
+          type: string
+        shortDescription:
+          type: string
+        fullDescription:
+          type: string
+        images:
+          type: array
+          items:
+            type: string
+        status:
+          type: string
+          enum: [active, completed, planned]
+        startDate:
+          type: string
+        endDate:
+          type: string
+        partners:
+          type: array
+          items:
+            type: string
+        buttonLabel:
+          type: string
+        buttonUrl:
+          type: string
+        featured:
+          type: boolean
+
+    ProjectUpdate:
+      type: object
+      properties:
+        title:
+          type: string
+        shortDescription:
+          type: ["string", "null"]
+        fullDescription:
+          type: ["string", "null"]
+        images:
+          type: array
+          items:
+            type: string
+        status:
+          type: string
+          enum: [active, completed, planned]
+        startDate:
+          type: ["string", "null"]
+        endDate:
+          type: ["string", "null"]
+        partners:
+          type: array
+          items:
+            type: string
+        buttonLabel:
+          type: ["string", "null"]
+        buttonUrl:
+          type: ["string", "null"]
+        featured:
+          type: boolean
+
+    # ─── TEAM MEMBER ──────────────────────────────────────────────────────────
+    TeamMember:
+      type: object
+      required: [id, name, visible, order, createdAt, updatedAt]
+      properties:
+        id:
+          type: number
+        name:
+          type: string
+        position:
+          type: ["string", "null"]
+        bio:
+          type: ["string", "null"]
+        photo:
+          type: ["string", "null"]
+        email:
+          type: ["string", "null"]
+        phone:
+          type: ["string", "null"]
+        linkedin:
+          type: ["string", "null"]
+        facebook:
+          type: ["string", "null"]
+        instagram:
+          type: ["string", "null"]
+        order:
+          type: number
+        visible:
+          type: boolean
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+
+    TeamMemberInput:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+        position:
+          type: string
+        bio:
+          type: string
+        photo:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        linkedin:
+          type: string
+        facebook:
+          type: string
+        instagram:
+          type: string
+        order:
+          type: number
+        visible:
+          type: boolean
+
+    TeamMemberUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        position:
+          type: ["string", "null"]
+        bio:
+          type: ["string", "null"]
+        photo:
+          type: ["string", "null"]
+        email:
+          type: ["string", "null"]
+        phone:
+          type: ["string", "null"]
+        linkedin:
+          type: ["string", "null"]
+        facebook:
+          type: ["string", "null"]
+        instagram:
+          type: ["string", "null"]
+        order:
+          type: number
+        visible:
+          type: boolean
+
+    # ─── PARTNER ──────────────────────────────────────────────────────────────
+    Partner:
+      type: object
+      required: [id, name, visible, order, createdAt, updatedAt]
+      properties:
+        id:
+          type: number
+        name:
+          type: string
+        logo:
+          type: ["string", "null"]
+        description:
+          type: ["string", "null"]
+        url:
+          type: ["string", "null"]
+        category:
+          type: ["string", "null"]
+        order:
+          type: number
+        visible:
+          type: boolean
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+
+    PartnerInput:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+        logo:
+          type: string
+        description:
+          type: string
+        url:
+          type: string
+        category:
+          type: string
+        order:
+          type: number
+        visible:
+          type: boolean
+
+    PartnerUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        logo:
+          type: ["string", "null"]
+        description:
+          type: ["string", "null"]
+        url:
+          type: ["string", "null"]
+        category:
+          type: ["string", "null"]
+        order:
+          type: number
+        visible:
+          type: boolean
+
+    # ─── MEDIA ────────────────────────────────────────────────────────────────
+    MediaItem:
+      type: object
+      required: [id, filename, url, mimeType, size, createdAt]
+      properties:
+        id:
+          type: number
+        filename:
+          type: string
+        originalName:
+          type: string
+        url:
+          type: string
+        mimeType:
+          type: string
+        size:
+          type: number
+        altText:
+          type: ["string", "null"]
+        category:
+          type: ["string", "null"]
+        width:
+          type: ["number", "null"]
+        height:
+          type: ["number", "null"]
+        createdAt:
+          type: string
+
+    MediaInput:
+      type: object
+      required: [filename, url, mimeType, size]
+      properties:
+        filename:
+          type: string
+        originalName:
+          type: string
+        url:
+          type: string
+        mimeType:
+          type: string
+        size:
+          type: number
+        altText:
+          type: string
+        category:
+          type: string
+        width:
+          type: number
+        height:
+          type: number
+        data:
+          type: string
+          description: Base64 encoded file data
+
+    MediaUpdate:
+      type: object
+      properties:
+        filename:
+          type: string
+        altText:
+          type: ["string", "null"]
+        category:
+          type: ["string", "null"]
+
+    # ─── FORM ─────────────────────────────────────────────────────────────────
+    FormField:
+      type: object
+      required: [id, type, label, order]
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+          enum: [text, email, phone, textarea, select, checkbox, radio, file, date, time, submit]
+        label:
+          type: string
+        placeholder:
+          type: ["string", "null"]
+        required:
+          type: boolean
+        helpText:
+          type: ["string", "null"]
+        errorMessage:
+          type: ["string", "null"]
+        options:
+          type: array
+          items:
+            type: string
+        width:
+          type: string
+          enum: [full, half, third]
+        order:
+          type: number
+
+    Form:
+      type: object
+      required: [id, name, fields, createdAt, updatedAt]
+      properties:
+        id:
+          type: number
+        name:
+          type: string
+        description:
+          type: ["string", "null"]
+        fields:
+          type: array
+          items:
+            $ref: "#/components/schemas/FormField"
+        submitButtonLabel:
+          type: string
+        successMessage:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+
+    FormInput:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        fields:
+          type: array
+          items:
+            $ref: "#/components/schemas/FormField"
+        submitButtonLabel:
+          type: string
+        successMessage:
+          type: string
+
+    FormUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: ["string", "null"]
+        fields:
+          type: array
+          items:
+            $ref: "#/components/schemas/FormField"
+        submitButtonLabel:
+          type: string
+        successMessage:
+          type: ["string", "null"]
+
+    FormSubmitInput:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: object
+          additionalProperties: true
+
+    FormSubmission:
+      type: object
+      required: [id, formId, data, createdAt]
+      properties:
+        id:
+          type: number
+        formId:
+          type: number
+        formName:
+          type: string
+        data:
+          type: object
+          additionalProperties: true
+        ipAddress:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    # ─── SETTINGS ─────────────────────────────────────────────────────────────
+    SiteSettings:
+      type: object
+      required: [id, siteName]
+      properties:
+        id:
+          type: number
+        siteName:
+          type: string
+        siteDescription:
+          type: ["string", "null"]
+        logo:
+          type: ["string", "null"]
+        favicon:
+          type: ["string", "null"]
+        contactEmail:
+          type: ["string", "null"]
+        contactPhone:
+          type: ["string", "null"]
+        address:
+          type: ["string", "null"]
+        socialLinks:
+          type: object
+          additionalProperties: true
+        languages:
+          type: array
+          items:
+            type: string
+        defaultLanguage:
+          type: string
+        headerTransparent:
+          type: boolean
+        headerFixed:
+          type: boolean
+        footerColumns:
+          type: number
+        footerCopyright:
+          type: ["string", "null"]
+
+    SiteSettingsUpdate:
+      type: object
+      properties:
+        siteName:
+          type: string
+        siteDescription:
+          type: ["string", "null"]
+        logo:
+          type: ["string", "null"]
+        favicon:
+          type: ["string", "null"]
+        contactEmail:
+          type: ["string", "null"]
+        contactPhone:
+          type: ["string", "null"]
+        address:
+          type: ["string", "null"]
+        socialLinks:
+          type: object
+          additionalProperties: true
+        languages:
+          type: array
+          items:
+            type: string
+        defaultLanguage:
+          type: string
+        headerTransparent:
+          type: boolean
+        headerFixed:
+          type: boolean
+        footerColumns:
+          type: number
+        footerCopyright:
+          type: ["string", "null"]
+
+    ThemeSettings:
+      type: object
+      required: [id, preset, primaryColor, secondaryColor]
+      properties:
+        id:
+          type: number
+        preset:
+          type: string
+        primaryColor:
+          type: string
+        secondaryColor:
+          type: string
+        accentColor:
+          type: string
+        backgroundColor:
+          type: string
+        textColor:
+          type: string
+        headingFont:
+          type: string
+        bodyFont:
+          type: string
+        baseFontSize:
+          type: string
+        containerWidth:
+          type: string
+        borderRadius:
+          type: string
+        buttonStyle:
+          type: string
+        cardStyle:
+          type: string
+        sectionSpacing:
+          type: string
+
+    ThemeSettingsUpdate:
+      type: object
+      properties:
+        preset:
+          type: string
+        primaryColor:
+          type: string
+        secondaryColor:
+          type: string
+        accentColor:
+          type: string
+        backgroundColor:
+          type: string
+        textColor:
+          type: string
+        headingFont:
+          type: string
+        bodyFont:
+          type: string
+        baseFontSize:
+          type: string
+        containerWidth:
+          type: string
+        borderRadius:
+          type: string
+        buttonStyle:
+          type: string
+        cardStyle:
+          type: string
+        sectionSpacing:
+          type: string
+
+    # ─── DASHBOARD ────────────────────────────────────────────────────────────
+    DashboardStats:
+      type: object
+      required: [totalPages, publishedPages, totalNews, publishedNews, totalEvents, upcomingEvents, totalProjects, totalSubmissions, totalTeamMembers, totalPartners]
+      properties:
+        totalPages:
+          type: number
+        publishedPages:
+          type: number
+        totalNews:
+          type: number
+        publishedNews:
+          type: number
+        totalEvents:
+          type: number
+        upcomingEvents:
+          type: number
+        totalProjects:
+          type: number
+        totalSubmissions:
+          type: number
+        totalTeamMembers:
+          type: number
+        totalPartners:
+          type: number
+        recentSubmissions:
+          type: array
+          items:
+            $ref: "#/components/schemas/FormSubmission"
+
+    ActivityItem:
+      type: object
+      required: [id, type, title, action, createdAt]
+      properties:
+        id:
+          type: number
+        type:
+          type: string
+        title:
+          type: string
+        action:
+          type: string
+        user:
+          type: ["string", "null"]
+        createdAt:
+          type: string
