@@ -11,7 +11,7 @@ import {
   SiteContent, loadSiteContent, saveSiteContent,
 } from '../../lib/site-content';
 import {
-  Lang, UI_TRANSLATIONS, CONTACT_UI,
+  Lang, UI_TRANSLATIONS, CONTACT_UI, NAV_UI,
   LANGUAGES, loadLang, saveLang, getTranslatedContent,
 } from '../../lib/i18n';
 
@@ -172,12 +172,17 @@ function SiteHeader({ lang, onLangChange }: { lang: Lang; onLangChange: (l: Lang
                 background: 'rgba(8,12,30,0.97)', backdropFilter: 'blur(12px)',
                 display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 12, zIndex: 899,
               }}>
-                {['#mission', '#om-os', '#donér', '#kontakt', '#nyheder'].map(href => (
+                {([
+                    { href: '#mission',  label: NAV_UI[lang].mission },
+                    { href: '#om-os',    label: NAV_UI[lang].about   },
+                    { href: '#kontakt',  label: NAV_UI[lang].contact  },
+                    { href: '#nyheder',  label: NAV_UI[lang].news     },
+                  ]).map(({ href, label }) => (
                   <a key={href} href={href} onClick={() => setMenuOpen(false)} style={{
                     color: '#fff', textDecoration: 'none', fontFamily: 'Inter, sans-serif',
                     fontWeight: 500, fontSize: 22, padding: '12px 0', minHeight: 44, display: 'flex', alignItems: 'center',
                   }}>
-                    {href.replace('#', '').replace('-', ' ').toUpperCase()}
+                    {label.toUpperCase()}
                   </a>
                 ))}
                 <a href="#donér" onClick={() => setMenuOpen(false)} style={{
@@ -185,14 +190,18 @@ function SiteHeader({ lang, onLangChange }: { lang: Lang; onLangChange: (l: Lang
                   padding: '16px 36px', fontFamily: 'Inter, sans-serif', fontWeight: 700,
                   fontSize: 18, textDecoration: 'none', minHeight: 52, display: 'flex', alignItems: 'center',
                 }}>
-                  Donér nu
+                  {NAV_UI[lang].donateNow}
                 </a>
               </div>
             )}
           </>
         ) : (
           <div style={{ display: 'flex', alignItems: 'center', gap: 28 }}>
-            {(['#mission', '#om-os', '#kontakt'] as const).map(href => (
+            {([
+              { href: '#mission', label: NAV_UI[lang].mission },
+              { href: '#om-os',   label: NAV_UI[lang].about   },
+              { href: '#kontakt', label: NAV_UI[lang].contact  },
+            ]).map(({ href, label }) => (
               <a key={href} href={href} style={{
                 color: 'rgba(255,255,255,0.88)', textDecoration: 'none',
                 fontFamily: 'Inter, sans-serif', fontSize: 14, fontWeight: 500, minHeight: 44,
@@ -201,7 +210,7 @@ function SiteHeader({ lang, onLangChange }: { lang: Lang; onLangChange: (l: Lang
                 onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#fff'; }}
                 onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.88)'; }}
               >
-                {href.replace('#', '').replace('-', ' ')}
+                {label}
               </a>
             ))}
             <LanguagePicker lang={lang} onChange={onLangChange} />
@@ -210,7 +219,7 @@ function SiteHeader({ lang, onLangChange }: { lang: Lang; onLangChange: (l: Lang
               fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 14,
               textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 6, minHeight: 40,
             }}>
-              <Heart size={14} fill={NAVY} /> Donér nu
+              <Heart size={14} fill={NAVY} /> {NAV_UI[lang].donateNow}
             </a>
           </div>
         )}

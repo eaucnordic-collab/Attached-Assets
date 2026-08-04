@@ -847,6 +847,24 @@ export const CONTENT_TRANSLATIONS: Partial<Record<Lang, SiteContent>> = {
   },
 };
 
+// ─── Nav translations ─────────────────────────────────────────────────────────
+
+export type NavUI = {
+  mission: string; about: string; contact: string; news: string; donateNow: string;
+};
+
+export const NAV_UI: Record<Lang, NavUI> = {
+  da: { mission: 'mission', about: 'om os',         contact: 'kontakt',        news: 'nyheder',       donateNow: 'Donér nu' },
+  uk: { mission: 'місія',   about: 'про нас',        contact: 'контакт',        news: 'новини',        donateNow: 'Донувати' },
+  en: { mission: 'mission', about: 'about us',       contact: 'contact',        news: 'news',          donateNow: 'Donate now' },
+  de: { mission: 'mission', about: 'über uns',       contact: 'kontakt',        news: 'neuigkeiten',   donateNow: 'Jetzt spenden' },
+  sv: { mission: 'mission', about: 'om oss',         contact: 'kontakt',        news: 'nyheter',       donateNow: 'Donera nu' },
+  no: { mission: 'misjon',  about: 'om oss',         contact: 'kontakt',        news: 'nyheter',       donateNow: 'Doner nå' },
+  fi: { mission: 'missio',  about: 'meistä',         contact: 'yhteystiedot',   news: 'uutiset',       donateNow: 'Lahjoita nyt' },
+  it: { mission: 'missione',about: 'chi siamo',      contact: 'contatti',       news: 'notizie',       donateNow: 'Dona ora' },
+  es: { mission: 'misión',  about: 'sobre nosotros', contact: 'contacto',       news: 'noticias',      donateNow: 'Donar ahora' },
+};
+
 // ─── Contact form UI translations ────────────────────────────────────────────
 
 export const CONTACT_UI: Record<Lang, ContactForm> = {
