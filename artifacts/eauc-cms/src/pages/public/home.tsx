@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link } from 'wouter';
-import { Heart, Smile, Shield, Users, HandHeart, FileText } from 'lucide-react';
+import { Heart, Smile, Shield, Users, HandHeart, FileText, Check } from 'lucide-react';
 import { loadSiteContent, type SiteContent, type AnySection, type HeroSection, type MissionSection, type HowSection, type StatsSection, type AboutSection, type BoardSection, type DonateSection, type TextSection } from '@/lib/site-content';
+import { LANGUAGES, UI_TRANSLATIONS, loadLang, saveLang, getTranslatedContent, type Lang } from '@/lib/i18n';
 
 // ─── Colours ──────────────────────────────────────────────────────────────────
 const CREAM = '#f5f0e8';
@@ -9,8 +10,82 @@ const NAVY  = '#0f1523';
 const GOLD  = '#e8b400';
 const BLUE  = '#3b7dd8';
 
+// ─── Language Picker ─────────────────────────────────────────────────────────
+function LanguagePicker({ lang, onChange }: { lang: Lang; onChange: (l: Lang) => void }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const current = LANGUAGES.find(l => l.code === lang)!;
+
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, []);
+
+  return (
+    <div ref={ref} style={{ position: 'relative' }}>
+      {/* Trigger button */}
+      <button
+        onClick={() => setOpen(v => !v)}
+        style={{
+          display: 'flex', alignItems: 'center', gap: 7,
+          border: '1px solid rgba(255,255,255,0.22)', borderRadius: 999,
+          padding: '5px 13px', background: 'transparent', cursor: 'pointer',
+        }}
+      >
+        <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.55)', letterSpacing: '0.05em' }}>{current.flag}</span>
+        <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#fff', fontWeight: 600 }}>{current.label}</span>
+        <svg width="10" height="6" viewBox="0 0 10 6" fill="none" style={{ opacity: 0.55, marginLeft: 2, transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 0.18s' }}>
+          <path d="M1 1l4 4 4-4" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      </button>
+
+      {/* Dropdown */}
+      {open && (
+        <div style={{
+          position: 'absolute', top: 'calc(100% + 10px)', right: 0,
+          background: '#fff', borderRadius: 14,
+          boxShadow: '0 8px 32px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.10)',
+          overflow: 'hidden', minWidth: 180, zIndex: 9999,
+          animation: 'fadeInDown 0.15s ease',
+        }}>
+          {LANGUAGES.map(l => (
+            <button
+              key={l.code}
+              onClick={() => { onChange(l.code); setOpen(false); }}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 12,
+                width: '100%', padding: '11px 18px',
+                background: l.code === lang ? '#f0f4ff' : 'transparent',
+                border: 'none', cursor: 'pointer',
+                textAlign: 'left',
+                transition: 'background 0.1s',
+              }}
+              onMouseEnter={e => { if (l.code !== lang) (e.currentTarget as HTMLElement).style.background = '#f7f7f7'; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = l.code === lang ? '#f0f4ff' : 'transparent'; }}
+            >
+              <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, fontWeight: 700, color: '#aaa', letterSpacing: '0.04em', minWidth: 22 }}>{l.flag}</span>
+              <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, color: '#1a1a2e', fontWeight: l.code === lang ? 600 : 400, flex: 1 }}>{l.label}</span>
+              {l.code === lang && <Check size={14} color={BLUE} strokeWidth={2.5} />}
+            </button>
+          ))}
+        </div>
+      )}
+
+      <style>{`
+        @keyframes fadeInDown {
+          from { opacity: 0; transform: translateY(-6px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
+    </div>
+  );
+}
+
 // ─── Sitewide Header ──────────────────────────────────────────────────────────
-function SiteHeader() {
+function SiteHeader({ lang, onLangChange }: { lang: Lang; onLangChange: (l: Lang) => void }) {
   return (
     <header style={{
       position: 'fixed', top: 0, left: 0, right: 0, zIndex: 200,
@@ -19,25 +94,22 @@ function SiteHeader() {
       padding: '0 28px', height: 52,
     }}>
       <img src="/logo.png" alt="EAUC Nordic" style={{ height: 36, width: 'auto', objectFit: 'contain' }} />
-      <div style={{ display: 'flex', alignItems: 'center', gap: 6, border: '1px solid rgba(255,255,255,0.22)', borderRadius: 999, padding: '5px 13px' }}>
-        <span style={{ fontSize: 14 }}>🌐</span>
-        <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#fff', fontWeight: 600 }}>DA</span>
-        <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>DK</span>
-      </div>
+      <LanguagePicker lang={lang} onChange={onLangChange} />
     </header>
   );
 }
 
-function SiteFooter() {
+function SiteFooter({ lang }: { lang: Lang }) {
+  const ui = UI_TRANSLATIONS[lang];
   return (
     <footer style={{ background: NAVY, padding: '28px 40px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
       <img src="/logo.png" alt="EAUC Nordic" style={{ height: 34, width: 'auto', objectFit: 'contain' }} />
       <nav style={{ display: 'flex', gap: 24 }}>
-        {['Om os', 'Kontakt', 'Privatlivspolitik'].map(l => (
+        {[ui.footer.about, ui.footer.contact, ui.footer.privacy].map(l => (
           <a key={l} href="#" style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: 'rgba(255,255,255,0.55)', textDecoration: 'none' }}>{l}</a>
         ))}
       </nav>
-      <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: 'rgba(255,255,255,0.3)' }}>© 2026 Håb for Ukraine. Alle rettigheder forbeholdes.</span>
+      <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: 'rgba(255,255,255,0.3)' }}>{ui.footer.copyright}</span>
     </footer>
   );
 }
@@ -140,27 +212,28 @@ function StatsBlock({ s }: { s: StatsSection }) {
   );
 }
 
-function AboutBlock({ s }: { s: AboutSection }) {
+function AboutBlock({ s, lang }: { s: AboutSection; lang: Lang }) {
+  const ui = UI_TRANSLATIONS[lang].about;
   return (
     <section id="om-os" style={{ background: CREAM, padding: '80px 24px' }}>
       <div style={{ maxWidth: 680, margin: '0 auto', textAlign: 'center' }}>
         <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, fontWeight: 700, letterSpacing: '0.15em', color: GOLD, textTransform: 'uppercase', marginBottom: 12 }}>{s.tagline}</div>
         <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: 42, fontWeight: 700, color: NAVY, margin: '0 0 24px' }}>{s.heading}</h2>
         <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 15, color: '#555', lineHeight: 1.75, margin: '0 auto 56px' }}>{s.text}</p>
-        <h3 style={{ fontFamily: 'Playfair Display, serif', fontSize: 22, fontWeight: 700, color: NAVY, marginBottom: 32 }}>Organisationsstruktur</h3>
+        <h3 style={{ fontFamily: 'Playfair Display, serif', fontSize: 22, fontWeight: 700, color: NAVY, marginBottom: 32 }}>{ui.orgStructure}</h3>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <div style={{ background: NAVY, borderRadius: 14, padding: '24px 40px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, width: 260 }}>
             <FileText size={28} color={GOLD} />
             <div>
               <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 700, color: '#fff', fontSize: 16 }}>EAUC Nordic</div>
-              <div style={{ fontFamily: 'Inter, sans-serif', color: 'rgba(255,255,255,0.55)', fontSize: 13, marginTop: 2 }}>Almennyttig forening · Danmark</div>
+              <div style={{ fontFamily: 'Inter, sans-serif', color: 'rgba(255,255,255,0.55)', fontSize: 13, marginTop: 2 }}>{ui.nonprofitSub}</div>
             </div>
           </div>
           <div style={{ width: 2, height: 32, background: '#ccc' }} />
           <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap', justifyContent: 'center' }}>
             {[
-              { icon: <Users size={24} color={BLUE} />, title: 'Bestyrelse', sub: 'Strategisk ledelse' },
-              { icon: <HandHeart size={24} color={GOLD} />, title: 'Frivillige', sub: 'Værtsfamilier & støtter' },
+              { icon: <Users size={24} color={BLUE} />, title: ui.boardTitle, sub: ui.boardSub },
+              { icon: <HandHeart size={24} color={GOLD} />, title: ui.volunteerTitle, sub: ui.volunteerSub },
             ].map(c => (
               <div key={c.title} style={{ background: '#fff', border: '1px solid #e0dbd0', borderRadius: 14, padding: '24px 32px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, minWidth: 200 }}>
                 {c.icon}
@@ -172,18 +245,18 @@ function AboutBlock({ s }: { s: AboutSection }) {
             ))}
           </div>
         </div>
-        <h3 style={{ fontFamily: 'Playfair Display, serif', fontSize: 22, fontWeight: 700, color: NAVY, margin: '60px 0 24px' }}>Registreringsoplysninger</h3>
+        <h3 style={{ fontFamily: 'Playfair Display, serif', fontSize: 22, fontWeight: 700, color: NAVY, margin: '60px 0 24px' }}>{ui.registrationTitle}</h3>
         <div style={{ background: '#fff', border: '1px solid #e0dbd0', borderRadius: 14, padding: '28px 32px', textAlign: 'left', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px 32px' }}>
           <div>
-            <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', color: '#999', textTransform: 'uppercase', marginBottom: 6 }}>CVR-NUMMER</div>
+            <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', color: '#999', textTransform: 'uppercase', marginBottom: 6 }}>{ui.cvrLabel}</div>
             <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 700, color: NAVY, fontSize: 15 }}>{s.cvr}</div>
           </div>
           <div>
-            <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', color: '#999', textTransform: 'uppercase', marginBottom: 6 }}>FORENINGENS NAVN</div>
+            <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', color: '#999', textTransform: 'uppercase', marginBottom: 6 }}>{ui.nameLabel}</div>
             <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 700, color: NAVY, fontSize: 15 }}>{s.orgName}</div>
           </div>
           <div style={{ gridColumn: '1 / -1' }}>
-            <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', color: '#999', textTransform: 'uppercase', marginBottom: 6 }}>ADRESSE</div>
+            <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', color: '#999', textTransform: 'uppercase', marginBottom: 6 }}>{ui.addressLabel}</div>
             <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 700, color: NAVY, fontSize: 15 }}>{s.address}</div>
           </div>
         </div>
@@ -215,10 +288,18 @@ function BoardBlock({ s }: { s: BoardSection }) {
   );
 }
 
-function DonateBlock({ s }: { s: DonateSection }) {
+function DonateBlock({ s, lang }: { s: DonateSection; lang: Lang }) {
   const [selected, setSelected] = useState(s.amounts[1] ?? s.amounts[0]);
   const [custom, setCustom] = useState('');
   const [email, setEmail] = useState('');
+  const ui = UI_TRANSLATIONS[lang].donate;
+
+  // Reset selection when amounts change (language switch)
+  useEffect(() => {
+    setSelected(s.amounts[1] ?? s.amounts[0]);
+    setCustom('');
+  }, [s.amounts]);
+
   return (
     <section id="donér" style={{ background: CREAM, padding: '80px 24px 100px' }}>
       <div style={{ maxWidth: 520, margin: '0 auto', textAlign: 'center' }}>
@@ -228,16 +309,16 @@ function DonateBlock({ s }: { s: DonateSection }) {
           {s.amounts.map(a => (
             <button key={a} onClick={() => { setSelected(a); setCustom(''); }}
               style={{ fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 16, padding: '16px 0', borderRadius: 12, cursor: 'pointer', border: selected === a && !custom ? `2px solid ${BLUE}` : '2px solid #d8d2c8', background: selected === a && !custom ? '#eef3fc' : '#fff', color: selected === a && !custom ? BLUE : NAVY }}>
-              {a.toLocaleString('da-DK')} kr
+              {a.toLocaleString('da-DK')} {ui.currency}
             </button>
           ))}
         </div>
-        <input type="number" placeholder="Andet beløb" value={custom} onChange={e => { setCustom(e.target.value); setSelected(0); }}
+        <input type="number" placeholder={ui.customPlaceholder} value={custom} onChange={e => { setCustom(e.target.value); setSelected(0); }}
           style={{ width: '100%', padding: '15px 20px', borderRadius: 12, border: '2px solid #d8d2c8', fontFamily: 'Inter, sans-serif', fontSize: 15, color: NAVY, marginBottom: 20, boxSizing: 'border-box', background: '#fff' }} />
         <div style={{ marginBottom: 8, textAlign: 'left' }}>
-          <label style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#555' }}>Email (til kvittering)</label>
+          <label style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#555' }}>{ui.emailLabel}</label>
         </div>
-        <input type="email" placeholder="din@email.dk" value={email} onChange={e => setEmail(e.target.value)}
+        <input type="email" placeholder={ui.emailPlaceholder} value={email} onChange={e => setEmail(e.target.value)}
           style={{ width: '100%', padding: '15px 20px', borderRadius: 12, border: '2px solid #d8d2c8', fontFamily: 'Inter, sans-serif', fontSize: 15, color: NAVY, marginBottom: 24, boxSizing: 'border-box', background: '#fff' }} />
         <button style={{ width: '100%', padding: '16px', borderRadius: 999, background: BLUE, color: '#fff', border: 'none', fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 17, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
           <Heart size={18} fill="#fff" /> {s.buttonLabel}
@@ -263,16 +344,16 @@ function TextBlock({ s }: { s: TextSection }) {
 }
 
 // ─── Dispatcher ───────────────────────────────────────────────────────────────
-function SectionBlock({ section }: { section: AnySection }) {
+function SectionBlock({ section, lang }: { section: AnySection; lang: Lang }) {
   if (!section.visible) return null;
   switch (section.type) {
     case 'hero':    return <HeroBlock s={section} />;
     case 'mission': return <MissionBlock s={section} />;
     case 'how':     return <HowBlock s={section} />;
     case 'stats':   return <StatsBlock s={section} />;
-    case 'about':   return <AboutBlock s={section} />;
+    case 'about':   return <AboutBlock s={section} lang={lang} />;
     case 'board':   return <BoardBlock s={section} />;
-    case 'donate':  return <DonateBlock s={section} />;
+    case 'donate':  return <DonateBlock s={section} lang={lang} />;
     case 'text':    return <TextBlock s={section} />;
     default:        return null;
   }
@@ -280,13 +361,14 @@ function SectionBlock({ section }: { section: AnySection }) {
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 export default function EaucHome() {
-  const [content, setContent] = useState<SiteContent>(loadSiteContent);
+  const [daContent, setDaContent] = useState<SiteContent>(loadSiteContent);
+  const [lang, setLang] = useState<Lang>(loadLang);
 
   // Re-render when admin saves OR sends live preview via postMessage
   useEffect(() => {
-    const handleStorage = () => setContent(loadSiteContent());
+    const handleStorage = () => setDaContent(loadSiteContent());
     const handleMessage = (e: MessageEvent) => {
-      if (e.data?.type === 'eauc-preview') setContent(e.data.content);
+      if (e.data?.type === 'eauc-preview') setDaContent(e.data.content);
     };
     window.addEventListener('eauc-content-changed', handleStorage);
     window.addEventListener('message', handleMessage);
@@ -296,11 +378,18 @@ export default function EaucHome() {
     };
   }, []);
 
+  const handleLangChange = (l: Lang) => {
+    setLang(l);
+    saveLang(l);
+  };
+
+  const content = getTranslatedContent(lang, daContent);
+
   return (
     <div style={{ fontFamily: 'Inter, sans-serif', background: CREAM }}>
-      <SiteHeader />
-      {content.sections.map(s => <SectionBlock key={s.id} section={s} />)}
-      <SiteFooter />
+      <SiteHeader lang={lang} onLangChange={handleLangChange} />
+      {content.sections.map(s => <SectionBlock key={s.id} section={s} lang={lang} />)}
+      <SiteFooter lang={lang} />
     </div>
   );
 }
