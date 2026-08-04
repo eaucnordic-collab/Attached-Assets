@@ -46,6 +46,14 @@ export type FooterFull = {
   privacy: string; cookies: string; copyright: string;
 };
 
+export type ContactForm = {
+  nameLabel: string; namePlaceholder: string;
+  emailLabel: string; emailPlaceholder: string;
+  subjectLabel: string; subjectPlaceholder: string;
+  messageLabel: string; messagePlaceholder: string;
+  sendLabel: string; successTitle: string; successMessage: string;
+};
+
 export type UI = {
   footer: { about: string; contact: string; privacy: string; copyright: string };
   footerFull: FooterFull;
@@ -837,6 +845,20 @@ export const CONTENT_TRANSLATIONS: Partial<Record<Lang, SiteContent>> = {
       },
     ],
   },
+};
+
+// ─── Contact form UI translations ────────────────────────────────────────────
+
+export const CONTACT_UI: Record<Lang, ContactForm> = {
+  da: { nameLabel: 'Navn', namePlaceholder: 'Dit fulde navn', emailLabel: 'E-mail', emailPlaceholder: 'din@email.dk', subjectLabel: 'Emne', subjectPlaceholder: 'Hvad drejer din henvendelse sig om?', messageLabel: 'Besked', messagePlaceholder: 'Skriv din besked her...', sendLabel: 'Send besked', successTitle: 'Tak for din besked!', successMessage: 'Vi vender tilbage hurtigst muligt.' },
+  uk: { nameLabel: 'Ім\'я', namePlaceholder: 'Ваше повне ім\'я', emailLabel: 'E-mail', emailPlaceholder: 'ваш@email.ua', subjectLabel: 'Тема', subjectPlaceholder: 'Про що ваше звернення?', messageLabel: 'Повідомлення', messagePlaceholder: 'Напишіть ваше повідомлення...', sendLabel: 'Надіслати повідомлення', successTitle: 'Дякуємо за повідомлення!', successMessage: 'Ми відповімо вам якнайшвидше.' },
+  en: { nameLabel: 'Name', namePlaceholder: 'Your full name', emailLabel: 'Email', emailPlaceholder: 'your@email.com', subjectLabel: 'Subject', subjectPlaceholder: 'What is your message about?', messageLabel: 'Message', messagePlaceholder: 'Write your message here...', sendLabel: 'Send message', successTitle: 'Thank you for your message!', successMessage: 'We will get back to you as soon as possible.' },
+  de: { nameLabel: 'Name', namePlaceholder: 'Ihr vollständiger Name', emailLabel: 'E-Mail', emailPlaceholder: 'deine@email.de', subjectLabel: 'Betreff', subjectPlaceholder: 'Worum geht es in Ihrer Nachricht?', messageLabel: 'Nachricht', messagePlaceholder: 'Schreiben Sie Ihre Nachricht hier...', sendLabel: 'Nachricht senden', successTitle: 'Vielen Dank!', successMessage: 'Wir melden uns so schnell wie möglich.' },
+  sv: { nameLabel: 'Namn', namePlaceholder: 'Ditt fullständiga namn', emailLabel: 'E-post', emailPlaceholder: 'din@email.se', subjectLabel: 'Ämne', subjectPlaceholder: 'Vad handlar ditt meddelande om?', messageLabel: 'Meddelande', messagePlaceholder: 'Skriv ditt meddelande här...', sendLabel: 'Skicka meddelande', successTitle: 'Tack för ditt meddelande!', successMessage: 'Vi återkommer till dig så snart som möjligt.' },
+  no: { nameLabel: 'Navn', namePlaceholder: 'Ditt fulle navn', emailLabel: 'E-post', emailPlaceholder: 'din@email.no', subjectLabel: 'Emne', subjectPlaceholder: 'Hva handler meldingen din om?', messageLabel: 'Melding', messagePlaceholder: 'Skriv meldingen din her...', sendLabel: 'Send melding', successTitle: 'Takk for meldingen!', successMessage: 'Vi kontakter deg så snart som mulig.' },
+  fi: { nameLabel: 'Nimi', namePlaceholder: 'Koko nimesi', emailLabel: 'Sähköposti', emailPlaceholder: 'sinun@email.fi', subjectLabel: 'Aihe', subjectPlaceholder: 'Mistä viestisi kertoo?', messageLabel: 'Viesti', messagePlaceholder: 'Kirjoita viestisi tähän...', sendLabel: 'Lähetä viesti', successTitle: 'Kiitos viestistäsi!', successMessage: 'Palaamme sinulle mahdollisimman pian.' },
+  it: { nameLabel: 'Nome', namePlaceholder: 'Il tuo nome completo', emailLabel: 'Email', emailPlaceholder: 'tua@email.it', subjectLabel: 'Oggetto', subjectPlaceholder: 'Di cosa tratta il tuo messaggio?', messageLabel: 'Messaggio', messagePlaceholder: 'Scrivi il tuo messaggio qui...', sendLabel: 'Invia messaggio', successTitle: 'Grazie per il messaggio!', successMessage: 'Ti risponderemo il prima possibile.' },
+  es: { nameLabel: 'Nombre', namePlaceholder: 'Tu nombre completo', emailLabel: 'Email', emailPlaceholder: 'tu@email.es', subjectLabel: 'Asunto', subjectPlaceholder: '¿De qué trata tu mensaje?', messageLabel: 'Mensaje', messagePlaceholder: 'Escribe tu mensaje aquí...', sendLabel: 'Enviar mensaje', successTitle: '¡Gracias por tu mensaje!', successMessage: 'Nos pondremos en contacto contigo pronto.' },
 };
 
 /** Returns translated content for the given language, falling back to Danish content. */

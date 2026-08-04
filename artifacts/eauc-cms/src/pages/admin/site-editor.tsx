@@ -2,11 +2,12 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { AdminLayout } from '@/components/admin-layout';
 import {
   loadSiteContent, saveSiteContent, resetSiteContent, DEFAULT_CONTENT,
-  SECTION_LABELS, TEXT_SECTION_TEMPLATE,
+  SECTION_LABELS, TEXT_SECTION_TEMPLATE, NEWS_ITEM_TEMPLATE, CONTACT_SECTION_TEMPLATE,
   type SiteContent, type AnySection, type CardItem, type StepItem,
-  type StatItem, type MemberItem, type HeroSection, type MissionSection,
-  type HowSection, type StatsSection, type AboutSection, type BoardSection,
-  type DonateSection, type TextSection,
+  type StatItem, type MemberItem, type NewsItem,
+  type HeroSection, type MissionSection, type HowSection, type StatsSection,
+  type AboutSection, type BoardSection, type DonateSection, type TextSection,
+  type NewsSection, type ContactSection,
 } from '@/lib/site-content';
 import {
   DndContext, closestCenter, KeyboardSensor, PointerSensor,
@@ -41,7 +42,6 @@ function SectionRow({
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: section.id });
   const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.4 : 1 };
-
   const FIXED = ['hero', 'donate'];
   const canDelete = !FIXED.includes(section.type);
 
@@ -342,28 +342,98 @@ function TextSectionEditor({ s, onChange }: { s: TextSection; onChange: (s: Text
   );
 }
 
+// ─── News editor ───────────────────────────────────────────────────────────────
+function NewsEditor({ s, onChange }: { s: NewsSection; onChange: (s: NewsSection) => void }) {
+  const updateItem = (i: number, key: keyof NewsItem, val: string) => {
+    const items = s.items.map((it, idx) => idx === i ? { ...it, [key]: val } : it);
+    onChange({ ...s, items });
+  };
+  const addItem = () => {
+    const id = `news_${Date.now()}`;
+    onChange({ ...s, items: [...s.items, { ...NEWS_ITEM_TEMPLATE, id }] });
+  };
+  const removeItem = (i: number) => onChange({ ...s, items: s.items.filter((_, idx) => idx !== i) });
+
+  return (
+    <div className="space-y-5">
+      <TextInput label="Overskrift" value={s.heading} onChange={v => onChange({ ...s, heading: v })} />
+      <TextareaInput label="Undertekst" value={s.subtitle} onChange={v => onChange({ ...s, subtitle: v })} rows={2} />
+      <div className="border-t pt-5 space-y-4">
+        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+          Artikler ({s.items.length})
+        </p>
+        {s.items.map((item, i) => (
+          <div key={item.id} className="rounded-lg border p-4 space-y-3 bg-muted/20">
+            <div className="flex justify-between items-center">
+              <p className="text-xs font-medium text-muted-foreground">Artikel {i + 1}</p>
+              {s.items.length > 1 && (
+                <button onClick={() => removeItem(i)} className="text-muted-foreground hover:text-destructive">
+                  <Trash2 size={13} />
+                </button>
+              )}
+            </div>
+            <TextInput label="Titel" value={item.title} onChange={v => updateItem(i, 'title', v)} />
+            <div className="grid grid-cols-2 gap-3">
+              <TextInput label="Dato" value={item.date} onChange={v => updateItem(i, 'date', v)} placeholder="August 2025" />
+              <TextInput label="Tag" value={item.tag} onChange={v => updateItem(i, 'tag', v)} placeholder="Rapport" />
+            </div>
+            <TextareaInput label="Tekst" value={item.text} onChange={v => updateItem(i, 'text', v)} rows={3} />
+            <ImageInput label="Billede URL" value={item.imageUrl} onChange={v => updateItem(i, 'imageUrl', v)} />
+          </div>
+        ))}
+        <Button variant="outline" size="sm" className="w-full" onClick={addItem}>
+          <PlusCircle size={14} className="mr-2" /> Tilføj artikel
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+// ─── Contact editor ────────────────────────────────────────────────────────────
+function ContactEditor({ s, onChange }: { s: ContactSection; onChange: (s: ContactSection) => void }) {
+  const u = (k: keyof ContactSection, v: string) => onChange({ ...s, [k]: v });
+  return (
+    <div className="space-y-5">
+      <TextInput label="Overskrift" value={s.heading} onChange={v => u('heading', v)} />
+      <TextareaInput label="Undertekst" value={s.subtitle} onChange={v => u('subtitle', v)} rows={2} />
+      <div className="border-t pt-5 space-y-4">
+        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Kontaktoplysninger</p>
+        <TextInput label="E-mail" value={s.email} onChange={v => u('email', v)} placeholder="info@eaucnordic.com" />
+        <TextInput label="Telefon (valgfrit)" value={s.phone} onChange={v => u('phone', v)} placeholder="+45 12 34 56 78" />
+      </div>
+      <div className="rounded-lg bg-blue-50 border border-blue-100 p-3 text-xs text-blue-700">
+        💡 Formularen åbner brugerens e-mail-klient ved indsendelse, forudfyldt med emne og besked. Ingen backend nødvendig.
+      </div>
+    </div>
+  );
+}
+
 // ─── Section editor dispatcher ─────────────────────────────────────────────────
 function SectionEditor({ section, onChange }: { section: AnySection; onChange: (s: AnySection) => void }) {
   switch (section.type) {
-    case 'hero':    return <HeroEditor    s={section} onChange={onChange as (s: any) => void} />;
-    case 'mission': return <MissionEditor s={section} onChange={onChange as (s: any) => void} />;
-    case 'how':     return <HowEditor     s={section} onChange={onChange as (s: any) => void} />;
-    case 'stats':   return <StatsEditor   s={section} onChange={onChange as (s: any) => void} />;
-    case 'about':   return <AboutEditor   s={section} onChange={onChange as (s: any) => void} />;
-    case 'board':   return <BoardEditor   s={section} onChange={onChange as (s: any) => void} />;
-    case 'donate':  return <DonateEditor  s={section} onChange={onChange as (s: any) => void} />;
+    case 'hero':    return <HeroEditor       s={section} onChange={onChange as (s: any) => void} />;
+    case 'mission': return <MissionEditor    s={section} onChange={onChange as (s: any) => void} />;
+    case 'how':     return <HowEditor        s={section} onChange={onChange as (s: any) => void} />;
+    case 'stats':   return <StatsEditor      s={section} onChange={onChange as (s: any) => void} />;
+    case 'about':   return <AboutEditor      s={section} onChange={onChange as (s: any) => void} />;
+    case 'board':   return <BoardEditor      s={section} onChange={onChange as (s: any) => void} />;
+    case 'donate':  return <DonateEditor     s={section} onChange={onChange as (s: any) => void} />;
     case 'text':    return <TextSectionEditor s={section} onChange={onChange as (s: any) => void} />;
+    case 'news':    return <NewsEditor       s={section} onChange={onChange as (s: any) => void} />;
+    case 'contact': return <ContactEditor    s={section} onChange={onChange as (s: any) => void} />;
   }
 }
 
 // ─── Add section panel ────────────────────────────────────────────────────────
 function AddSectionPanel({ onAdd, onClose }: { onAdd: (type: AnySection['type']) => void; onClose: () => void }) {
   const types: Array<{ type: AnySection['type']; label: string; desc: string }> = [
-    { type: 'text',    label: 'Tekstblok',        desc: 'Overskrift + fri tekst' },
-    { type: 'mission', label: 'Kort-sektion',      desc: '3 ikonkort med titel og tekst' },
-    { type: 'how',     label: 'Trin-sektion',      desc: 'Nummererede trin (1–N)' },
-    { type: 'stats',   label: 'Statistik-sektion', desc: 'Mørk baggrund med nøgletal' },
-    { type: 'board',   label: 'Teamsektion',       desc: 'Personkort med foto, navn og rolle' },
+    { type: 'text',    label: 'Tekstblok',           desc: 'Overskrift + fri tekst med valgbar baggrund' },
+    { type: 'news',    label: 'Nyheder & Rapporter',  desc: 'Kortsvisning af artikler med billede og tag' },
+    { type: 'contact', label: 'Kontaktformular',      desc: 'Formular med name/email/emne/besked' },
+    { type: 'mission', label: 'Kort-sektion',         desc: '3 ikonkort med titel og tekst' },
+    { type: 'how',     label: 'Trin-sektion',         desc: 'Nummererede trin (1–N)' },
+    { type: 'stats',   label: 'Statistik-sektion',    desc: 'Mørk baggrund med nøgletal' },
+    { type: 'board',   label: 'Teamsektion',          desc: 'Personkort med foto, navn og rolle' },
   ];
   return (
     <div className="space-y-3">
@@ -394,13 +464,11 @@ export default function SiteEditor() {
   const [showPreview, setShowPreview] = useState(true);
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
-  // Fix dnd-kit: only start drag after moving 5px, so clicks work normally
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
   );
 
-  // Send live preview to iframe on every content change
   useEffect(() => {
     const iframe = iframeRef.current;
     if (!iframe) return;
@@ -410,11 +478,10 @@ export default function SiteEditor() {
       } catch { /* cross-origin guard */ }
     };
     iframe.addEventListener('load', send);
-    send(); // also try immediately if already loaded
+    send();
     return () => iframe.removeEventListener('load', send);
   }, [content]);
 
-  // Reload if another tab saves
   useEffect(() => {
     const handler = () => setContent(loadSiteContent());
     window.addEventListener('eauc-content-changed', handler);
@@ -457,6 +524,8 @@ export default function SiteEditor() {
     let newSection: AnySection;
     if (type === 'text') {
       newSection = { ...TEXT_SECTION_TEMPLATE, id };
+    } else if (type === 'contact') {
+      newSection = { ...CONTACT_SECTION_TEMPLATE, id };
     } else {
       const template = DEFAULT_CONTENT.sections.find((s: AnySection) => s.type === type);
       newSection = template ? { ...template, id } : { ...TEXT_SECTION_TEMPLATE, id };

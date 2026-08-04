@@ -4,6 +4,7 @@ export type CardItem   = { icon: 'heart' | 'smile' | 'shield'; title: string; te
 export type StepItem   = { n: string; title: string; text: string };
 export type StatItem   = { value: string; label: string };
 export type MemberItem = { name: string; role: string; photo: string };
+export type NewsItem   = { id: string; title: string; date: string; text: string; imageUrl: string; tag: string };
 
 export type SectionBase = { id: string; visible: boolean };
 
@@ -15,10 +16,13 @@ export type AboutSection   = SectionBase & { type: 'about';   tagline: string; h
 export type BoardSection   = SectionBase & { type: 'board';   heading: string; members: MemberItem[] };
 export type DonateSection  = SectionBase & { type: 'donate';  heading: string; subtitle: string; amounts: number[]; buttonLabel: string; note: string };
 export type TextSection    = SectionBase & { type: 'text';    heading: string; text: string; background: 'cream' | 'white' | 'navy' };
+export type NewsSection    = SectionBase & { type: 'news';    heading: string; subtitle: string; items: NewsItem[] };
+export type ContactSection = SectionBase & { type: 'contact'; heading: string; subtitle: string; email: string; phone: string };
 
 export type AnySection =
   | HeroSection | MissionSection | HowSection | StatsSection
-  | AboutSection | BoardSection | DonateSection | TextSection;
+  | AboutSection | BoardSection | DonateSection | TextSection
+  | NewsSection | ContactSection;
 
 export type SiteContent = { sections: AnySection[] };
 
@@ -71,6 +75,37 @@ export const DEFAULT_CONTENT: SiteContent = {
       ],
     },
     {
+      id: 'news', type: 'news', visible: true,
+      heading: 'Nyheder & Rapporter',
+      subtitle: 'Følg med i vores arbejde og se, hvad jeres donationer gør muligt.',
+      items: [
+        {
+          id: 'news_1',
+          title: 'Sommerlejr 2025: 34 børn fik en uforglemmelig uge',
+          date: 'August 2025',
+          text: 'I august tog vi imod 34 ukrainske børn i alderen 7–14 år. De besøgte Tivoli, Naturhistorisk Museum og tilbragte dage ved havet — minder de vil bære med sig hjem.',
+          imageUrl: 'https://images.unsplash.com/photo-1526976668912-1a811878dd37?q=80&w=2070&auto=format&fit=crop',
+          tag: 'Rapport',
+        },
+        {
+          id: 'news_2',
+          title: 'Ny partnerskabsaftale med ukrainsk børneorganisation',
+          date: 'Juni 2025',
+          text: 'EAUC Nordic har indgået et formelt samarbejde med "Сонячний дім" fra Lviv, der hjælper os med at identificere de børn, der har mest brug for et pusterum.',
+          imageUrl: 'https://images.unsplash.com/photo-1491438590914-bc09fcaaf77a?q=80&w=2070&auto=format&fit=crop',
+          tag: 'Nyhed',
+        },
+        {
+          id: 'news_3',
+          title: 'Årsrapport 2024: 127 børn hjulpet, 98% til børnene',
+          date: 'Januar 2025',
+          text: 'Vores årsrapport for 2024 er nu tilgængelig. Vi er stolte over resultaterne og klar til endnu et år fyldt med håb, oplevelser og kærlighed.',
+          imageUrl: 'https://images.unsplash.com/photo-1536094908688-b0b7e8a57e60?q=80&w=2070&auto=format&fit=crop',
+          tag: 'Årsrapport',
+        },
+      ],
+    },
+    {
       id: 'about', type: 'about', visible: true,
       tagline: 'HVEM STÅR BAG',
       heading: 'Om foreningen',
@@ -97,6 +132,13 @@ export const DEFAULT_CONTENT: SiteContent = {
       buttonLabel: 'Donér nu',
       note: 'Sikker betaling · Skattefradrag · 100% gennemsigtighed',
     },
+    {
+      id: 'contact', type: 'contact', visible: true,
+      heading: 'Kontakt os',
+      subtitle: 'Har du spørgsmål, vil du hjælpe som frivillig, eller ønsker du at samarbejde? Vi hører gerne fra dig.',
+      email: 'info@eaucnordic.com',
+      phone: '',
+    },
   ],
 };
 
@@ -107,14 +149,25 @@ const KEY = 'eauc_site_content_v1';
 export function loadSiteContent(): SiteContent {
   try {
     const raw = localStorage.getItem(KEY);
-    if (raw) return JSON.parse(raw) as SiteContent;
+    if (raw) {
+      const parsed = JSON.parse(raw) as SiteContent;
+      // Migrate: add news/contact sections if missing from older stored content
+      const hasNews    = parsed.sections.some(s => s.type === 'news');
+      const hasContact = parsed.sections.some(s => s.type === 'contact');
+      if (!hasNews || !hasContact) {
+        const extras = DEFAULT_CONTENT.sections.filter(s =>
+          (s.type === 'news' && !hasNews) || (s.type === 'contact' && !hasContact)
+        );
+        parsed.sections = [...parsed.sections, ...extras];
+      }
+      return parsed;
+    }
   } catch { /* ignore */ }
   return DEFAULT_CONTENT;
 }
 
 export function saveSiteContent(content: SiteContent): void {
   localStorage.setItem(KEY, JSON.stringify(content));
-  // Notify other hooks in the same tab
   window.dispatchEvent(new CustomEvent('eauc-content-changed'));
 }
 
@@ -123,7 +176,7 @@ export function resetSiteContent(): void {
   window.dispatchEvent(new CustomEvent('eauc-content-changed'));
 }
 
-// ─── Section meta (labels / icons for admin) ─────────────────────────────────
+// ─── Section meta ─────────────────────────────────────────────────────────────
 
 export const SECTION_LABELS: Record<AnySection['type'], string> = {
   hero:    'Hero',
@@ -134,13 +187,28 @@ export const SECTION_LABELS: Record<AnySection['type'], string> = {
   board:   'Bestyrelsen',
   donate:  'Donér nu',
   text:    'Tekstblok',
+  news:    'Nyheder & Rapporter',
+  contact: 'Kontaktformular',
 };
 
 export const TEXT_SECTION_TEMPLATE: TextSection = {
-  id: '',
-  type: 'text',
-  visible: true,
+  id: '', type: 'text', visible: true,
   heading: 'Ny overskrift',
   text: 'Skriv din tekst her...',
   background: 'cream',
+};
+
+export const NEWS_ITEM_TEMPLATE: NewsItem = {
+  id: '', title: 'Ny artikel', date: '2025',
+  text: 'Beskriv nyheden her...',
+  imageUrl: 'https://images.unsplash.com/photo-1526976668912-1a811878dd37?q=80&w=800&auto=format&fit=crop',
+  tag: 'Nyhed',
+};
+
+export const CONTACT_SECTION_TEMPLATE: ContactSection = {
+  id: '', type: 'contact', visible: true,
+  heading: 'Kontakt os',
+  subtitle: 'Vi hører gerne fra dig.',
+  email: 'info@eaucnordic.com',
+  phone: '',
 };
