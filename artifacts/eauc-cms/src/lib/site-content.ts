@@ -118,8 +118,8 @@ export const DEFAULT_CONTENT: SiteContent = {
       id: 'board', type: 'board', visible: true,
       heading: 'Bestyrelsen',
       members: [
-        { name: 'Navn kommer', role: 'Formand',             photo: '' },
-        { name: 'Navn kommer', role: 'Næstformand',         photo: '' },
+        { name: 'Serhieiev Volodymyr', role: 'Formand',     photo: '' },
+        { name: 'Khoren Pogossian',   role: 'Næstformand', photo: '' },
         { name: 'Navn kommer', role: 'Kasserer',            photo: '' },
         { name: 'Navn kommer', role: 'Bestyrelsesmedlem',   photo: '' },
       ],
@@ -137,7 +137,7 @@ export const DEFAULT_CONTENT: SiteContent = {
       heading: 'Kontakt os',
       subtitle: 'Har du spørgsmål, vil du hjælpe som frivillig, eller ønsker du at samarbejde? Vi hører gerne fra dig.',
       email: 'info@eaucnordic.com',
-      phone: '',
+      phone: '+45 25 56 81 31',
     },
   ],
 };
