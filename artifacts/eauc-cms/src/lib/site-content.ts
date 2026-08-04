@@ -151,7 +151,9 @@ export function loadSiteContent(): SiteContent {
     const raw = localStorage.getItem(KEY);
     if (raw) {
       const parsed = JSON.parse(raw) as SiteContent;
-      // Migrate: add news/contact sections if missing from older stored content
+      let dirty = false;
+
+      // Migrate: add news/contact sections if missing
       const hasNews    = parsed.sections.some(s => s.type === 'news');
       const hasContact = parsed.sections.some(s => s.type === 'contact');
       if (!hasNews || !hasContact) {
@@ -159,7 +161,41 @@ export function loadSiteContent(): SiteContent {
           (s.type === 'news' && !hasNews) || (s.type === 'contact' && !hasContact)
         );
         parsed.sections = [...parsed.sections, ...extras];
+        dirty = true;
       }
+
+      // Migrate: update board member placeholder names to real names
+      const defaultBoard = DEFAULT_CONTENT.sections.find(s => s.type === 'board') as BoardSection | undefined;
+      if (defaultBoard) {
+        parsed.sections = parsed.sections.map(s => {
+          if (s.type !== 'board') return s;
+          const board = s as BoardSection;
+          const updatedMembers = board.members.map((m, i) => {
+            const def = defaultBoard.members[i];
+            // Replace only if still holding a placeholder name
+            if (def && m.name === 'Navn kommer') {
+              dirty = true;
+              return { ...m, name: def.name, role: def.role };
+            }
+            return m;
+          });
+          return { ...board, members: updatedMembers };
+        });
+      }
+
+      // Migrate: fill in contact phone if it was empty
+      parsed.sections = parsed.sections.map(s => {
+        if (s.type !== 'contact') return s;
+        const contact = s as ContactSection;
+        const defaultContact = DEFAULT_CONTENT.sections.find(d => d.type === 'contact') as ContactSection | undefined;
+        if (defaultContact && !contact.phone && defaultContact.phone) {
+          dirty = true;
+          return { ...contact, phone: defaultContact.phone };
+        }
+        return s;
+      });
+
+      if (dirty) localStorage.setItem(KEY, JSON.stringify(parsed));
       return parsed;
     }
   } catch { /* ignore */ }
