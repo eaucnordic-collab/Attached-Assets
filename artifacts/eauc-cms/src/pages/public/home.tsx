@@ -192,7 +192,7 @@ function SiteHeader({ lang, onLangChange }: { lang: Lang; onLangChange: (l: Lang
           </>
         ) : (
           <div style={{ display: 'flex', alignItems: 'center', gap: 28 }}>
-            {(['#mission', '#om-os', '#donér', '#kontakt'] as const).map(href => (
+            {(['#mission', '#om-os', '#kontakt'] as const).map(href => (
               <a key={href} href={href} style={{
                 color: 'rgba(255,255,255,0.88)', textDecoration: 'none',
                 fontFamily: 'Inter, sans-serif', fontSize: 14, fontWeight: 500, minHeight: 44,
