@@ -56,9 +56,9 @@ export function AdminLayout({ children }: { children: ReactNode }) {
       {/* Sidebar */}
       <aside className="w-64 bg-sidebar text-sidebar-foreground flex flex-col border-r border-sidebar-border h-screen sticky top-0">
         <div className="p-4 border-b border-sidebar-border flex items-center justify-between">
-          <div className="font-semibold text-lg flex items-center gap-2 tracking-tight">
-            <div className="w-6 h-6 rounded-sm bg-primary" />
-            EAUC Nordic
+          <div className="flex items-center gap-2">
+            <img src="/logo.png" alt="EAUC Nordic" className="h-9 w-9 rounded-md object-contain bg-black" />
+            <span className="font-semibold text-base tracking-tight">EAUC Nordic</span>
           </div>
         </div>
         

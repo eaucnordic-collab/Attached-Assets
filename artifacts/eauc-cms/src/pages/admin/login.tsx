@@ -41,8 +41,8 @@ export default function AdminLogin() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50/50 dark:bg-gray-900 px-4">
       <Card className="w-full max-w-md shadow-lg border-t-4 border-t-primary">
         <CardHeader className="space-y-2 text-center pb-6">
-          <div className="mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-2">
-            <div className="w-6 h-6 rounded-sm bg-primary" />
+          <div className="mx-auto mb-2">
+            <img src="/logo.png" alt="EAUC Nordic" className="h-16 w-16 rounded-xl object-contain bg-black" />
           </div>
           <CardTitle className="text-2xl font-bold tracking-tight">EAUC Nordic Admin</CardTitle>
           <CardDescription>Enter your credentials to access the CMS</CardDescription>

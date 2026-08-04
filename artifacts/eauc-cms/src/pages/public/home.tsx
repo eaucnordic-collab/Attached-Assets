@@ -18,7 +18,7 @@ function SiteHeader() {
       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       padding: '0 28px', height: 52,
     }}>
-      <span style={{ fontFamily: 'Inter, sans-serif', fontWeight: 700, fontSize: 14, color: '#fff', letterSpacing: '0.06em' }}>EAUC</span>
+      <img src="/logo.png" alt="EAUC Nordic" style={{ height: 36, width: 36, objectFit: 'contain', borderRadius: 6 }} />
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, border: '1px solid rgba(255,255,255,0.22)', borderRadius: 999, padding: '5px 13px' }}>
         <span style={{ fontSize: 14 }}>🌐</span>
         <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#fff', fontWeight: 600 }}>DA</span>
@@ -31,7 +31,7 @@ function SiteHeader() {
 function SiteFooter() {
   return (
     <footer style={{ background: NAVY, padding: '28px 40px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
-      <span style={{ fontFamily: 'Inter, sans-serif', fontWeight: 700, fontSize: 14, color: 'rgba(255,255,255,0.9)' }}>EAUC</span>
+      <img src="/logo.png" alt="EAUC Nordic" style={{ height: 34, width: 34, objectFit: 'contain', borderRadius: 6 }} />
       <nav style={{ display: 'flex', gap: 24 }}>
         {['Om os', 'Kontakt', 'Privatlivspolitik'].map(l => (
           <a key={l} href="#" style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: 'rgba(255,255,255,0.55)', textDecoration: 'none' }}>{l}</a>
