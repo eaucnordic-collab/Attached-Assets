@@ -343,10 +343,6 @@ function SiteFooter({ lang }: { lang: Lang }) {
             onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.7)'; }}
             onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.35)'; }}
           >{f.cookies}</a>
-          <a href="/admin/login" style={{ fontSize: 12, color: 'rgba(255,255,255,0.2)', textDecoration: 'none', borderLeft: '1px solid rgba(255,255,255,0.1)', paddingLeft: 16, minHeight: 44, display: 'flex', alignItems: 'center' } as React.CSSProperties}
-            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.45)'; }}
-            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.2)'; }}
-          >Admin</a>
         </div>
       </div>
     </footer>
