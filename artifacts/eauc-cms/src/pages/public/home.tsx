@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Link } from 'wouter';
-import { Heart, Smile, Shield, Users, HandHeart, FileText, Check } from 'lucide-react';
+import { Heart, Smile, Shield, Users, HandHeart, FileText, Check, Mail, MapPin, ExternalLink, Facebook, Instagram, Youtube } from 'lucide-react';
 import { loadSiteContent, type SiteContent, type AnySection, type HeroSection, type MissionSection, type HowSection, type StatsSection, type AboutSection, type BoardSection, type DonateSection, type TextSection } from '@/lib/site-content';
 import { LANGUAGES, UI_TRANSLATIONS, loadLang, saveLang, getTranslatedContent, type Lang } from '@/lib/i18n';
 
@@ -99,17 +98,159 @@ function SiteHeader({ lang, onLangChange }: { lang: Lang; onLangChange: (l: Lang
   );
 }
 
-function SiteFooter({ lang }: { lang: Lang }) {
-  const ui = UI_TRANSLATIONS[lang];
+// ─── Social icon helpers ──────────────────────────────────────────────────────
+function SocialIcon({ children, href }: { children: React.ReactNode; href: string }) {
   return (
-    <footer style={{ background: NAVY, padding: '28px 40px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
-      <img src="/logo.png" alt="EAUC Nordic" style={{ height: 34, width: 'auto', objectFit: 'contain' }} />
-      <nav style={{ display: 'flex', gap: 24 }}>
-        {[ui.footer.about, ui.footer.contact, ui.footer.privacy].map(l => (
-          <a key={l} href="#" style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: 'rgba(255,255,255,0.55)', textDecoration: 'none' }}>{l}</a>
-        ))}
-      </nav>
-      <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: 'rgba(255,255,255,0.3)' }}>{ui.footer.copyright}</span>
+    <a href={href} target="_blank" rel="noopener noreferrer" style={{
+      width: 36, height: 36, borderRadius: '50%',
+      border: '1px solid rgba(255,255,255,0.15)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      color: 'rgba(255,255,255,0.5)', textDecoration: 'none',
+      transition: 'border-color 0.2s, color 0.2s',
+    }}
+      onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,255,255,0.5)'; (e.currentTarget as HTMLElement).style.color = '#fff'; }}
+      onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,255,255,0.15)'; (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.5)'; }}
+    >
+      {children}
+    </a>
+  );
+}
+
+function FooterLink({ href, children }: { href: string; children: React.ReactNode }) {
+  return (
+    <a href={href} style={{
+      fontFamily: 'Inter, sans-serif', fontSize: 14, color: 'rgba(255,255,255,0.55)',
+      textDecoration: 'none', display: 'block', padding: '4px 0', transition: 'color 0.15s',
+    }}
+      onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#fff'; }}
+      onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.55)'; }}
+    >
+      {children}
+    </a>
+  );
+}
+
+function FooterColTitle({ children }: { children: React.ReactNode }) {
+  return (
+    <div style={{
+      fontFamily: 'Inter, sans-serif', fontSize: 11, fontWeight: 700,
+      letterSpacing: '0.12em', color: GOLD, textTransform: 'uppercase', marginBottom: 20,
+    }}>
+      {children}
+    </div>
+  );
+}
+
+function SiteFooter({ lang }: { lang: Lang }) {
+  const f = UI_TRANSLATIONS[lang].footerFull;
+
+  return (
+    <footer style={{ background: '#080c16', fontFamily: 'Inter, sans-serif' }}>
+
+      {/* ── Ukraine solidarity banner ── */}
+      <div style={{ background: 'linear-gradient(90deg, #003893 0%, #003893 50%, #ffd500 50%, #ffd500 100%)', height: 4 }} />
+
+      {/* ── Main footer grid ── */}
+      <div style={{ maxWidth: 1140, margin: '0 auto', padding: '64px 32px 48px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '48px 40px' }}>
+
+        {/* Col 1 — Brand */}
+        <div>
+          <img src="/logo.png" alt="EAUC Nordic" style={{ height: 42, width: 'auto', objectFit: 'contain', marginBottom: 18 }} />
+          <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', lineHeight: 1.7, margin: '0 0 28px', maxWidth: 260 }}>
+            {f.tagline}
+          </p>
+          <div style={{ marginBottom: 8 }}>
+            <FooterColTitle>{f.followUs}</FooterColTitle>
+          </div>
+          <div style={{ display: 'flex', gap: 10 }}>
+            <SocialIcon href="https://facebook.com"><Facebook size={16} /></SocialIcon>
+            <SocialIcon href="https://instagram.com"><Instagram size={16} /></SocialIcon>
+            <SocialIcon href="https://youtube.com"><Youtube size={16} /></SocialIcon>
+          </div>
+        </div>
+
+        {/* Col 2 — Navigation */}
+        <div>
+          <FooterColTitle>{f.navTitle}</FooterColTitle>
+          <nav style={{ display: 'flex', flexDirection: 'column' }}>
+            <FooterLink href="#mission">{f.navMission}</FooterLink>
+            <FooterLink href="#mission">{f.navHow}</FooterLink>
+            <FooterLink href="#om-os">{f.navAbout}</FooterLink>
+            <FooterLink href="#donér">{f.navDonate}</FooterLink>
+            <FooterLink href="mailto:info@eaucnordic.com">{f.navContact}</FooterLink>
+          </nav>
+        </div>
+
+        {/* Col 3 — Contact */}
+        <div>
+          <FooterColTitle>{f.contactTitle}</FooterColTitle>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+              <MapPin size={16} color={GOLD} style={{ marginTop: 2, flexShrink: 0 }} />
+              <div>
+                {f.addressLines.map((line, i) => (
+                  <div key={i} style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', lineHeight: 1.6 }}>{line}</div>
+                ))}
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+              <Mail size={16} color={GOLD} style={{ flexShrink: 0 }} />
+              <a href={`mailto:${f.email}`} style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', textDecoration: 'none', transition: 'color 0.15s' }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#fff'; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.6)'; }}
+              >
+                {f.email}
+              </a>
+            </div>
+          </div>
+        </div>
+
+        {/* Col 4 — Legal & Transparency */}
+        <div>
+          <FooterColTitle>{f.legalTitle}</FooterColTitle>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {/* CVR badge */}
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, padding: '8px 14px', width: 'fit-content' }}>
+              <ExternalLink size={13} color={GOLD} />
+              <span style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.8)', letterSpacing: '0.02em' }}>{f.cvr}</span>
+            </div>
+            <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', lineHeight: 1.6, margin: 0 }}>{f.registeredAs}</p>
+            {/* Transparency pills */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 4 }}>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                <span style={{ fontSize: 13 }}>✓</span>
+                <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)' }}>{f.taxNote}</span>
+              </div>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                <span style={{ fontSize: 13 }}>✓</span>
+                <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)' }}>{f.transparencyNote}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Divider ── */}
+      <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', maxWidth: 1140, margin: '0 auto' }} />
+
+      {/* ── Bottom bar ── */}
+      <div style={{ maxWidth: 1140, margin: '0 auto', padding: '20px 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
+        <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.28)', lineHeight: 1.5 }}>{f.copyright}</span>
+        <div style={{ display: 'flex', gap: 20, alignItems: 'center' }}>
+          <a href="#" style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', textDecoration: 'none' }}
+            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.7)'; }}
+            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.35)'; }}
+          >{f.privacy}</a>
+          <a href="#" style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', textDecoration: 'none' }}
+            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.7)'; }}
+            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.35)'; }}
+          >{f.cookies}</a>
+          <a href="/admin/login" style={{ fontSize: 12, color: 'rgba(255,255,255,0.2)', textDecoration: 'none', borderLeft: '1px solid rgba(255,255,255,0.1)', paddingLeft: 20 }}
+            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.45)'; }}
+            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.2)'; }}
+          >Admin</a>
+        </div>
+      </div>
     </footer>
   );
 }

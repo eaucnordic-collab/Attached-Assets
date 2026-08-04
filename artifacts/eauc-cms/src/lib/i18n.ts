@@ -30,8 +30,25 @@ export function saveLang(lang: Lang) {
 
 // ─── Static UI strings ────────────────────────────────────────────────────────
 
+export type FooterFull = {
+  tagline: string;
+  navTitle: string;
+  navMission: string; navHow: string; navAbout: string; navDonate: string; navContact: string;
+  contactTitle: string;
+  addressLines: string[];
+  emailLabel: string; email: string;
+  legalTitle: string;
+  cvr: string;
+  registeredAs: string;
+  taxNote: string;
+  transparencyNote: string;
+  followUs: string;
+  privacy: string; cookies: string; copyright: string;
+};
+
 export type UI = {
   footer: { about: string; contact: string; privacy: string; copyright: string };
+  footerFull: FooterFull;
   donate: { customPlaceholder: string; emailLabel: string; emailPlaceholder: string; currency: string };
   about: {
     orgStructure: string; nonprofitSub: string;
@@ -42,47 +59,173 @@ export type UI = {
 
 export const UI_TRANSLATIONS: Record<Lang, UI> = {
   da: {
-    footer: { about: 'Om os', contact: 'Kontakt', privacy: 'Privatlivspolitik', copyright: '© 2026 Håb for Ukraine. Alle rettigheder forbeholdes.' },
+    footer: { about: 'Om os', contact: 'Kontakt', privacy: 'Privatlivspolitik', copyright: '© 2026 EAUC Nordic. Alle rettigheder forbeholdes.' },
+    footerFull: {
+      tagline: 'Vi giver ukrainske børn tryghed, oplevelser og håb — ét pusterum ad gangen.',
+      navTitle: 'Navigation', navMission: 'Vores mission', navHow: 'Sådan gør vi', navAbout: 'Om foreningen', navDonate: 'Donér nu', navContact: 'Kontakt',
+      contactTitle: 'Kontakt os',
+      addressLines: ['Byparken 75, 1. 1', '5700 Svendborg', 'Danmark'],
+      emailLabel: 'E-mail', email: 'info@eaucnordic.com',
+      legalTitle: 'Juridisk information',
+      cvr: 'CVR: 46329406',
+      registeredAs: 'Registreret som almennyttig, non-profit forening i Danmark',
+      taxNote: '🇩🇰 Donationer er fradragsberettigede iht. ligningslovens § 8A',
+      transparencyNote: '98% af alle midler går direkte til børnene',
+      followUs: 'Følg os',
+      privacy: 'Privatlivspolitik', cookies: 'Cookiepolitik', copyright: '© 2026 European Association of Ukrainian Children – Nordic (EAUC Nordic) · CVR 46329406',
+    },
     donate: { customPlaceholder: 'Andet beløb', emailLabel: 'Email (til kvittering)', emailPlaceholder: 'din@email.dk', currency: 'kr' },
     about: { orgStructure: 'Organisationsstruktur', nonprofitSub: 'Almennyttig forening · Danmark', boardTitle: 'Bestyrelse', boardSub: 'Strategisk ledelse', volunteerTitle: 'Frivillige', volunteerSub: 'Værtsfamilier & støtter', registrationTitle: 'Registreringsoplysninger', cvrLabel: 'CVR-NUMMER', nameLabel: 'FORENINGENS NAVN', addressLabel: 'ADRESSE' },
   },
   uk: {
-    footer: { about: 'Про нас', contact: 'Контакт', privacy: 'Політика конфіденційності', copyright: '© 2026 Надія для України. Усі права захищено.' },
+    footer: { about: 'Про нас', contact: 'Контакт', privacy: 'Конфіденційність', copyright: '© 2026 EAUC Nordic. Усі права захищено.' },
+    footerFull: {
+      tagline: 'Ми даємо українським дітям безпеку, враження та надію — один перепочинок за раз.',
+      navTitle: 'Навігація', navMission: 'Наша місія', navHow: 'Як ми це робимо', navAbout: 'Про організацію', navDonate: 'Пожертвувати', navContact: 'Контакт',
+      contactTitle: 'Звʼяжіться з нами',
+      addressLines: ['Byparken 75, 1. 1', '5700 Svendborg', 'Данія'],
+      emailLabel: 'E-mail', email: 'info@eaucnordic.com',
+      legalTitle: 'Юридична інформація',
+      cvr: 'CVR: 46329406',
+      registeredAs: 'Зареєстровано як некомерційна організація в Данії',
+      taxNote: '🇩🇰 Пожертвування підлягають податковому вирахуванню в Данії',
+      transparencyNote: '98% усіх коштів іде безпосередньо дітям',
+      followUs: 'Слідкуйте за нами',
+      privacy: 'Політика конфіденційності', cookies: 'Політика cookies', copyright: '© 2026 European Association of Ukrainian Children – Nordic (EAUC Nordic) · CVR 46329406',
+    },
     donate: { customPlaceholder: 'Інша сума', emailLabel: 'Email (для квитанції)', emailPlaceholder: 'ваш@email.ua', currency: 'kr' },
     about: { orgStructure: 'Структура організації', nonprofitSub: 'Некомерційна організація · Данія', boardTitle: 'Рада директорів', boardSub: 'Стратегічне керівництво', volunteerTitle: 'Волонтери', volunteerSub: 'Сімʼї-господарі та прихильники', registrationTitle: 'Реєстраційна інформація', cvrLabel: 'CVR-НОМЕР', nameLabel: 'НАЗВА ОРГАНІЗАЦІЇ', addressLabel: 'АДРЕСА' },
   },
   en: {
-    footer: { about: 'About us', contact: 'Contact', privacy: 'Privacy policy', copyright: '© 2026 Hope for Ukraine. All rights reserved.' },
+    footer: { about: 'About us', contact: 'Contact', privacy: 'Privacy policy', copyright: '© 2026 EAUC Nordic. All rights reserved.' },
+    footerFull: {
+      tagline: 'We give Ukrainian children security, experiences and hope — one break at a time.',
+      navTitle: 'Navigation', navMission: 'Our mission', navHow: 'How we do it', navAbout: 'About us', navDonate: 'Donate now', navContact: 'Contact',
+      contactTitle: 'Get in touch',
+      addressLines: ['Byparken 75, 1. 1', '5700 Svendborg', 'Denmark'],
+      emailLabel: 'Email', email: 'info@eaucnordic.com',
+      legalTitle: 'Legal information',
+      cvr: 'CVR: 46329406',
+      registeredAs: 'Registered as a non-profit organisation in Denmark',
+      taxNote: '🇩🇰 Donations are tax-deductible in Denmark',
+      transparencyNote: '98% of all funds go directly to the children',
+      followUs: 'Follow us',
+      privacy: 'Privacy policy', cookies: 'Cookie policy', copyright: '© 2026 European Association of Ukrainian Children – Nordic (EAUC Nordic) · CVR 46329406',
+    },
     donate: { customPlaceholder: 'Custom amount', emailLabel: 'Email (for receipt)', emailPlaceholder: 'your@email.com', currency: 'kr' },
     about: { orgStructure: 'Organisational structure', nonprofitSub: 'Non-profit organisation · Denmark', boardTitle: 'Board of Directors', boardSub: 'Strategic leadership', volunteerTitle: 'Volunteers', volunteerSub: 'Host families & supporters', registrationTitle: 'Registration details', cvrLabel: 'CVR NUMBER', nameLabel: 'ORGANISATION NAME', addressLabel: 'ADDRESS' },
   },
   de: {
-    footer: { about: 'Über uns', contact: 'Kontakt', privacy: 'Datenschutzrichtlinie', copyright: '© 2026 Hoffnung für die Ukraine. Alle Rechte vorbehalten.' },
+    footer: { about: 'Über uns', contact: 'Kontakt', privacy: 'Datenschutz', copyright: '© 2026 EAUC Nordic. Alle Rechte vorbehalten.' },
+    footerFull: {
+      tagline: 'Wir geben ukrainischen Kindern Sicherheit, Erlebnisse und Hoffnung — eine Auszeit nach der anderen.',
+      navTitle: 'Navigation', navMission: 'Unsere Mission', navHow: 'So helfen wir', navAbout: 'Über den Verein', navDonate: 'Jetzt spenden', navContact: 'Kontakt',
+      contactTitle: 'Kontaktieren Sie uns',
+      addressLines: ['Byparken 75, 1. 1', '5700 Svendborg', 'Dänemark'],
+      emailLabel: 'E-Mail', email: 'info@eaucnordic.com',
+      legalTitle: 'Rechtliche Informationen',
+      cvr: 'CVR: 46329406',
+      registeredAs: 'Eingetragen als gemeinnützige Non-Profit-Organisation in Dänemark',
+      taxNote: '🇩🇰 Spenden sind in Dänemark steuerlich abzugsfähig',
+      transparencyNote: '98% aller Mittel gehen direkt an die Kinder',
+      followUs: 'Folgen Sie uns',
+      privacy: 'Datenschutzrichtlinie', cookies: 'Cookie-Richtlinie', copyright: '© 2026 European Association of Ukrainian Children – Nordic (EAUC Nordic) · CVR 46329406',
+    },
     donate: { customPlaceholder: 'Anderer Betrag', emailLabel: 'E-Mail (für Quittung)', emailPlaceholder: 'deine@email.de', currency: 'kr' },
     about: { orgStructure: 'Organisationsstruktur', nonprofitSub: 'Gemeinnütziger Verein · Dänemark', boardTitle: 'Vorstand', boardSub: 'Strategische Leitung', volunteerTitle: 'Ehrenamtliche', volunteerSub: 'Gastfamilien & Unterstützer', registrationTitle: 'Registrierungsangaben', cvrLabel: 'CVR-NUMMER', nameLabel: 'VEREINSNAME', addressLabel: 'ADRESSE' },
   },
   sv: {
-    footer: { about: 'Om oss', contact: 'Kontakt', privacy: 'Integritetspolicy', copyright: '© 2026 Hopp för Ukraina. Alla rättigheter förbehållna.' },
+    footer: { about: 'Om oss', contact: 'Kontakt', privacy: 'Integritetspolicy', copyright: '© 2026 EAUC Nordic. Alla rättigheter förbehållna.' },
+    footerFull: {
+      tagline: 'Vi ger ukrainska barn trygghet, upplevelser och hopp — ett andrum i taget.',
+      navTitle: 'Navigation', navMission: 'Vårt uppdrag', navHow: 'Så här gör vi', navAbout: 'Om föreningen', navDonate: 'Donera nu', navContact: 'Kontakt',
+      contactTitle: 'Kontakta oss',
+      addressLines: ['Byparken 75, 1. 1', '5700 Svendborg', 'Danmark'],
+      emailLabel: 'E-post', email: 'info@eaucnordic.com',
+      legalTitle: 'Juridisk information',
+      cvr: 'CVR: 46329406',
+      registeredAs: 'Registrerad som allmännyttig ideell förening i Danmark',
+      taxNote: '🇩🇰 Donationer är avdragsgilla i Danmark',
+      transparencyNote: '98% av alla medel går direkt till barnen',
+      followUs: 'Följ oss',
+      privacy: 'Integritetspolicy', cookies: 'Cookiepolicy', copyright: '© 2026 European Association of Ukrainian Children – Nordic (EAUC Nordic) · CVR 46329406',
+    },
     donate: { customPlaceholder: 'Annat belopp', emailLabel: 'E-post (för kvitto)', emailPlaceholder: 'din@email.se', currency: 'kr' },
     about: { orgStructure: 'Organisationsstruktur', nonprofitSub: 'Allmännyttig förening · Danmark', boardTitle: 'Styrelse', boardSub: 'Strategisk ledning', volunteerTitle: 'Volontärer', volunteerSub: 'Värdfamiljer & supporters', registrationTitle: 'Registreringsuppgifter', cvrLabel: 'CVR-NUMMER', nameLabel: 'FÖRENINGENS NAMN', addressLabel: 'ADRESS' },
   },
   no: {
-    footer: { about: 'Om oss', contact: 'Kontakt', privacy: 'Personvernpolicy', copyright: '© 2026 Håp for Ukraina. Alle rettigheter forbeholdt.' },
+    footer: { about: 'Om oss', contact: 'Kontakt', privacy: 'Personvernpolicy', copyright: '© 2026 EAUC Nordic. Alle rettigheter forbeholdt.' },
+    footerFull: {
+      tagline: 'Vi gir ukrainske barn trygghet, opplevelser og håp — ett pusterom av gangen.',
+      navTitle: 'Navigasjon', navMission: 'Vår misjon', navHow: 'Slik gjør vi det', navAbout: 'Om foreningen', navDonate: 'Gi nå', navContact: 'Kontakt',
+      contactTitle: 'Ta kontakt',
+      addressLines: ['Byparken 75, 1. 1', '5700 Svendborg', 'Danmark'],
+      emailLabel: 'E-post', email: 'info@eaucnordic.com',
+      legalTitle: 'Juridisk informasjon',
+      cvr: 'CVR: 46329406',
+      registeredAs: 'Registrert som allmennyttig non-profit forening i Danmark',
+      taxNote: '🇩🇰 Donasjoner er skattefradragsberettigede i Danmark',
+      transparencyNote: '98% av alle midler går direkte til barna',
+      followUs: 'Følg oss',
+      privacy: 'Personvernpolicy', cookies: 'Informasjonskapselpolicy', copyright: '© 2026 European Association of Ukrainian Children – Nordic (EAUC Nordic) · CVR 46329406',
+    },
     donate: { customPlaceholder: 'Annet beløp', emailLabel: 'E-post (for kvittering)', emailPlaceholder: 'din@email.no', currency: 'kr' },
     about: { orgStructure: 'Organisasjonsstruktur', nonprofitSub: 'Allmennyttig forening · Danmark', boardTitle: 'Styre', boardSub: 'Strategisk ledelse', volunteerTitle: 'Frivillige', volunteerSub: 'Vertsfamilier & støttespillere', registrationTitle: 'Registreringsopplysninger', cvrLabel: 'CVR-NUMMER', nameLabel: 'FORENINGENS NAVN', addressLabel: 'ADRESSE' },
   },
   fi: {
-    footer: { about: 'Tietoa meistä', contact: 'Yhteystiedot', privacy: 'Tietosuojakäytäntö', copyright: '© 2026 Toivoa Ukrainalle. Kaikki oikeudet pidätetään.' },
+    footer: { about: 'Tietoa meistä', contact: 'Yhteystiedot', privacy: 'Tietosuojakäytäntö', copyright: '© 2026 EAUC Nordic. Kaikki oikeudet pidätetään.' },
+    footerFull: {
+      tagline: 'Annamme ukrainalaisille lapsille turvallisuutta, elämyksiä ja toivoa — yksi hengähdystauko kerrallaan.',
+      navTitle: 'Navigointi', navMission: 'Missiomme', navHow: 'Näin toimimme', navAbout: 'Tietoa yhdistyksestä', navDonate: 'Lahjoita nyt', navContact: 'Yhteystiedot',
+      contactTitle: 'Ota yhteyttä',
+      addressLines: ['Byparken 75, 1. 1', '5700 Svendborg', 'Tanska'],
+      emailLabel: 'Sähköposti', email: 'info@eaucnordic.com',
+      legalTitle: 'Oikeudellinen tieto',
+      cvr: 'CVR: 46329406',
+      registeredAs: 'Rekisteröity yleishyödylliseksi yhdistykseksi Tanskassa',
+      taxNote: '🇩🇰 Lahjoitukset ovat verovähennyskelpoisia Tanskassa',
+      transparencyNote: '98% kaikista varoista menee suoraan lapsille',
+      followUs: 'Seuraa meitä',
+      privacy: 'Tietosuojakäytäntö', cookies: 'Evästekäytäntö', copyright: '© 2026 European Association of Ukrainian Children – Nordic (EAUC Nordic) · CVR 46329406',
+    },
     donate: { customPlaceholder: 'Muu summa', emailLabel: 'Sähköposti (kuitille)', emailPlaceholder: 'sinun@email.fi', currency: 'kr' },
     about: { orgStructure: 'Organisaatiorakenne', nonprofitSub: 'Yleishyödyllinen yhdistys · Tanska', boardTitle: 'Hallitus', boardSub: 'Strateginen johtaminen', volunteerTitle: 'Vapaaehtoiset', volunteerSub: 'Isäntäperheet & tukijat', registrationTitle: 'Rekisteröintitiedot', cvrLabel: 'CVR-NUMERO', nameLabel: 'YHDISTYKSEN NIMI', addressLabel: 'OSOITE' },
   },
   it: {
-    footer: { about: 'Chi siamo', contact: 'Contatti', privacy: 'Informativa sulla privacy', copyright: '© 2026 Speranza per l\'Ucraina. Tutti i diritti riservati.' },
+    footer: { about: 'Chi siamo', contact: 'Contatti', privacy: 'Privacy', copyright: '© 2026 EAUC Nordic. Tutti i diritti riservati.' },
+    footerFull: {
+      tagline: 'Diamo ai bambini ucraini sicurezza, esperienze e speranza — una pausa alla volta.',
+      navTitle: 'Navigazione', navMission: 'La nostra missione', navHow: 'Come lo facciamo', navAbout: "Sull'associazione", navDonate: 'Dona ora', navContact: 'Contatti',
+      contactTitle: 'Contattaci',
+      addressLines: ['Byparken 75, 1. 1', '5700 Svendborg', 'Danimarca'],
+      emailLabel: 'Email', email: 'info@eaucnordic.com',
+      legalTitle: 'Informazioni legali',
+      cvr: 'CVR: 46329406',
+      registeredAs: "Registrata come associazione senza scopo di lucro in Danimarca",
+      taxNote: '🇩🇰 Le donazioni sono deducibili fiscalmente in Danimarca',
+      transparencyNote: '98% di tutti i fondi va direttamente ai bambini',
+      followUs: 'Seguici',
+      privacy: 'Informativa sulla privacy', cookies: 'Informativa sui cookie', copyright: '© 2026 European Association of Ukrainian Children – Nordic (EAUC Nordic) · CVR 46329406',
+    },
     donate: { customPlaceholder: 'Importo personalizzato', emailLabel: 'Email (per ricevuta)', emailPlaceholder: 'tua@email.it', currency: 'kr' },
     about: { orgStructure: 'Struttura organizzativa', nonprofitSub: 'Associazione senza scopo di lucro · Danimarca', boardTitle: 'Consiglio di Amministrazione', boardSub: 'Direzione strategica', volunteerTitle: 'Volontari', volunteerSub: 'Famiglie ospitanti & sostenitori', registrationTitle: 'Dati di registrazione', cvrLabel: 'NUMERO CVR', nameLabel: "NOME DELL'ASSOCIAZIONE", addressLabel: 'INDIRIZZO' },
   },
   es: {
-    footer: { about: 'Sobre nosotros', contact: 'Contacto', privacy: 'Política de privacidad', copyright: '© 2026 Esperanza para Ucrania. Todos los derechos reservados.' },
+    footer: { about: 'Sobre nosotros', contact: 'Contacto', privacy: 'Privacidad', copyright: '© 2026 EAUC Nordic. Todos los derechos reservados.' },
+    footerFull: {
+      tagline: 'Damos a los niños ucranianos seguridad, experiencias y esperanza — un descanso a la vez.',
+      navTitle: 'Navegación', navMission: 'Nuestra misión', navHow: 'Cómo lo hacemos', navAbout: 'Sobre nosotros', navDonate: 'Donar ahora', navContact: 'Contacto',
+      contactTitle: 'Contáctanos',
+      addressLines: ['Byparken 75, 1. 1', '5700 Svendborg', 'Dinamarca'],
+      emailLabel: 'Email', email: 'info@eaucnordic.com',
+      legalTitle: 'Información legal',
+      cvr: 'CVR: 46329406',
+      registeredAs: 'Registrada como asociación sin ánimo de lucro en Dinamarca',
+      taxNote: '🇩🇰 Las donaciones son deducibles fiscalmente en Dinamarca',
+      transparencyNote: '98% de todos los fondos va directamente a los niños',
+      followUs: 'Síguenos',
+      privacy: 'Política de privacidad', cookies: 'Política de cookies', copyright: '© 2026 European Association of Ukrainian Children – Nordic (EAUC Nordic) · CVR 46329406',
+    },
     donate: { customPlaceholder: 'Otra cantidad', emailLabel: 'Email (para recibo)', emailPlaceholder: 'tu@email.es', currency: 'kr' },
     about: { orgStructure: 'Estructura organizativa', nonprofitSub: 'Asociación sin ánimo de lucro · Dinamarca', boardTitle: 'Junta Directiva', boardSub: 'Dirección estratégica', volunteerTitle: 'Voluntarios', volunteerSub: 'Familias de acogida & colaboradores', registrationTitle: 'Datos de registro', cvrLabel: 'NÚMERO CVR', nameLabel: 'NOMBRE DE LA ASOCIACIÓN', addressLabel: 'DIRECCIÓN' },
   },
