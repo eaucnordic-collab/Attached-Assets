@@ -28,7 +28,7 @@ function Header() {
       padding: '0 28px', height: 52,
     }}>
       <Link href="/" style={{ textDecoration: 'none' }}>
-        <img src="/logo.png" alt="EAUC Nordic" style={{ height: 36, width: 36, objectFit: 'contain', borderRadius: 6 }} />
+        <img src="/logo.png" alt="EAUC Nordic" style={{ height: 36, width: 'auto', objectFit: 'contain' }} />
       </Link>
 
       <nav style={{ display: 'flex', alignItems: 'center', gap: 28 }}>
@@ -68,7 +68,7 @@ function Footer() {
       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       flexWrap: 'wrap', gap: 16,
     }}>
-      <img src="/logo.png" alt="EAUC Nordic" style={{ height: 34, width: 34, objectFit: 'contain', borderRadius: 6 }} />
+      <img src="/logo.png" alt="EAUC Nordic" style={{ height: 34, width: 'auto', objectFit: 'contain' }} />
       <nav style={{ display: 'flex', gap: 24 }}>
         {['Om os', 'Kontakt', 'Privatlivspolitik'].map(l => (
           <a key={l} href="#" style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: 'rgba(255,255,255,0.55)', textDecoration: 'none' }}>

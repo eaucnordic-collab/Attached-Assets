@@ -57,7 +57,7 @@ export function AdminLayout({ children }: { children: ReactNode }) {
       <aside className="w-64 bg-sidebar text-sidebar-foreground flex flex-col border-r border-sidebar-border h-screen sticky top-0">
         <div className="p-4 border-b border-sidebar-border flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <img src="/logo.png" alt="EAUC Nordic" className="h-9 w-9 rounded-md object-contain bg-black" />
+            <img src="/logo.png" alt="EAUC Nordic" style={{ height: 28, width: 'auto', objectFit: 'contain' }} />
             <span className="font-semibold text-base tracking-tight">EAUC Nordic</span>
           </div>
         </div>
