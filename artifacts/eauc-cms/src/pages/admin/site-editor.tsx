@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { AdminLayout } from '@/components/admin-layout';
 import {
   loadSiteContent, saveSiteContent, resetSiteContent, DEFAULT_CONTENT,
@@ -26,9 +26,8 @@ import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
 import {
   GripVertical, Eye, EyeOff, Plus, Trash2, ChevronRight,
-  ExternalLink, RotateCcw, Save, PlusCircle, Image as ImageIcon,
+  ExternalLink, RotateCcw, Save, PlusCircle, Monitor, PanelRight,
 } from 'lucide-react';
-import { Link } from 'wouter';
 
 // ─── Sortable section row ──────────────────────────────────────────────────────
 function SectionRow({
@@ -57,7 +56,7 @@ function SectionRow({
         <GripVertical size={15} />
       </span>
       <div className="flex-1 min-w-0">
-        <span className={`text-sm font-medium truncate block ${!section.visible ? 'text-muted-foreground' : ''}`}>
+        <span className={`text-sm font-medium truncate block ${!section.visible ? 'text-muted-foreground line-through' : ''}`}>
           {SECTION_LABELS[section.type]}
         </span>
       </div>
@@ -66,7 +65,7 @@ function SectionRow({
         className="shrink-0 text-muted-foreground hover:text-foreground transition-colors"
         title={section.visible ? 'Skjul sektion' : 'Vis sektion'}
       >
-        {section.visible ? <Eye size={14} /> : <EyeOff size={14} />}
+        {section.visible ? <Eye size={14} /> : <EyeOff size={14} className="text-muted-foreground/40" />}
       </button>
       {canDelete && (
         <button
@@ -114,9 +113,11 @@ function ImageInput({ label, value, onChange }: { label: string; value: string; 
       <div className="space-y-2">
         <div className="flex gap-2">
           <Input value={value} onChange={e => onChange(e.target.value)} placeholder="https://..." className="h-9 flex-1" />
-          <a href={value} target="_blank" rel="noreferrer" className={`shrink-0 ${!value ? 'pointer-events-none opacity-30' : ''}`}>
-            <Button variant="outline" size="sm" className="h-9 px-2.5"><ExternalLink size={14} /></Button>
-          </a>
+          {value && (
+            <a href={value} target="_blank" rel="noreferrer">
+              <Button variant="outline" size="sm" className="h-9 px-2.5"><ExternalLink size={14} /></Button>
+            </a>
+          )}
         </div>
         {value && (
           <div className="w-full h-24 rounded-lg overflow-hidden bg-muted border">
@@ -136,10 +137,8 @@ function HeroEditor({ s, onChange }: { s: HeroSection; onChange: (s: HeroSection
     <div className="space-y-5">
       <ImageInput label="Baggrundsbillede URL" value={s.imageUrl} onChange={v => u('imageUrl', v)} />
       <TextInput label="Badge tekst" value={s.badge} onChange={v => u('badge', v)} placeholder="INDSAMLING I GANG" />
-      <div className="grid grid-cols-1 gap-5">
-        <TextInput label="Overskrift (hvid)" value={s.heading} onChange={v => u('heading', v)} />
-        <TextInput label="Overskrift (guld)" value={s.headingAccent} onChange={v => u('headingAccent', v)} />
-      </div>
+      <TextInput label="Overskrift (hvid)" value={s.heading} onChange={v => u('heading', v)} />
+      <TextInput label="Overskrift (guld)" value={s.headingAccent} onChange={v => u('headingAccent', v)} />
       <TextareaInput label="Undertekst" value={s.subtitle} onChange={v => u('subtitle', v)} rows={2} />
       <div className="grid grid-cols-2 gap-4">
         <TextInput label="Knap 1 tekst" value={s.ctaLabel} onChange={v => u('ctaLabel', v)} />
@@ -160,8 +159,8 @@ function MissionEditor({ s, onChange }: { s: MissionSection; onChange: (s: Missi
     <div className="space-y-5">
       <TextInput label="Overskrift" value={s.heading} onChange={v => onChange({ ...s, heading: v })} />
       <TextareaInput label="Undertekst" value={s.subtitle} onChange={v => onChange({ ...s, subtitle: v })} rows={3} />
-      <div className="border-t pt-5 space-y-5">
-        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Kort (3 stk.)</p>
+      <div className="border-t pt-5 space-y-4">
+        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Kort ({s.cards.length} stk.)</p>
         {s.cards.map((card, i) => (
           <div key={i} className="rounded-lg border p-4 space-y-3 bg-muted/20">
             <p className="text-xs font-medium text-muted-foreground">Kort {i + 1}</p>
@@ -179,18 +178,22 @@ function HowEditor({ s, onChange }: { s: HowSection; onChange: (s: HowSection) =
     const steps = s.steps.map((st, idx) => idx === i ? { ...st, [key]: val } : st);
     onChange({ ...s, steps });
   };
-  const addStep = () => onChange({ ...s, steps: [...s.steps, { n: `0${s.steps.length + 1}`, title: 'Nyt trin', text: '' }] });
+  const addStep = () => onChange({ ...s, steps: [...s.steps, { n: String(s.steps.length + 1).padStart(2, '0'), title: 'Nyt trin', text: '' }] });
   const removeStep = (i: number) => onChange({ ...s, steps: s.steps.filter((_, idx) => idx !== i) });
   return (
     <div className="space-y-5">
       <TextInput label="Overskrift" value={s.heading} onChange={v => onChange({ ...s, heading: v })} />
       <div className="border-t pt-5 space-y-4">
-        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Trin</p>
+        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Trin ({s.steps.length})</p>
         {s.steps.map((step, i) => (
           <div key={i} className="rounded-lg border p-4 space-y-3 bg-muted/20">
             <div className="flex justify-between items-center">
               <p className="text-xs font-medium text-muted-foreground">Trin {i + 1}</p>
-              {s.steps.length > 1 && <button onClick={() => removeStep(i)} className="text-muted-foreground hover:text-destructive"><Trash2 size={13} /></button>}
+              {s.steps.length > 1 && (
+                <button onClick={() => removeStep(i)} className="text-muted-foreground hover:text-destructive">
+                  <Trash2 size={13} />
+                </button>
+              )}
             </div>
             <div className="grid grid-cols-2 gap-3">
               <TextInput label="Nummer" value={step.n} onChange={v => updateStep(i, 'n', v)} placeholder="01" />
@@ -220,12 +223,16 @@ function StatsEditor({ s, onChange }: { s: StatsSection; onChange: (s: StatsSect
       <TextInput label="Undertekst" value={s.subtitle} onChange={v => onChange({ ...s, subtitle: v })} />
       <ImageInput label="Baggrundsbillede URL" value={s.imageUrl} onChange={v => onChange({ ...s, imageUrl: v })} />
       <div className="border-t pt-5 space-y-3">
-        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Statistikker</p>
+        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Statistikker ({s.items.length})</p>
         {s.items.map((item, i) => (
           <div key={i} className="rounded-lg border p-3 bg-muted/20">
             <div className="flex justify-between items-center mb-2">
               <p className="text-xs font-medium text-muted-foreground">Stat {i + 1}</p>
-              {s.items.length > 1 && <button onClick={() => removeItem(i)} className="text-muted-foreground hover:text-destructive"><Trash2 size={13} /></button>}
+              {s.items.length > 1 && (
+                <button onClick={() => removeItem(i)} className="text-muted-foreground hover:text-destructive">
+                  <Trash2 size={13} />
+                </button>
+              )}
             </div>
             <div className="grid grid-cols-2 gap-3">
               <TextInput label="Værdi" value={item.value} onChange={v => updateItem(i, 'value', v)} placeholder="127" />
@@ -269,12 +276,14 @@ function BoardEditor({ s, onChange }: { s: BoardSection; onChange: (s: BoardSect
     <div className="space-y-5">
       <TextInput label="Overskrift" value={s.heading} onChange={v => onChange({ ...s, heading: v })} />
       <div className="border-t pt-5 space-y-4">
-        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Bestyrelsesmedlemmer</p>
+        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Bestyrelsesmedlemmer ({s.members.length})</p>
         {s.members.map((m, i) => (
           <div key={i} className="rounded-lg border p-4 space-y-3 bg-muted/20">
             <div className="flex justify-between items-center">
               <p className="text-xs font-medium text-muted-foreground">Medlem {i + 1}</p>
-              <button onClick={() => removeMember(i)} className="text-muted-foreground hover:text-destructive"><Trash2 size={13} /></button>
+              <button onClick={() => removeMember(i)} className="text-muted-foreground hover:text-destructive">
+                <Trash2 size={13} />
+              </button>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <TextInput label="Navn" value={m.name} onChange={v => updateMember(i, 'name', v)} />
@@ -360,7 +369,7 @@ function AddSectionPanel({ onAdd, onClose }: { onAdd: (type: AnySection['type'])
     <div className="space-y-3">
       <div className="flex items-center justify-between mb-1">
         <p className="font-semibold text-sm">Tilføj ny sektion</p>
-        <button onClick={onClose} className="text-muted-foreground hover:text-foreground text-xs">Annuller</button>
+        <button onClick={onClose} className="text-muted-foreground hover:text-foreground text-xs underline">Annuller</button>
       </div>
       {types.map(t => (
         <button
@@ -382,11 +391,28 @@ export default function SiteEditor() {
   const [selectedId, setSelectedId] = useState<string>('hero');
   const [isDirty, setIsDirty] = useState(false);
   const [showAdd, setShowAdd] = useState(false);
+  const [showPreview, setShowPreview] = useState(true);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
 
+  // Fix dnd-kit: only start drag after moving 5px, so clicks work normally
   const sensors = useSensors(
-    useSensor(PointerSensor),
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
   );
+
+  // Send live preview to iframe on every content change
+  useEffect(() => {
+    const iframe = iframeRef.current;
+    if (!iframe) return;
+    const send = () => {
+      try {
+        iframe.contentWindow?.postMessage({ type: 'eauc-preview', content }, '*');
+      } catch { /* cross-origin guard */ }
+    };
+    iframe.addEventListener('load', send);
+    send(); // also try immediately if already loaded
+    return () => iframe.removeEventListener('load', send);
+  }, [content]);
 
   // Reload if another tab saves
   useEffect(() => {
@@ -460,32 +486,36 @@ export default function SiteEditor() {
   return (
     <AdminLayout>
       {/* Top bar */}
-      <div className="flex items-center justify-between px-6 py-3 border-b bg-background sticky top-0 z-10">
+      <div className="flex items-center justify-between px-6 py-3 border-b bg-background sticky top-0 z-10 shrink-0">
         <div className="flex items-center gap-3">
           <h1 className="font-semibold text-base">Sidedesigner</h1>
           {isDirty && <Badge variant="outline" className="text-amber-600 border-amber-300 bg-amber-50 text-xs">Ikke gemt</Badge>}
         </div>
         <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={() => setShowPreview(v => !v)} title="Vis/skjul forhåndsvisning">
+            {showPreview ? <PanelRight size={13} className="mr-1.5" /> : <Monitor size={13} className="mr-1.5" />}
+            {showPreview ? 'Skjul preview' : 'Vis preview'}
+          </Button>
           <Button variant="outline" size="sm" onClick={handleReset}>
             <RotateCcw size={13} className="mr-1.5" /> Nulstil
           </Button>
-          <Link href="/" target="_blank">
+          <a href="/" target="_blank" rel="noreferrer">
             <Button variant="outline" size="sm">
               <ExternalLink size={13} className="mr-1.5" /> Se siden
             </Button>
-          </Link>
-          <Button size="sm" onClick={handleSave} disabled={!isDirty} className="min-w-[120px]">
+          </a>
+          <Button size="sm" onClick={handleSave} disabled={!isDirty} className="min-w-[130px]">
             <Save size={13} className="mr-1.5" /> Gem ændringer
           </Button>
         </div>
       </div>
 
-      <div className="flex h-[calc(100vh-57px-57px)] overflow-hidden">
+      <div className="flex flex-1 overflow-hidden" style={{ height: 'calc(100vh - 57px)' }}>
         {/* Left: section list */}
-        <aside className="w-64 shrink-0 border-r bg-muted/20 flex flex-col overflow-hidden">
-          <div className="p-3 border-b">
+        <aside className="w-56 shrink-0 border-r bg-muted/20 flex flex-col overflow-hidden">
+          <div className="p-3 border-b shrink-0">
             <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Sektioner</p>
-            <p className="text-xs text-muted-foreground mt-0.5">Træk for at flytte · 👁 for at skjule</p>
+            <p className="text-xs text-muted-foreground mt-0.5">Træk ≡ for at flytte · 👁 for at skjule</p>
           </div>
           <div className="flex-1 overflow-y-auto p-2 space-y-1">
             <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
@@ -503,37 +533,35 @@ export default function SiteEditor() {
               </SortableContext>
             </DndContext>
           </div>
-          <div className="p-2 border-t">
+          <div className="p-2 border-t shrink-0">
             <Button variant="outline" size="sm" className="w-full" onClick={() => { setShowAdd(v => !v); }}>
               <Plus size={14} className="mr-1.5" /> Tilføj sektion
             </Button>
           </div>
         </aside>
 
-        {/* Right: edit panel */}
-        <main className="flex-1 overflow-y-auto">
+        {/* Middle: edit form */}
+        <div className="w-96 shrink-0 border-r overflow-y-auto bg-background">
           {showAdd ? (
-            <div className="p-6 max-w-xl">
+            <div className="p-5">
               <AddSectionPanel onAdd={addSection} onClose={() => setShowAdd(false)} />
             </div>
           ) : selected ? (
-            <div className="p-6 max-w-2xl">
-              <div className="flex items-center gap-3 mb-6">
+            <div className="p-5">
+              <div className="flex items-center gap-3 mb-5">
+                <h2 className="font-semibold text-base flex-1">{SECTION_LABELS[selected.type]}</h2>
                 <div className="flex items-center gap-2">
-                  <h2 className="font-semibold text-lg">{SECTION_LABELS[selected.type]}</h2>
-                  <div className="flex items-center gap-2">
-                    <Switch
-                      checked={selected.visible}
-                      onCheckedChange={() => toggleVisible(selected.id)}
-                      id={`vis-${selected.id}`}
-                    />
-                    <label htmlFor={`vis-${selected.id}`} className="text-sm text-muted-foreground cursor-pointer">
-                      {selected.visible ? 'Synlig' : 'Skjult'}
-                    </label>
-                  </div>
+                  <Switch
+                    checked={selected.visible}
+                    onCheckedChange={() => toggleVisible(selected.id)}
+                    id={`vis-${selected.id}`}
+                  />
+                  <label htmlFor={`vis-${selected.id}`} className="text-xs text-muted-foreground cursor-pointer select-none">
+                    {selected.visible ? 'Synlig' : 'Skjult'}
+                  </label>
                 </div>
               </div>
-              <div className="rounded-xl border bg-background p-6">
+              <div className="rounded-xl border bg-muted/10 p-5">
                 <SectionEditor section={selected} onChange={updateSection} />
               </div>
             </div>
@@ -542,7 +570,27 @@ export default function SiteEditor() {
               Vælg en sektion til venstre
             </div>
           )}
-        </main>
+        </div>
+
+        {/* Right: live preview iframe */}
+        {showPreview && (
+          <div className="flex-1 flex flex-col overflow-hidden bg-gray-100 dark:bg-gray-800">
+            <div className="flex items-center gap-2 px-3 py-1.5 border-b bg-background/80 backdrop-blur shrink-0">
+              <div className="flex gap-1.5">
+                <div className="w-3 h-3 rounded-full bg-red-400" />
+                <div className="w-3 h-3 rounded-full bg-yellow-400" />
+                <div className="w-3 h-3 rounded-full bg-green-400" />
+              </div>
+              <span className="text-xs text-muted-foreground flex-1 text-center">Live forhåndsvisning — opdateres i realtid</span>
+            </div>
+            <iframe
+              ref={iframeRef}
+              src="/"
+              className="flex-1 w-full border-0"
+              title="Live preview"
+            />
+          </div>
+        )}
       </div>
     </AdminLayout>
   );

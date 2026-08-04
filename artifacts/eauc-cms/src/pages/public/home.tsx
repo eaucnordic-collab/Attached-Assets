@@ -282,11 +282,18 @@ function SectionBlock({ section }: { section: AnySection }) {
 export default function EaucHome() {
   const [content, setContent] = useState<SiteContent>(loadSiteContent);
 
-  // Re-render when admin saves
+  // Re-render when admin saves OR sends live preview via postMessage
   useEffect(() => {
-    const handler = () => setContent(loadSiteContent());
-    window.addEventListener('eauc-content-changed', handler);
-    return () => window.removeEventListener('eauc-content-changed', handler);
+    const handleStorage = () => setContent(loadSiteContent());
+    const handleMessage = (e: MessageEvent) => {
+      if (e.data?.type === 'eauc-preview') setContent(e.data.content);
+    };
+    window.addEventListener('eauc-content-changed', handleStorage);
+    window.addEventListener('message', handleMessage);
+    return () => {
+      window.removeEventListener('eauc-content-changed', handleStorage);
+      window.removeEventListener('message', handleMessage);
+    };
   }, []);
 
   return (
