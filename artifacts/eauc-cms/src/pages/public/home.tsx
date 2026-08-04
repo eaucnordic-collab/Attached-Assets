@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Heart, Smile, Shield, Users, HandHeart, FileText, Check, Mail, MapPin, ExternalLink, Facebook, Instagram, Youtube } from 'lucide-react';
+import { Heart, Smile, Shield, Users, HandHeart, FileText, Check, Mail, MapPin, ExternalLink, Facebook, Instagram, Youtube, Menu, X } from 'lucide-react';
 import { loadSiteContent, type SiteContent, type AnySection, type HeroSection, type MissionSection, type HowSection, type StatsSection, type AboutSection, type BoardSection, type DonateSection, type TextSection } from '@/lib/site-content';
 import { LANGUAGES, UI_TRANSLATIONS, loadLang, saveLang, getTranslatedContent, type Lang } from '@/lib/i18n';
 
@@ -8,6 +8,19 @@ const CREAM = '#f5f0e8';
 const NAVY  = '#0f1523';
 const GOLD  = '#e8b400';
 const BLUE  = '#3b7dd8';
+
+// ─── Responsive hook ──────────────────────────────────────────────────────────
+function useWindowWidth() {
+  const [width, setWidth] = useState(() =>
+    typeof window !== 'undefined' ? window.innerWidth : 1200
+  );
+  useEffect(() => {
+    const handler = () => setWidth(window.innerWidth);
+    window.addEventListener('resize', handler);
+    return () => window.removeEventListener('resize', handler);
+  }, []);
+  return width;
+}
 
 // ─── Language Picker ─────────────────────────────────────────────────────────
 function LanguagePicker({ lang, onChange }: { lang: Lang; onChange: (l: Lang) => void }) {
@@ -32,6 +45,7 @@ function LanguagePicker({ lang, onChange }: { lang: Lang; onChange: (l: Lang) =>
           display: 'flex', alignItems: 'center', gap: 7,
           border: '1px solid rgba(255,255,255,0.22)', borderRadius: 999,
           padding: '5px 13px', background: 'transparent', cursor: 'pointer',
+          minHeight: 44,
         }}
       >
         <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.55)', letterSpacing: '0.05em' }}>{current.flag}</span>
@@ -61,6 +75,7 @@ function LanguagePicker({ lang, onChange }: { lang: Lang; onChange: (l: Lang) =>
                 border: 'none', cursor: 'pointer',
                 textAlign: 'left',
                 transition: 'background 0.1s',
+                minHeight: 44,
               }}
               onMouseEnter={e => { if (l.code !== lang) (e.currentTarget as HTMLElement).style.background = '#f7f7f7'; }}
               onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = l.code === lang ? '#f0f4ff' : 'transparent'; }}
@@ -85,16 +100,87 @@ function LanguagePicker({ lang, onChange }: { lang: Lang; onChange: (l: Lang) =>
 
 // ─── Sitewide Header ──────────────────────────────────────────────────────────
 function SiteHeader({ lang, onLangChange }: { lang: Lang; onLangChange: (l: Lang) => void }) {
+  const width = useWindowWidth();
+  const isMobile = width < 768;
+  const [menuOpen, setMenuOpen] = useState(false);
+  const ui = UI_TRANSLATIONS[lang];
+
+  // Close menu on desktop resize
+  useEffect(() => {
+    if (!isMobile) setMenuOpen(false);
+  }, [isMobile]);
+
+  const navLinks = [
+    { href: '#mission', label: ui.footerFull.navMission },
+    { href: '#mission', label: ui.footerFull.navHow },
+    { href: '#om-os',   label: ui.footerFull.navAbout },
+    { href: '#donér',  label: ui.footerFull.navDonate },
+  ];
+
   return (
-    <header style={{
-      position: 'fixed', top: 0, left: 0, right: 0, zIndex: 200,
-      background: 'rgba(8,10,18,0.96)', backdropFilter: 'blur(10px)',
-      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-      padding: '0 28px', height: 52,
-    }}>
-      <img src="/logo.png" alt="EAUC Nordic" style={{ height: 36, width: 'auto', objectFit: 'contain' }} />
-      <LanguagePicker lang={lang} onChange={onLangChange} />
-    </header>
+    <>
+      <header style={{
+        position: 'fixed', top: 0, left: 0, right: 0, zIndex: 200,
+        background: 'rgba(8,10,18,0.96)', backdropFilter: 'blur(10px)',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: isMobile ? '0 16px' : '0 28px', height: 52,
+      }}>
+        <img src="/logo.png" alt="EAUC Nordic" style={{ height: 36, width: 'auto', objectFit: 'contain' }} />
+
+        {isMobile ? (
+          <button
+            onClick={() => setMenuOpen(v => !v)}
+            aria-label={menuOpen ? 'Luk menu' : 'Åbn menu'}
+            style={{
+              background: 'transparent', border: 'none', cursor: 'pointer',
+              color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              width: 44, height: 44, borderRadius: 8,
+            }}
+          >
+            {menuOpen ? <X size={22} /> : <Menu size={22} />}
+          </button>
+        ) : (
+          <LanguagePicker lang={lang} onChange={onLangChange} />
+        )}
+      </header>
+
+      {/* Mobile nav drawer */}
+      {isMobile && menuOpen && (
+        <div style={{
+          position: 'fixed', top: 52, left: 0, right: 0, zIndex: 199,
+          background: 'rgba(8,10,18,0.98)', backdropFilter: 'blur(10px)',
+          padding: '20px 24px 28px',
+          animation: 'slideDown 0.18s ease',
+          borderBottom: '1px solid rgba(255,255,255,0.08)',
+        }}>
+          <nav style={{ display: 'flex', flexDirection: 'column', gap: 4, marginBottom: 20 }}>
+            {navLinks.map((link, i) => (
+              <a
+                key={i}
+                href={link.href}
+                onClick={() => setMenuOpen(false)}
+                style={{
+                  fontFamily: 'Inter, sans-serif', fontSize: 16, fontWeight: 500,
+                  color: 'rgba(255,255,255,0.85)', textDecoration: 'none',
+                  padding: '12px 0', borderBottom: '1px solid rgba(255,255,255,0.06)',
+                  display: 'block', minHeight: 44,
+                }}
+              >
+                {link.label}
+              </a>
+            ))}
+          </nav>
+          <LanguagePicker lang={lang} onChange={onLangChange} />
+        </div>
+      )}
+
+      <style>{`
+        @keyframes slideDown {
+          from { opacity: 0; transform: translateY(-8px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
+    </>
   );
 }
 
@@ -102,7 +188,7 @@ function SiteHeader({ lang, onLangChange }: { lang: Lang; onLangChange: (l: Lang
 function SocialIcon({ children, href }: { children: React.ReactNode; href: string }) {
   return (
     <a href={href} target="_blank" rel="noopener noreferrer" style={{
-      width: 36, height: 36, borderRadius: '50%',
+      width: 44, height: 44, borderRadius: '50%',
       border: '1px solid rgba(255,255,255,0.15)',
       display: 'flex', alignItems: 'center', justifyContent: 'center',
       color: 'rgba(255,255,255,0.5)', textDecoration: 'none',
@@ -120,8 +206,9 @@ function FooterLink({ href, children }: { href: string; children: React.ReactNod
   return (
     <a href={href} style={{
       fontFamily: 'Inter, sans-serif', fontSize: 14, color: 'rgba(255,255,255,0.55)',
-      textDecoration: 'none', display: 'block', padding: '4px 0', transition: 'color 0.15s',
-    }}
+      textDecoration: 'none', display: 'flex', alignItems: 'center', padding: '6px 0', transition: 'color 0.15s',
+      minHeight: 44,
+    } as React.CSSProperties}
       onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#fff'; }}
       onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.55)'; }}
     >
@@ -142,6 +229,8 @@ function FooterColTitle({ children }: { children: React.ReactNode }) {
 }
 
 function SiteFooter({ lang }: { lang: Lang }) {
+  const width = useWindowWidth();
+  const isMobile = width < 768;
   const f = UI_TRANSLATIONS[lang].footerFull;
 
   return (
@@ -151,7 +240,13 @@ function SiteFooter({ lang }: { lang: Lang }) {
       <div style={{ background: 'linear-gradient(90deg, #003893 0%, #003893 50%, #ffd500 50%, #ffd500 100%)', height: 4 }} />
 
       {/* ── Main footer grid ── */}
-      <div style={{ maxWidth: 1140, margin: '0 auto', padding: '64px 32px 48px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '48px 40px' }}>
+      <div style={{
+        maxWidth: 1140, margin: '0 auto',
+        padding: isMobile ? '48px 20px 40px' : '64px 32px 48px',
+        display: 'grid',
+        gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(220px, 1fr))',
+        gap: isMobile ? '40px 0' : '48px 40px',
+      }}>
 
         {/* Col 1 — Brand */}
         <div>
@@ -234,18 +329,23 @@ function SiteFooter({ lang }: { lang: Lang }) {
       <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', maxWidth: 1140, margin: '0 auto' }} />
 
       {/* ── Bottom bar ── */}
-      <div style={{ maxWidth: 1140, margin: '0 auto', padding: '20px 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
+      <div style={{
+        maxWidth: 1140, margin: '0 auto',
+        padding: isMobile ? '20px 20px' : '20px 32px',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        flexWrap: 'wrap', gap: 12,
+      }}>
         <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.28)', lineHeight: 1.5 }}>{f.copyright}</span>
-        <div style={{ display: 'flex', gap: 20, alignItems: 'center' }}>
-          <a href="#" style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', textDecoration: 'none' }}
+        <div style={{ display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap' }}>
+          <a href="#" style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', textDecoration: 'none', minHeight: 44, display: 'flex', alignItems: 'center' } as React.CSSProperties}
             onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.7)'; }}
             onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.35)'; }}
           >{f.privacy}</a>
-          <a href="#" style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', textDecoration: 'none' }}
+          <a href="#" style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', textDecoration: 'none', minHeight: 44, display: 'flex', alignItems: 'center' } as React.CSSProperties}
             onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.7)'; }}
             onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.35)'; }}
           >{f.cookies}</a>
-          <a href="/admin/login" style={{ fontSize: 12, color: 'rgba(255,255,255,0.2)', textDecoration: 'none', borderLeft: '1px solid rgba(255,255,255,0.1)', paddingLeft: 20 }}
+          <a href="/admin/login" style={{ fontSize: 12, color: 'rgba(255,255,255,0.2)', textDecoration: 'none', borderLeft: '1px solid rgba(255,255,255,0.1)', paddingLeft: 16, minHeight: 44, display: 'flex', alignItems: 'center' } as React.CSSProperties}
             onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.45)'; }}
             onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.2)'; }}
           >Admin</a>
@@ -258,23 +358,32 @@ function SiteFooter({ lang }: { lang: Lang }) {
 // ─── Section renderers ────────────────────────────────────────────────────────
 
 function HeroBlock({ s }: { s: HeroSection }) {
+  const width = useWindowWidth();
+  const isMobile = width < 768;
+
   return (
-    <section style={{ position: 'relative', minHeight: 460, display: 'flex', alignItems: 'center' }}>
+    <section style={{ position: 'relative', minHeight: isMobile ? 520 : 460, display: 'flex', alignItems: 'center' }}>
       <div style={{ position: 'absolute', inset: 0, backgroundImage: `url('${s.imageUrl}')`, backgroundSize: 'cover', backgroundPosition: 'center 30%' }} />
-      <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, rgba(8,10,20,0.78) 52%, rgba(8,10,20,0.18) 100%)' }} />
-      <div style={{ position: 'relative', zIndex: 1, maxWidth: 700, padding: '132px 48px 80px' }}>
+      <div style={{ position: 'absolute', inset: 0, background: isMobile
+        ? 'linear-gradient(to bottom, rgba(8,10,20,0.72) 0%, rgba(8,10,20,0.55) 100%)'
+        : 'linear-gradient(to right, rgba(8,10,20,0.78) 52%, rgba(8,10,20,0.18) 100%)'
+      }} />
+      <div style={{
+        position: 'relative', zIndex: 1, maxWidth: 700,
+        padding: isMobile ? '100px 20px 60px' : '132px 48px 80px',
+      }}>
         <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: 999, padding: '5px 14px', marginBottom: 28 }}>
           <span style={{ width: 8, height: 8, borderRadius: '50%', background: GOLD, display: 'inline-block' }} />
           <span style={{ color: '#fff', fontSize: 12, fontWeight: 500, letterSpacing: '0.08em', fontFamily: 'Inter, sans-serif' }}>{s.badge}</span>
         </div>
-        <h1 style={{ fontFamily: 'Playfair Display, serif', fontSize: 'clamp(36px,5vw,58px)', fontWeight: 700, lineHeight: 1.1, color: '#fff', margin: '0 0 6px' }}>{s.heading}</h1>
-        <h1 style={{ fontFamily: 'Playfair Display, serif', fontSize: 'clamp(36px,5vw,58px)', fontWeight: 700, lineHeight: 1.15, color: GOLD, margin: '0 0 22px' }}>{s.headingAccent}</h1>
-        <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 16, color: 'rgba(255,255,255,0.88)', lineHeight: 1.65, maxWidth: 460, margin: '0 0 36px' }}>{s.subtitle}</p>
-        <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>
-          <a href={s.ctaUrl} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: GOLD, color: NAVY, borderRadius: 999, padding: '13px 28px', fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 15, cursor: 'pointer', textDecoration: 'none' }}>
+        <h1 style={{ fontFamily: 'Playfair Display, serif', fontSize: 'clamp(32px,7vw,58px)', fontWeight: 700, lineHeight: 1.1, color: '#fff', margin: '0 0 6px' }}>{s.heading}</h1>
+        <h1 style={{ fontFamily: 'Playfair Display, serif', fontSize: 'clamp(32px,7vw,58px)', fontWeight: 700, lineHeight: 1.15, color: GOLD, margin: '0 0 22px' }}>{s.headingAccent}</h1>
+        <p style={{ fontFamily: 'Inter, sans-serif', fontSize: isMobile ? 15 : 16, color: 'rgba(255,255,255,0.88)', lineHeight: 1.65, maxWidth: 460, margin: '0 0 36px' }}>{s.subtitle}</p>
+        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+          <a href={s.ctaUrl} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: GOLD, color: NAVY, borderRadius: 999, padding: '14px 28px', fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 15, cursor: 'pointer', textDecoration: 'none', minHeight: 44 }}>
             <Heart size={16} fill={NAVY} /> {s.ctaLabel}
           </a>
-          <a href={s.cta2Url} style={{ display: 'inline-flex', alignItems: 'center', background: 'rgba(255,255,255,0.15)', color: '#fff', border: '1px solid rgba(255,255,255,0.4)', borderRadius: 999, padding: '13px 28px', fontFamily: 'Inter, sans-serif', fontWeight: 500, fontSize: 15, cursor: 'pointer', textDecoration: 'none' }}>
+          <a href={s.cta2Url} style={{ display: 'inline-flex', alignItems: 'center', background: 'rgba(255,255,255,0.15)', color: '#fff', border: '1px solid rgba(255,255,255,0.4)', borderRadius: 999, padding: '14px 28px', fontFamily: 'Inter, sans-serif', fontWeight: 500, fontSize: 15, cursor: 'pointer', textDecoration: 'none', minHeight: 44 }}>
             {s.cta2Label}
           </a>
         </div>
@@ -293,9 +402,9 @@ function MissionBlock({ s }: { s: MissionSection }) {
   return (
     <section id="mission" style={{ background: CREAM, padding: '80px 24px' }}>
       <div style={{ maxWidth: 760, margin: '0 auto', textAlign: 'center' }}>
-        <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: 40, fontWeight: 700, color: NAVY, margin: '0 0 20px' }}>{s.heading}</h2>
+        <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: 'clamp(28px,6vw,40px)', fontWeight: 700, color: NAVY, margin: '0 0 20px' }}>{s.heading}</h2>
         <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 16, color: '#555', lineHeight: 1.7, maxWidth: 540, margin: '0 auto 56px' }}>{s.subtitle}</p>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px,1fr))', gap: 24 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px,1fr))', gap: 24 }}>
           {s.cards.map((c, i) => (
             <div key={i} style={{ background: '#fff', borderRadius: 16, padding: '36px 28px', border: '1px solid rgba(0,0,0,0.07)', textAlign: 'center' }}>
               <div style={{ width: 56, height: 56, borderRadius: '50%', background: '#e8f0fb', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
@@ -312,11 +421,18 @@ function MissionBlock({ s }: { s: MissionSection }) {
 }
 
 function HowBlock({ s }: { s: HowSection }) {
+  const width = useWindowWidth();
+  const isMobile = width < 768;
+
   return (
     <section style={{ background: CREAM, padding: '0 24px 80px' }}>
       <div style={{ maxWidth: 820, margin: '0 auto' }}>
-        <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: 40, fontWeight: 700, color: NAVY, textAlign: 'center', margin: '0 0 56px' }}>{s.heading}</h2>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px,1fr))', gap: '36px 64px' }}>
+        <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: 'clamp(28px,6vw,40px)', fontWeight: 700, color: NAVY, textAlign: 'center', margin: '0 0 56px' }}>{s.heading}</h2>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(280px,1fr))',
+          gap: isMobile ? '32px 0' : '36px 64px',
+        }}>
           {s.steps.map((st, i) => (
             <div key={i}>
               <div style={{ fontFamily: 'Playfair Display, serif', fontSize: 28, fontWeight: 700, color: GOLD, marginBottom: 8 }}>{st.n}</div>
@@ -337,10 +453,10 @@ function StatsBlock({ s }: { s: StatsSection }) {
       <div style={{ position: 'absolute', inset: 0, background: 'rgba(10,12,24,0.78)' }} />
       <div style={{ position: 'relative', zIndex: 1, maxWidth: 900, margin: '0 auto' }}>
         <div style={{ textAlign: 'center', marginBottom: 24 }}>
-          <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: 36, fontWeight: 700, color: '#fff', margin: '0 0 8px' }}>{s.heading}</h2>
+          <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: 'clamp(26px,5vw,36px)', fontWeight: 700, color: '#fff', margin: '0 0 8px' }}>{s.heading}</h2>
           <p style={{ fontFamily: 'Inter, sans-serif', color: 'rgba(255,255,255,0.75)', fontSize: 15, margin: 0 }}>{s.subtitle}</p>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px,1fr))', gap: 32, paddingTop: 40 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px,1fr))', gap: 32, paddingTop: 40 }}>
           {s.items.map((st, i) => (
             <div key={i} style={{ textAlign: 'center' }}>
               <div style={{ fontFamily: 'Playfair Display, serif', fontSize: 'clamp(36px,5vw,52px)', fontWeight: 700, color: GOLD, lineHeight: 1 }}>{st.value}</div>
@@ -354,16 +470,18 @@ function StatsBlock({ s }: { s: StatsSection }) {
 }
 
 function AboutBlock({ s, lang }: { s: AboutSection; lang: Lang }) {
+  const width = useWindowWidth();
+  const isMobile = width < 768;
   const ui = UI_TRANSLATIONS[lang].about;
   return (
     <section id="om-os" style={{ background: CREAM, padding: '80px 24px' }}>
       <div style={{ maxWidth: 680, margin: '0 auto', textAlign: 'center' }}>
         <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, fontWeight: 700, letterSpacing: '0.15em', color: GOLD, textTransform: 'uppercase', marginBottom: 12 }}>{s.tagline}</div>
-        <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: 42, fontWeight: 700, color: NAVY, margin: '0 0 24px' }}>{s.heading}</h2>
+        <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: 'clamp(28px,6vw,42px)', fontWeight: 700, color: NAVY, margin: '0 0 24px' }}>{s.heading}</h2>
         <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 15, color: '#555', lineHeight: 1.75, margin: '0 auto 56px' }}>{s.text}</p>
         <h3 style={{ fontFamily: 'Playfair Display, serif', fontSize: 22, fontWeight: 700, color: NAVY, marginBottom: 32 }}>{ui.orgStructure}</h3>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <div style={{ background: NAVY, borderRadius: 14, padding: '24px 40px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, width: 260 }}>
+          <div style={{ background: NAVY, borderRadius: 14, padding: '24px 40px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, width: isMobile ? '100%' : 260 }}>
             <FileText size={28} color={GOLD} />
             <div>
               <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 700, color: '#fff', fontSize: 16 }}>EAUC Nordic</div>
@@ -371,12 +489,12 @@ function AboutBlock({ s, lang }: { s: AboutSection; lang: Lang }) {
             </div>
           </div>
           <div style={{ width: 2, height: 32, background: '#ccc' }} />
-          <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap', justifyContent: 'center' }}>
+          <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap', justifyContent: 'center', width: '100%' }}>
             {[
               { icon: <Users size={24} color={BLUE} />, title: ui.boardTitle, sub: ui.boardSub },
               { icon: <HandHeart size={24} color={GOLD} />, title: ui.volunteerTitle, sub: ui.volunteerSub },
             ].map(c => (
-              <div key={c.title} style={{ background: '#fff', border: '1px solid #e0dbd0', borderRadius: 14, padding: '24px 32px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, minWidth: 200 }}>
+              <div key={c.title} style={{ background: '#fff', border: '1px solid #e0dbd0', borderRadius: 14, padding: '24px 32px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, flex: isMobile ? '1 1 100%' : '0 0 auto', minWidth: isMobile ? 0 : 200 }}>
                 {c.icon}
                 <div>
                   <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 700, color: NAVY, fontSize: 15 }}>{c.title}</div>
@@ -387,7 +505,7 @@ function AboutBlock({ s, lang }: { s: AboutSection; lang: Lang }) {
           </div>
         </div>
         <h3 style={{ fontFamily: 'Playfair Display, serif', fontSize: 22, fontWeight: 700, color: NAVY, margin: '60px 0 24px' }}>{ui.registrationTitle}</h3>
-        <div style={{ background: '#fff', border: '1px solid #e0dbd0', borderRadius: 14, padding: '28px 32px', textAlign: 'left', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px 32px' }}>
+        <div style={{ background: '#fff', border: '1px solid #e0dbd0', borderRadius: 14, padding: isMobile ? '20px 16px' : '28px 32px', textAlign: 'left', display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: isMobile ? '20px 0' : '24px 32px' }}>
           <div>
             <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', color: '#999', textTransform: 'uppercase', marginBottom: 6 }}>{ui.cvrLabel}</div>
             <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 700, color: NAVY, fontSize: 15 }}>{s.cvr}</div>
@@ -396,7 +514,7 @@ function AboutBlock({ s, lang }: { s: AboutSection; lang: Lang }) {
             <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', color: '#999', textTransform: 'uppercase', marginBottom: 6 }}>{ui.nameLabel}</div>
             <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 700, color: NAVY, fontSize: 15 }}>{s.orgName}</div>
           </div>
-          <div style={{ gridColumn: '1 / -1' }}>
+          <div style={{ gridColumn: isMobile ? '1' : '1 / -1' }}>
             <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', color: '#999', textTransform: 'uppercase', marginBottom: 6 }}>{ui.addressLabel}</div>
             <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 700, color: NAVY, fontSize: 15 }}>{s.address}</div>
           </div>
@@ -411,9 +529,9 @@ function BoardBlock({ s }: { s: BoardSection }) {
     <section style={{ background: CREAM, padding: '0 24px 80px' }}>
       <div style={{ maxWidth: 820, margin: '0 auto' }}>
         <h3 style={{ fontFamily: 'Playfair Display, serif', fontSize: 24, fontWeight: 700, color: NAVY, textAlign: 'center', marginBottom: 32 }}>{s.heading}</h3>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px,1fr))', gap: 20 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px,1fr))', gap: 16 }}>
           {s.members.map((m, i) => (
-            <div key={i} style={{ background: '#fff', border: '1px solid #e0dbd0', borderRadius: 14, padding: '24px 20px', textAlign: 'center' }}>
+            <div key={i} style={{ background: '#fff', border: '1px solid #e0dbd0', borderRadius: 14, padding: '24px 16px', textAlign: 'center' }}>
               <div style={{ width: 64, height: 64, borderRadius: '50%', background: '#ede9e0', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
                 {m.photo
                   ? <img src={m.photo} alt={m.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -433,6 +551,8 @@ function DonateBlock({ s, lang }: { s: DonateSection; lang: Lang }) {
   const [selected, setSelected] = useState(s.amounts[1] ?? s.amounts[0]);
   const [custom, setCustom] = useState('');
   const [email, setEmail] = useState('');
+  const width = useWindowWidth();
+  const isMobile = width < 768;
   const ui = UI_TRANSLATIONS[lang].donate;
 
   // Reset selection when amounts change (language switch)
@@ -444,24 +564,24 @@ function DonateBlock({ s, lang }: { s: DonateSection; lang: Lang }) {
   return (
     <section id="donér" style={{ background: CREAM, padding: '80px 24px 100px' }}>
       <div style={{ maxWidth: 520, margin: '0 auto', textAlign: 'center' }}>
-        <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: 42, fontWeight: 700, color: NAVY, margin: '0 0 16px' }}>{s.heading}</h2>
+        <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: 'clamp(28px,6vw,42px)', fontWeight: 700, color: NAVY, margin: '0 0 16px' }}>{s.heading}</h2>
         <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 15, color: '#555', lineHeight: 1.65, margin: '0 0 40px' }}>{s.subtitle}</p>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12, marginBottom: 12 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2,1fr)' : 'repeat(4,1fr)', gap: 12, marginBottom: 12 }}>
           {s.amounts.map(a => (
             <button key={a} onClick={() => { setSelected(a); setCustom(''); }}
-              style={{ fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 16, padding: '16px 0', borderRadius: 12, cursor: 'pointer', border: selected === a && !custom ? `2px solid ${BLUE}` : '2px solid #d8d2c8', background: selected === a && !custom ? '#eef3fc' : '#fff', color: selected === a && !custom ? BLUE : NAVY }}>
+              style={{ fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 16, padding: '16px 0', borderRadius: 12, cursor: 'pointer', border: selected === a && !custom ? `2px solid ${BLUE}` : '2px solid #d8d2c8', background: selected === a && !custom ? '#eef3fc' : '#fff', color: selected === a && !custom ? BLUE : NAVY, minHeight: 52 }}>
               {a.toLocaleString('da-DK')} {ui.currency}
             </button>
           ))}
         </div>
         <input type="number" placeholder={ui.customPlaceholder} value={custom} onChange={e => { setCustom(e.target.value); setSelected(0); }}
-          style={{ width: '100%', padding: '15px 20px', borderRadius: 12, border: '2px solid #d8d2c8', fontFamily: 'Inter, sans-serif', fontSize: 15, color: NAVY, marginBottom: 20, boxSizing: 'border-box', background: '#fff' }} />
+          style={{ width: '100%', padding: '15px 20px', borderRadius: 12, border: '2px solid #d8d2c8', fontFamily: 'Inter, sans-serif', fontSize: 15, color: NAVY, marginBottom: 20, boxSizing: 'border-box', background: '#fff', minHeight: 52 }} />
         <div style={{ marginBottom: 8, textAlign: 'left' }}>
           <label style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#555' }}>{ui.emailLabel}</label>
         </div>
         <input type="email" placeholder={ui.emailPlaceholder} value={email} onChange={e => setEmail(e.target.value)}
-          style={{ width: '100%', padding: '15px 20px', borderRadius: 12, border: '2px solid #d8d2c8', fontFamily: 'Inter, sans-serif', fontSize: 15, color: NAVY, marginBottom: 24, boxSizing: 'border-box', background: '#fff' }} />
-        <button style={{ width: '100%', padding: '16px', borderRadius: 999, background: BLUE, color: '#fff', border: 'none', fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 17, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
+          style={{ width: '100%', padding: '15px 20px', borderRadius: 12, border: '2px solid #d8d2c8', fontFamily: 'Inter, sans-serif', fontSize: 15, color: NAVY, marginBottom: 24, boxSizing: 'border-box', background: '#fff', minHeight: 52 }} />
+        <button style={{ width: '100%', padding: '16px', borderRadius: 999, background: BLUE, color: '#fff', border: 'none', fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 17, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, minHeight: 52 }}>
           <Heart size={18} fill="#fff" /> {s.buttonLabel}
         </button>
         <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#999', marginTop: 16 }}>{s.note}</p>
@@ -477,7 +597,7 @@ function TextBlock({ s }: { s: TextSection }) {
   return (
     <section style={{ background: bg, padding: '72px 24px' }}>
       <div style={{ maxWidth: 720, margin: '0 auto', textAlign: 'center' }}>
-        {s.heading && <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: 36, fontWeight: 700, color, margin: '0 0 24px' }}>{s.heading}</h2>}
+        {s.heading && <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: 'clamp(24px,5vw,36px)', fontWeight: 700, color, margin: '0 0 24px' }}>{s.heading}</h2>}
         <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 16, color: subColor, lineHeight: 1.75, whiteSpace: 'pre-wrap' }}>{s.text}</p>
       </div>
     </section>
