@@ -111,7 +111,7 @@ export const DEFAULT_CONTENT: SiteContent = {
       heading: 'Om foreningen',
       text: 'European Association of Ukrainian Children – Nordic (EAUC Nordic) er stiftet som en uafhængig, almennyttig non-profit forening i Danmark. Vi arbejder for at give ukrainske børn tryghed, oplevelser og håb gennem ophold i Norden.',
       cvr: '46329406',
-      orgName: 'European Association og Ukrainian Children - Nordic',
+      orgName: 'European Association of Ukrainian Children - Nordic',
       address: 'Byparken 75, 1. 1, 5700 Svendborg',
     },
     {
@@ -191,6 +191,17 @@ export function loadSiteContent(): SiteContent {
         if (defaultContact && !contact.phone && defaultContact.phone) {
           dirty = true;
           return { ...contact, phone: defaultContact.phone };
+        }
+        return s;
+      });
+
+      // Migrate: fix "og" → "of" typo in orgName
+      parsed.sections = parsed.sections.map(s => {
+        if (s.type !== 'about') return s;
+        const about = s as AboutSection;
+        if (about.orgName === 'European Association og Ukrainian Children - Nordic') {
+          dirty = true;
+          return { ...about, orgName: 'European Association of Ukrainian Children - Nordic' };
         }
         return s;
       });
