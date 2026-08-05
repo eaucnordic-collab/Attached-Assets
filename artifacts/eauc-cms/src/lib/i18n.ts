@@ -184,10 +184,10 @@ export const CONTENT_TRANSLATIONS: Partial<Record<Lang, SiteContent>> = {
         id: 'board', type: 'board', visible: true,
         heading: 'Рада директорів',
         members: [
-          { name: 'Імʼя буде', role: 'Голова',              photo: '' },
-          { name: 'Імʼя буде', role: 'Заступник голови',    photo: '' },
-          { name: 'Імʼя буде', role: 'Скарбник',            photo: '' },
-          { name: 'Імʼя буде', role: 'Член ради',           photo: '' },
+          { name: 'Serhieiev Volodymyr', role: 'Голова',           photo: '' },
+          { name: 'Khoren Pogossian',    role: 'Заступник голови', photo: '' },
+          { name: 'Імʼя буде',           role: 'Скарбник',         photo: '' },
+          { name: 'Імʼя буде',           role: 'Член ради',        photo: '' },
         ],
       },
       {
@@ -197,6 +197,19 @@ export const CONTENT_TRANSLATIONS: Partial<Record<Lang, SiteContent>> = {
         amounts: [100, 250, 500, 1000],
         buttonLabel: 'Пожертвувати зараз',
         note: 'Безпечний платіж · Податкові пільги · 100% прозорість',
+      },
+      {
+        id: 'news', type: 'news', visible: true,
+        heading: 'Новини та звіти',
+        subtitle: 'Стежте за нашою роботою і дивіться, що дозволяють ваші пожертвування.',
+        items: [],
+      },
+      {
+        id: 'contact', type: 'contact', visible: true,
+        heading: 'Звʼяжіться з нами',
+        subtitle: 'Маєте питання, хочете волонтерити або співпрацювати? Ми раді почути від вас.',
+        email: 'info@eaucnordic.com',
+        phone: '+45 25 56 81 31',
       },
     ],
   },
@@ -259,10 +272,10 @@ export const CONTENT_TRANSLATIONS: Partial<Record<Lang, SiteContent>> = {
         id: 'board', type: 'board', visible: true,
         heading: 'Board of Directors',
         members: [
-          { name: 'Name pending', role: 'Chairman',       photo: '' },
-          { name: 'Name pending', role: 'Vice-chairman',  photo: '' },
-          { name: 'Name pending', role: 'Treasurer',      photo: '' },
-          { name: 'Name pending', role: 'Board member',   photo: '' },
+          { name: 'Serhieiev Volodymyr', role: 'Chairman',      photo: '' },
+          { name: 'Khoren Pogossian',    role: 'Vice-chairman', photo: '' },
+          { name: 'Name pending',        role: 'Treasurer',     photo: '' },
+          { name: 'Name pending',        role: 'Board member',  photo: '' },
         ],
       },
       {
@@ -272,6 +285,19 @@ export const CONTENT_TRANSLATIONS: Partial<Record<Lang, SiteContent>> = {
         amounts: [100, 250, 500, 1000],
         buttonLabel: 'Donate now',
         note: 'Secure payment · Tax deductible · 100% transparency',
+      },
+      {
+        id: 'news', type: 'news', visible: true,
+        heading: 'News & Reports',
+        subtitle: 'Follow our work and see what your donations make possible.',
+        items: [],
+      },
+      {
+        id: 'contact', type: 'contact', visible: true,
+        heading: 'Contact us',
+        subtitle: 'Have a question, want to volunteer, or wish to collaborate? We would love to hear from you.',
+        email: 'info@eaucnordic.com',
+        phone: '+45 25 56 81 31',
       },
     ],
   },
@@ -308,11 +334,15 @@ export function getTranslatedContent(lang: Lang, daContent: import('./site-conte
   if (lang === 'da') return daContent;
   const translated = CONTENT_TRANSLATIONS[lang];
   if (!translated) return daContent;
-  // Merge visibility and custom image overrides from Danish admin-saved content
+  // Build a lookup of translated sections
+  const translatedMap = new Map(translated.sections.map(s => [s.id, s]));
+  // Iterate over ALL Danish sections so nothing is lost;
+  // use the translated version when available, otherwise fall back to Danish.
   return {
-    sections: translated.sections.map(ts => {
-      const da = daContent.sections.find(s => s.id === ts.id);
-      return da ? { ...ts, visible: da.visible } : ts;
+    sections: daContent.sections.map(daSection => {
+      const ts = translatedMap.get(daSection.id);
+      if (!ts) return daSection; // no translation → show Danish
+      return { ...ts, visible: daSection.visible };
     }),
   };
 }

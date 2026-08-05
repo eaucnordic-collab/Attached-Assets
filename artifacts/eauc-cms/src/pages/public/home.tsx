@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
   Heart, Shield, Smile, Facebook, Instagram, Youtube,
-  Users, FileText, HandHeart, Mail, MapPin, ExternalLink,
+  Users, FileText, HandHeart, Mail, MapPin, Phone, ExternalLink,
   ChevronDown, Menu, X, Send, CheckCircle, Newspaper,
 } from 'lucide-react';
 import {
@@ -810,11 +810,11 @@ function ContactBlock({ s, lang }: { s: ContactSection; lang: Lang }) {
                   {s.phone && (
                     <div style={{ display: 'flex', gap: 14, alignItems: 'flex-start' }}>
                       <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                        <MapPin size={18} color={GOLD} />
+                        <Phone size={18} color={GOLD} />
                       </div>
                       <div>
                         <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, fontWeight: 700, letterSpacing: '0.1em', color: 'rgba(255,255,255,0.45)', textTransform: 'uppercase', marginBottom: 4 }}>Telefon</div>
-                        <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 15, color: '#fff' }}>{s.phone}</span>
+                        <a href={`tel:${s.phone.replace(/\s/g, '')}`} style={{ fontFamily: 'Inter, sans-serif', fontSize: 15, color: '#fff', textDecoration: 'none' }}>{s.phone}</a>
                       </div>
                     </div>
                   )}
