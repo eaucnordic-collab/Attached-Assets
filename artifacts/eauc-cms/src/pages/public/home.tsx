@@ -746,7 +746,7 @@ function ContactBlock({ s, lang }: { s: ContactSection; lang: Lang }) {
                   <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 15, color: '#666', margin: 0 }}>{ui.successMessage}</p>
                   <button onClick={() => { setStatus('idle'); setName(''); setEmail(''); setSubject(''); setMessage(''); }}
                     style={{ marginTop: 24, background: 'none', border: '2px solid #d8d2c8', borderRadius: 999, padding: '10px 24px', fontFamily: 'Inter, sans-serif', fontSize: 14, color: NAVY, cursor: 'pointer' }}>
-                    Send en ny besked
+                    {ui.sendAnother}
                   </button>
                 </div>
               ) : (
@@ -796,7 +796,7 @@ function ContactBlock({ s, lang }: { s: ContactSection; lang: Lang }) {
             {/* Contact info side-panel */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
               <div style={{ background: NAVY, borderRadius: 20, padding: '36px 32px', color: '#fff' }}>
-                <h3 style={{ fontFamily: 'Playfair Display, serif', fontSize: 20, fontWeight: 700, margin: '0 0 24px' }}>Kontaktoplysninger</h3>
+                <h3 style={{ fontFamily: 'Playfair Display, serif', fontSize: 20, fontWeight: 700, margin: '0 0 24px' }}>{ui.infoTitle}</h3>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
                   <div style={{ display: 'flex', gap: 14, alignItems: 'flex-start' }}>
                     <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -813,7 +813,7 @@ function ContactBlock({ s, lang }: { s: ContactSection; lang: Lang }) {
                         <Phone size={18} color={GOLD} />
                       </div>
                       <div>
-                        <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, fontWeight: 700, letterSpacing: '0.1em', color: 'rgba(255,255,255,0.45)', textTransform: 'uppercase', marginBottom: 4 }}>Telefon</div>
+                        <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, fontWeight: 700, letterSpacing: '0.1em', color: 'rgba(255,255,255,0.45)', textTransform: 'uppercase', marginBottom: 4 }}>{ui.phoneLabel}</div>
                         <a href={`tel:${s.phone.replace(/\s/g, '')}`} style={{ fontFamily: 'Inter, sans-serif', fontSize: 15, color: '#fff', textDecoration: 'none' }}>{s.phone}</a>
                       </div>
                     </div>
@@ -823,19 +823,19 @@ function ContactBlock({ s, lang }: { s: ContactSection; lang: Lang }) {
                       <MapPin size={18} color={GOLD} />
                     </div>
                     <div>
-                      <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, fontWeight: 700, letterSpacing: '0.1em', color: 'rgba(255,255,255,0.45)', textTransform: 'uppercase', marginBottom: 4 }}>Adresse</div>
+                      <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, fontWeight: 700, letterSpacing: '0.1em', color: 'rgba(255,255,255,0.45)', textTransform: 'uppercase', marginBottom: 4 }}>{ui.addressLabel}</div>
                       <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 15, color: '#fff', lineHeight: 1.6 }}>Byparken 75, 1. 1<br />5700 Svendborg</span>
                     </div>
                   </div>
                 </div>
               </div>
               <div style={{ background: '#fff', borderRadius: 20, padding: '28px 32px', border: '1px solid #e8e3da' }}>
-                <div style={{ fontFamily: 'Playfair Display, serif', fontSize: 17, fontWeight: 700, color: NAVY, marginBottom: 12 }}>Bliv frivillig</div>
+                <div style={{ fontFamily: 'Playfair Display, serif', fontSize: 17, fontWeight: 700, color: NAVY, marginBottom: 12 }}>{ui.volunteerTitle}</div>
                 <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, color: '#666', lineHeight: 1.7, margin: '0 0 16px' }}>
-                  Vi søger altid engagerede frivillige, der vil gøre en forskel for ukrainske børn.
+                  {ui.volunteerText}
                 </p>
-                <a href={`mailto:${s.email}?subject=Frivillig`} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, color: BLUE, fontFamily: 'Inter, sans-serif', fontSize: 14, fontWeight: 600, textDecoration: 'none' }}>
-                  <Heart size={14} color={BLUE} /> Skriv til os om frivillighed →
+                <a href={`mailto:${s.email}?subject=${encodeURIComponent(ui.volunteerSubject)}`} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, color: BLUE, fontFamily: 'Inter, sans-serif', fontSize: 14, fontWeight: 600, textDecoration: 'none' }}>
+                  <Heart size={14} color={BLUE} /> {ui.volunteerLink}
                 </a>
               </div>
             </div>

@@ -46,6 +46,9 @@ export type ContactForm = {
   subjectLabel: string; subjectPlaceholder: string;
   messageLabel: string; messagePlaceholder: string;
   sendLabel: string; successTitle: string; successMessage: string;
+  sendAnother: string;
+  infoTitle: string; phoneLabel: string; addressLabel: string;
+  volunteerTitle: string; volunteerText: string; volunteerLink: string; volunteerSubject: string;
 };
 
 export type UI = {
@@ -324,9 +327,42 @@ export const NAV_UI: Record<Lang, NavUI> = {
 // ─── Contact form UI translations ────────────────────────────────────────────
 
 export const CONTACT_UI: Record<Lang, ContactForm> = {
-  da: { nameLabel: 'Navn', namePlaceholder: 'Dit fulde navn', emailLabel: 'E-mail', emailPlaceholder: 'din@email.dk', subjectLabel: 'Emne', subjectPlaceholder: 'Hvad drejer din henvendelse sig om?', messageLabel: 'Besked', messagePlaceholder: 'Skriv din besked her...', sendLabel: 'Send besked', successTitle: 'Tak for din besked!', successMessage: 'Vi vender tilbage hurtigst muligt.' },
-  uk: { nameLabel: 'Ім\'я', namePlaceholder: 'Ваше повне ім\'я', emailLabel: 'E-mail', emailPlaceholder: 'ваш@email.ua', subjectLabel: 'Тема', subjectPlaceholder: 'Про що ваше звернення?', messageLabel: 'Повідомлення', messagePlaceholder: 'Напишіть ваше повідомлення...', sendLabel: 'Надіслати повідомлення', successTitle: 'Дякуємо за повідомлення!', successMessage: 'Ми відповімо вам якнайшвидше.' },
-  en: { nameLabel: 'Name', namePlaceholder: 'Your full name', emailLabel: 'Email', emailPlaceholder: 'your@email.com', subjectLabel: 'Subject', subjectPlaceholder: 'What is your message about?', messageLabel: 'Message', messagePlaceholder: 'Write your message here...', sendLabel: 'Send message', successTitle: 'Thank you for your message!', successMessage: 'We will get back to you as soon as possible.' },
+  da: {
+    nameLabel: 'Navn', namePlaceholder: 'Dit fulde navn',
+    emailLabel: 'E-mail', emailPlaceholder: 'din@email.dk',
+    subjectLabel: 'Emne', subjectPlaceholder: 'Hvad drejer din henvendelse sig om?',
+    messageLabel: 'Besked', messagePlaceholder: 'Skriv din besked her...',
+    sendLabel: 'Send besked', successTitle: 'Tak for din besked!', successMessage: 'Vi vender tilbage hurtigst muligt.',
+    sendAnother: 'Send en ny besked',
+    infoTitle: 'Kontaktoplysninger', phoneLabel: 'Telefon', addressLabel: 'Adresse',
+    volunteerTitle: 'Bliv frivillig',
+    volunteerText: 'Vi søger altid engagerede frivillige, der vil gøre en forskel for ukrainske børn.',
+    volunteerLink: 'Skriv til os om frivillighed →', volunteerSubject: 'Frivillig',
+  },
+  uk: {
+    nameLabel: 'Імʼя', namePlaceholder: 'Ваше повне імʼя',
+    emailLabel: 'E-mail', emailPlaceholder: 'ваш@email.ua',
+    subjectLabel: 'Тема', subjectPlaceholder: 'Про що ваше звернення?',
+    messageLabel: 'Повідомлення', messagePlaceholder: 'Напишіть ваше повідомлення...',
+    sendLabel: 'Надіслати повідомлення', successTitle: 'Дякуємо за повідомлення!', successMessage: 'Ми відповімо вам якнайшвидше.',
+    sendAnother: 'Надіслати нове повідомлення',
+    infoTitle: 'Контактна інформація', phoneLabel: 'Телефон', addressLabel: 'Адреса',
+    volunteerTitle: 'Стати волонтером',
+    volunteerText: 'Ми завжди шукаємо небайдужих волонтерів, які хочуть змінити життя українських дітей.',
+    volunteerLink: 'Напишіть нам про волонтерство →', volunteerSubject: 'Волонтер',
+  },
+  en: {
+    nameLabel: 'Name', namePlaceholder: 'Your full name',
+    emailLabel: 'Email', emailPlaceholder: 'your@email.com',
+    subjectLabel: 'Subject', subjectPlaceholder: 'What is your message about?',
+    messageLabel: 'Message', messagePlaceholder: 'Write your message here...',
+    sendLabel: 'Send message', successTitle: 'Thank you for your message!', successMessage: 'We will get back to you as soon as possible.',
+    sendAnother: 'Send another message',
+    infoTitle: 'Contact information', phoneLabel: 'Phone', addressLabel: 'Address',
+    volunteerTitle: 'Become a volunteer',
+    volunteerText: 'We are always looking for committed volunteers who want to make a difference for Ukrainian children.',
+    volunteerLink: 'Write to us about volunteering →', volunteerSubject: 'Volunteer',
+  },
 };
 
 /** Returns translated content for the given language, falling back to Danish content. */
