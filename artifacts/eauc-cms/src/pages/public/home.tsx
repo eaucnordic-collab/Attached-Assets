@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
-  Heart, Shield, Smile, Facebook, Instagram, Youtube,
+  Heart, Shield, Smile, Facebook, Instagram,
   Users, FileText, HandHeart, Mail, MapPin, Phone, ExternalLink,
   ChevronDown, Menu, X, Send, CheckCircle, Newspaper,
 } from 'lucide-react';
@@ -276,9 +276,8 @@ function SiteFooter({ lang }: { lang: Lang }) {
           <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', lineHeight: 1.7, margin: '0 0 28px', maxWidth: 260 }}>{f.tagline}</p>
           <div style={{ marginBottom: 8 }}><FooterColTitle>{f.followUs}</FooterColTitle></div>
           <div style={{ display: 'flex', gap: 10 }}>
-            <SocialIcon href="https://facebook.com"><Facebook size={16} /></SocialIcon>
-            <SocialIcon href="https://instagram.com"><Instagram size={16} /></SocialIcon>
-            <SocialIcon href="https://youtube.com"><Youtube size={16} /></SocialIcon>
+            <SocialIcon href="https://www.facebook.com/profile.php?id=61592491217605"><Facebook size={16} /></SocialIcon>
+            <SocialIcon href="https://www.instagram.com/eaucnordic/"><Instagram size={16} /></SocialIcon>
           </div>
         </div>
         {/* Col 2 — Navigation */}
