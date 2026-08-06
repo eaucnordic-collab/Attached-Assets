@@ -8,7 +8,7 @@ import {
   AnySection, HeroSection, MissionSection, HowSection, StatsSection,
   AboutSection, BoardSection, DonateSection, TextSection,
   NewsSection, ContactSection,
-  SiteContent, loadSiteContent, saveSiteContent,
+  SiteContent, loadSiteContent, saveSiteContent, fetchSiteContentFromAPI,
 } from '../../lib/site-content';
 import {
   Lang, UI_TRANSLATIONS, CONTACT_UI, NAV_UI,
@@ -867,6 +867,16 @@ function SectionBlock({ section, lang }: { section: AnySection; lang: Lang }) {
 export default function EaucHome() {
   const [daContent, setDaContent] = useState<SiteContent>(loadSiteContent);
   const [lang, setLang] = useState<Lang>(loadLang);
+
+  // Fetch authoritative content from server on mount (overrides localStorage cache)
+  useEffect(() => {
+    fetchSiteContentFromAPI().then(remote => {
+      if (remote) {
+        localStorage.setItem('eauc_site_content_v1', JSON.stringify(remote));
+        setDaContent(remote);
+      }
+    });
+  }, []);
 
   useEffect(() => {
     const handleStorage = () => setDaContent(loadSiteContent());

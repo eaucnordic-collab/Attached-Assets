@@ -213,6 +213,33 @@ export function loadSiteContent(): SiteContent {
   return DEFAULT_CONTENT;
 }
 
+// ─── API helpers ──────────────────────────────────────────────────────────────
+
+const API_URL = '/api/site-content';
+
+/** Fetch content from the server. Returns null if none stored yet. */
+export async function fetchSiteContentFromAPI(): Promise<SiteContent | null> {
+  try {
+    const res = await fetch(API_URL);
+    if (res.status === 404) return null;
+    if (!res.ok) return null;
+    return (await res.json()) as SiteContent;
+  } catch {
+    return null;
+  }
+}
+
+/** Persist content to the server and update localStorage cache. */
+export async function saveSiteContentToAPI(content: SiteContent): Promise<void> {
+  localStorage.setItem(KEY, JSON.stringify(content));
+  await fetch(API_URL, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(content),
+  });
+  window.dispatchEvent(new CustomEvent('eauc-content-changed'));
+}
+
 export function saveSiteContent(content: SiteContent): void {
   localStorage.setItem(KEY, JSON.stringify(content));
   window.dispatchEvent(new CustomEvent('eauc-content-changed'));

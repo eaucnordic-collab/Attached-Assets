@@ -10,3 +10,4 @@ export * from "./partners";
 export * from "./media";
 export * from "./forms";
 export * from "./settings";
+export * from "./site-content";

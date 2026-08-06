@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { AdminLayout } from '@/components/admin-layout';
 import {
   loadSiteContent, saveSiteContent, resetSiteContent, DEFAULT_CONTENT,
+  fetchSiteContentFromAPI, saveSiteContentToAPI,
   SECTION_LABELS, TEXT_SECTION_TEMPLATE, NEWS_ITEM_TEMPLATE, CONTACT_SECTION_TEMPLATE,
   type SiteContent, type AnySection, type CardItem, type StepItem,
   type StatItem, type MemberItem, type NewsItem,
@@ -482,6 +483,16 @@ export default function SiteEditor() {
     return () => iframe.removeEventListener('load', send);
   }, [content]);
 
+  // Load authoritative content from server on mount
+  useEffect(() => {
+    fetchSiteContentFromAPI().then(remote => {
+      if (remote) {
+        localStorage.setItem('eauc_site_content_v1', JSON.stringify(remote));
+        setContent(remote);
+      }
+    });
+  }, []);
+
   useEffect(() => {
     const handler = () => setContent(loadSiteContent());
     window.addEventListener('eauc-content-changed', handler);
@@ -537,17 +548,24 @@ export default function SiteEditor() {
   };
 
   const handleSave = () => {
-    saveSiteContent(content);
-    setIsDirty(false);
-    toast.success('Ændringer gemt! Siden er opdateret.', { duration: 2500 });
+    saveSiteContentToAPI(content).then(() => {
+      setIsDirty(false);
+      toast.success('Ændringer gemt! Siden er opdateret for alle.', { duration: 2500 });
+    }).catch(() => {
+      toast.error('Fejl ved gemning. Prøv igen.');
+    });
   };
 
   const handleReset = () => {
     if (!confirm('Er du sikker? Dette nulstiller alle ændringer til standardindholdet.')) return;
-    resetSiteContent();
-    setContent(loadSiteContent());
-    setIsDirty(false);
-    toast.info('Siden er nulstillet til standardindhold.');
+    saveSiteContentToAPI(DEFAULT_CONTENT).then(() => {
+      resetSiteContent();
+      setContent(DEFAULT_CONTENT);
+      setIsDirty(false);
+      toast.info('Siden er nulstillet til standardindhold.');
+    }).catch(() => {
+      toast.error('Fejl ved nulstilling. Prøv igen.');
+    });
   };
 
   const selected = content.sections.find(s => s.id === selectedId);
