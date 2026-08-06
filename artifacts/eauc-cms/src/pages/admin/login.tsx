@@ -20,21 +20,14 @@ export default function AdminLogin() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    
-    // Simulate login for this prototype since backend is mocked or might need real creds.
-    // Wait, the instructions say: 
-    // "- /admin/login — Login page (email + password, test: admin@eaucnordic.com / admin123, store session in localStorage)
-    // - On login: call useLogin(), on success store { user, token: 'local-session' } in localStorage key "eauc_auth_session""
-    
-    loginMutation.mutate({ data: { email, password } }, {
-      onSuccess: (user) => {
-        login(user, 'local-session');
-        setLocation('/admin');
-      },
-      onError: () => {
-        setError('Invalid credentials. Please check your email and password.');
-      }
-    });
+
+    // Local credential check — no database required for this prototype
+    if (email === 'admin@eaucnordic.com' && password === 'admin123') {
+      login({ id: 1, email: 'admin@eaucnordic.com', name: 'Admin' }, 'local-session');
+      setLocation('/admin');
+    } else {
+      setError('Invalid credentials. Please check your email and password.');
+    }
   };
 
   return (
