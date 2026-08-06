@@ -378,6 +378,17 @@ export function getTranslatedContent(lang: Lang, daContent: import('./site-conte
     sections: daContent.sections.map(daSection => {
       const ts = translatedMap.get(daSection.id);
       if (!ts) return daSection; // no translation → show Danish
+
+      // News items are content (not UI labels) — always use the Danish items
+      // so articles appear on every language. Only heading/subtitle is translated.
+      if (ts.type === 'news' && daSection.type === 'news') {
+        return {
+          ...ts,
+          items: (daSection as import('./site-content').NewsSection).items,
+          visible: daSection.visible,
+        };
+      }
+
       return { ...ts, visible: daSection.visible };
     }),
   };
