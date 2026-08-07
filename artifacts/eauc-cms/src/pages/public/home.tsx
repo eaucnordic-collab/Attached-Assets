@@ -152,9 +152,7 @@ function SiteHeader({ lang, onLangChange }: { lang: Lang; onLangChange: (l: Lang
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       }}>
         <a href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
-          <div style={{ background: 'rgba(255,255,255,0.95)', borderRadius: 10, padding: isMobile ? '4px 10px' : '5px 14px' }}>
-            <img src="/logo-text.png" alt="EAUC Nordic" style={{ height: isMobile ? 28 : 36, width: 'auto', objectFit: 'contain', display: 'block' }} />
-          </div>
+          <img src="/logo-text.png" alt="EAUC Nordic" style={{ height: isMobile ? 32 : 42, width: 'auto', objectFit: 'contain' }} />
         </a>
 
         {isMobile ? (
