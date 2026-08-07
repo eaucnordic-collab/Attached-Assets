@@ -272,7 +272,7 @@ function SiteFooter({ lang }: { lang: Lang }) {
       }}>
         {/* Col 1 — Brand */}
         <div>
-          <img src="/logo.png" alt="EAUC Nordic" style={{ height: 90, width: 'auto', objectFit: 'contain', marginBottom: 18 }} />
+          <img src="/logo.png" alt="EAUC Nordic" style={{ height: 150, width: 'auto', objectFit: 'contain', marginBottom: 18 }} />
           <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', lineHeight: 1.7, margin: '0 0 28px', maxWidth: 260 }}>{f.tagline}</p>
           <div style={{ marginBottom: 8 }}><FooterColTitle>{f.followUs}</FooterColTitle></div>
           <div style={{ display: 'flex', gap: 10 }}>
