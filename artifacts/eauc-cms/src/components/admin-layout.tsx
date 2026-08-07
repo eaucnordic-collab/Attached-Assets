@@ -76,7 +76,7 @@ export function AdminLayout({ children }: { children: ReactNode }) {
           <img
             src="/logo.png"
             alt="EAUC Nordic"
-            style={{ height: 26, width: 'auto', objectFit: 'contain', background: '#0f1523', borderRadius: 5, padding: '2px 5px' }}
+            style={{ height: 44, width: 'auto', objectFit: 'contain' }}
           />
           <span className="font-semibold text-sm tracking-tight leading-tight">EAUC Nordic</span>
         </div>
