@@ -369,28 +369,69 @@ function HeroBlock({ s }: { s: HeroSection }) {
   const width = useWindowWidth();
   const isMobile = width < 768;
   return (
-    <section style={{ position: 'relative', minHeight: isMobile ? 520 : 460, display: 'flex', alignItems: 'center' }}>
-      <div style={{ position: 'absolute', inset: 0, backgroundImage: `url('${s.imageUrl}')`, backgroundSize: 'cover', backgroundPosition: 'center 30%' }} />
-      <div style={{ position: 'absolute', inset: 0, background: isMobile
-        ? 'linear-gradient(to bottom, rgba(8,10,20,0.72) 0%, rgba(8,10,20,0.55) 100%)'
-        : 'linear-gradient(to right, rgba(8,10,20,0.78) 52%, rgba(8,10,20,0.18) 100%)',
-      }} />
-      <div style={{ position: 'relative', zIndex: 1, maxWidth: 700, padding: isMobile ? '100px 20px 60px' : '132px 48px 80px' }}>
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: 999, padding: '5px 14px', marginBottom: 28 }}>
-          <span style={{ width: 8, height: 8, borderRadius: '50%', background: GOLD, display: 'inline-block' }} />
-          <span style={{ color: '#fff', fontSize: 12, fontWeight: 500, letterSpacing: '0.08em', fontFamily: 'Inter, sans-serif' }}>{s.badge}</span>
+    <section style={{
+      position: 'relative',
+      minHeight: isMobile ? 520 : 500,
+      display: 'flex',
+      alignItems: 'center',
+      background: `linear-gradient(135deg, #080c1e 0%, #0d1b3e 60%, #0a1530 100%)`,
+      overflow: 'hidden',
+    }}>
+      {/* Subtle background texture */}
+      <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(ellipse at 70% 50%, rgba(200,168,75,0.08) 0%, transparent 60%)', pointerEvents: 'none' }} />
+
+      {/* Content */}
+      <div style={{
+        position: 'relative', zIndex: 1,
+        width: '100%', maxWidth: 1200,
+        margin: '0 auto',
+        padding: isMobile ? '110px 20px 60px' : '0 48px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: 40,
+        flexDirection: isMobile ? 'column' : 'row',
+      }}>
+        {/* Left: text */}
+        <div style={{ flex: '1 1 auto', maxWidth: isMobile ? '100%' : 560 }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,0.10)', border: '1px solid rgba(255,255,255,0.18)', borderRadius: 999, padding: '5px 14px', marginBottom: 28 }}>
+            <span style={{ width: 8, height: 8, borderRadius: '50%', background: GOLD, display: 'inline-block' }} />
+            <span style={{ color: '#fff', fontSize: 12, fontWeight: 500, letterSpacing: '0.08em', fontFamily: 'Inter, sans-serif' }}>{s.badge}</span>
+          </div>
+          <h1 style={{ fontFamily: 'Playfair Display, serif', fontSize: 'clamp(30px,5vw,56px)', fontWeight: 700, lineHeight: 1.1, color: '#fff', margin: '0 0 6px' }}>{s.heading}</h1>
+          <h1 style={{ fontFamily: 'Playfair Display, serif', fontSize: 'clamp(30px,5vw,56px)', fontWeight: 700, lineHeight: 1.15, color: GOLD, margin: '0 0 22px' }}>{s.headingAccent}</h1>
+          <p style={{ fontFamily: 'Inter, sans-serif', fontSize: isMobile ? 15 : 16, color: 'rgba(255,255,255,0.82)', lineHeight: 1.65, maxWidth: 460, margin: '0 0 36px' }}>{s.subtitle}</p>
+          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+            <a href={s.ctaUrl} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: GOLD, color: NAVY, borderRadius: 999, padding: '14px 28px', fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 15, cursor: 'pointer', textDecoration: 'none', minHeight: 44 }}>
+              <Heart size={16} fill={NAVY} /> {s.ctaLabel}
+            </a>
+            <a href={s.cta2Url} style={{ display: 'inline-flex', alignItems: 'center', background: 'rgba(255,255,255,0.12)', color: '#fff', border: '1px solid rgba(255,255,255,0.35)', borderRadius: 999, padding: '14px 28px', fontFamily: 'Inter, sans-serif', fontWeight: 500, fontSize: 15, cursor: 'pointer', textDecoration: 'none', minHeight: 44 }}>
+              {s.cta2Label}
+            </a>
+          </div>
         </div>
-        <h1 style={{ fontFamily: 'Playfair Display, serif', fontSize: 'clamp(32px,7vw,58px)', fontWeight: 700, lineHeight: 1.1, color: '#fff', margin: '0 0 6px' }}>{s.heading}</h1>
-        <h1 style={{ fontFamily: 'Playfair Display, serif', fontSize: 'clamp(32px,7vw,58px)', fontWeight: 700, lineHeight: 1.15, color: GOLD, margin: '0 0 22px' }}>{s.headingAccent}</h1>
-        <p style={{ fontFamily: 'Inter, sans-serif', fontSize: isMobile ? 15 : 16, color: 'rgba(255,255,255,0.88)', lineHeight: 1.65, maxWidth: 460, margin: '0 0 36px' }}>{s.subtitle}</p>
-        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-          <a href={s.ctaUrl} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: GOLD, color: NAVY, borderRadius: 999, padding: '14px 28px', fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 15, cursor: 'pointer', textDecoration: 'none', minHeight: 44 }}>
-            <Heart size={16} fill={NAVY} /> {s.ctaLabel}
-          </a>
-          <a href={s.cta2Url} style={{ display: 'inline-flex', alignItems: 'center', background: 'rgba(255,255,255,0.15)', color: '#fff', border: '1px solid rgba(255,255,255,0.4)', borderRadius: 999, padding: '14px 28px', fontFamily: 'Inter, sans-serif', fontWeight: 500, fontSize: 15, cursor: 'pointer', textDecoration: 'none', minHeight: 44 }}>
-            {s.cta2Label}
-          </a>
-        </div>
+
+        {/* Right: logo */}
+        {!isMobile && (
+          <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <img
+              src="/logo.png"
+              alt="EAUC Nordic"
+              style={{
+                width: 340, height: 340,
+                objectFit: 'contain',
+                filter: 'drop-shadow(0 8px 32px rgba(200,168,75,0.25))',
+              }}
+            />
+          </div>
+        )}
+        {isMobile && (
+          <img
+            src="/logo.png"
+            alt="EAUC Nordic"
+            style={{ width: 200, height: 200, objectFit: 'contain', margin: '0 auto', display: 'block' }}
+          />
+        )}
       </div>
     </section>
   );
