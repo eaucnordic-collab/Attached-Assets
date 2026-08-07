@@ -109,17 +109,63 @@ function TextareaInput({ label, value, onChange, rows = 3 }: { label: string; va
 }
 
 function ImageInput({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  async function handleFile(file: File) {
+    setUploading(true);
+    try {
+      // Step 1: get presigned URL
+      const res = await fetch('/api/storage/uploads/request-url', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: file.name, size: file.size, contentType: file.type }),
+      });
+      if (!res.ok) throw new Error('Failed to get upload URL');
+      const { uploadURL, objectPath } = await res.json();
+
+      // Step 2: upload directly to GCS
+      await fetch(uploadURL, {
+        method: 'PUT',
+        headers: { 'Content-Type': file.type },
+        body: file,
+      });
+
+      // Step 3: set serving URL
+      onChange(`/api/storage${objectPath}`);
+    } catch {
+      toast.error('Fejl ved upload af billede');
+    } finally {
+      setUploading(false);
+    }
+  }
+
   return (
     <Field label={label}>
       <div className="space-y-2">
         <div className="flex gap-2">
           <Input value={value} onChange={e => onChange(e.target.value)} placeholder="https://..." className="h-9 flex-1" />
+          <Button
+            variant="outline" size="sm" className="h-9 px-3 shrink-0"
+            disabled={uploading}
+            onClick={() => fileRef.current?.click()}
+            title="Upload billede"
+          >
+            {uploading ? <span className="animate-spin text-xs">⏳</span> : '📁'}
+          </Button>
           {value && (
             <a href={value} target="_blank" rel="noreferrer">
               <Button variant="outline" size="sm" className="h-9 px-2.5"><ExternalLink size={14} /></Button>
             </a>
           )}
         </div>
+        <input
+          ref={fileRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={e => e.target.files?.[0] && handleFile(e.target.files[0])}
+        />
         {value && (
           <div className="w-full h-24 rounded-lg overflow-hidden bg-muted border">
             <img src={value} alt="" className="w-full h-full object-cover" onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />
