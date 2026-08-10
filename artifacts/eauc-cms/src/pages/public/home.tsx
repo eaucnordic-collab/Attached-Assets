@@ -10,6 +10,7 @@ import {
   NewsSection, ContactSection,
   SiteContent, loadSiteContent, saveSiteContent, fetchSiteContentFromAPI,
 } from '../../lib/site-content';
+import { useSubmitForm, useListForms } from '@workspace/api-client-react';
 import {
   Lang, UI_TRANSLATIONS, CONTACT_UI, NAV_UI,
   LANGUAGES, loadLang, saveLang, getTranslatedContent,
@@ -738,10 +739,12 @@ function ContactBlock({ s, lang }: { s: ContactSection; lang: Lang }) {
   const [email, setEmail]     = useState('');
   const [subject, setSubject] = useState('');
   const [message, setMessage] = useState('');
-  const [status, setStatus]   = useState<'idle' | 'loading' | 'success'>('idle');
+  const [status, setStatus]   = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const ui = CONTACT_UI[lang];
   const width = useWindowWidth();
   const isMobile = width < 768;
+  const submitMutation = useSubmitForm();
+  const { data: forms } = useListForms();
 
   const inputStyle: React.CSSProperties = {
     width: '100%', padding: '14px 18px', borderRadius: 12,
@@ -752,13 +755,17 @@ function ContactBlock({ s, lang }: { s: ContactSection; lang: Lang }) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    // Find the real contact form (prefer "Contact Form" by name, fallback to first)
+    const contactForm = forms?.find(f => f.name === 'Contact Form') ?? forms?.[0];
+    if (!contactForm) return;
     setStatus('loading');
-    const body = `${name ? `Fra: ${name}\n\n` : ''}${message}`;
-    const mailto = `mailto:${s.email}?subject=${encodeURIComponent(subject || ui.subjectPlaceholder)}&body=${encodeURIComponent(body)}`;
-    setTimeout(() => {
-      window.location.href = mailto;
-      setStatus('success');
-    }, 600);
+    submitMutation.mutate(
+      { id: contactForm.id, data: { data: { name, email, subject, message } } },
+      {
+        onSuccess: () => setStatus('success'),
+        onError: () => setStatus('error'),
+      }
+    );
   };
 
   return (
