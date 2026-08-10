@@ -604,6 +604,7 @@ function DonateBlock({ s, lang }: { s: DonateSection; lang: Lang }) {
   const [selected, setSelected] = useState(s.amounts[1] ?? s.amounts[0]);
   const [custom, setCustom] = useState('');
   const [email, setEmail] = useState('');
+  const [donateStatus, setDonateStatus] = useState<'idle' | 'loading' | 'success'>('idle');
   const width = useWindowWidth();
   const isMobile = width < 768;
   const ui = UI_TRANSLATIONS[lang].donate;
@@ -629,26 +630,40 @@ function DonateBlock({ s, lang }: { s: DonateSection; lang: Lang }) {
           </div>
           <input type="email" placeholder={ui.emailPlaceholder} value={email} onChange={e => setEmail(e.target.value)}
             style={{ width: '100%', padding: '15px 20px', borderRadius: 12, border: '2px solid #d8d2c8', fontFamily: 'Inter, sans-serif', fontSize: 15, color: NAVY, marginBottom: 24, boxSizing: 'border-box', background: '#fff', minHeight: 52 }} />
-          <button
-            onClick={() => {
-              const amount = custom ? parseInt(custom) : selected;
-              if (!amount || amount <= 0) return;
-              // Send email notification (fire-and-forget)
-              fetch('/api/donate/notify', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ amount, email: email || undefined }),
-              }).catch(() => {});
-              // Open donation URL
-              if (s.donateUrl) {
-                window.open(s.donateUrl, '_blank', 'noopener,noreferrer');
-              }
-            }}
-            disabled={!s.donateUrl}
-            title={!s.donateUrl ? 'Donate URL not configured' : undefined}
-            style={{ width: '100%', padding: '16px', borderRadius: 999, background: s.donateUrl ? BLUE : '#aaa', color: '#fff', border: 'none', fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 17, cursor: s.donateUrl ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, minHeight: 52, opacity: s.donateUrl ? 1 : 0.6 }}>
-            <Heart size={18} fill="#fff" /> {s.buttonLabel}
-          </button>
+          {donateStatus === 'success' ? (
+            <div style={{ textAlign: 'center', padding: '16px 0' }}>
+              <CheckCircle size={40} color="#059669" style={{ marginBottom: 12 }} />
+              <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 16, fontWeight: 600, color: NAVY, margin: '0 0 4px' }}>
+                {lang === 'da' ? 'Tak for din interesse!' : lang === 'uk' ? 'Дякуємо за вашу підтримку!' : 'Thank you!'}
+              </p>
+              <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, color: '#666', margin: '0 0 16px' }}>
+                {lang === 'da' ? 'Vi vender tilbage til dig snarest.' : lang === 'uk' ? 'Ми зв\'яжемося з вами найближчим часом.' : 'We will get back to you soon.'}
+              </p>
+              <button onClick={() => { setDonateStatus('idle'); setEmail(''); setCustom(''); }}
+                style={{ background: 'none', border: '2px solid #d8d2c8', borderRadius: 999, padding: '10px 24px', fontFamily: 'Inter, sans-serif', fontSize: 14, color: NAVY, cursor: 'pointer' }}>
+                {lang === 'da' ? 'Donér igen' : lang === 'uk' ? 'Пожертвувати знову' : 'Donate again'}
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={async () => {
+                const amount = custom ? parseInt(custom) : selected;
+                if (!amount || amount <= 0) return;
+                setDonateStatus('loading');
+                try {
+                  await fetch('/api/donate/notify', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ amount, email: email || undefined }),
+                  });
+                } catch (_) {}
+                setDonateStatus('success');
+              }}
+              disabled={donateStatus === 'loading'}
+              style={{ width: '100%', padding: '16px', borderRadius: 999, background: BLUE, color: '#fff', border: 'none', fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 17, cursor: donateStatus === 'loading' ? 'wait' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, minHeight: 52, opacity: donateStatus === 'loading' ? 0.7 : 1, transition: 'opacity 0.2s' }}>
+              <Heart size={18} fill="#fff" /> {donateStatus === 'loading' ? '...' : s.buttonLabel}
+            </button>
+          )}
           <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#999', marginTop: 16 }}>{s.note}</p>
         </FadeUp>
       </div>
