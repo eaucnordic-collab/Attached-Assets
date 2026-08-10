@@ -2,6 +2,7 @@ import { Router, type IRouter } from "express";
 import { eq, desc } from "drizzle-orm";
 import { db, formsTable, submissionsTable } from "@workspace/db";
 import { serialize } from "../lib/serialize";
+import { sendMail } from "../lib/mailer";
 import {
   ListFormsResponse,
   CreateFormBody,
@@ -120,6 +121,35 @@ router.post("/forms/:id/submit", async (req, res): Promise<void> => {
       ipAddress: ip,
     })
     .returning();
+
+  // Send email notification if SMTP is configured
+  const notifyEmail = process.env.NOTIFY_EMAIL;
+  if (notifyEmail) {
+    const fields = parsed.data.data as Record<string, string>;
+    const rows = Object.entries(fields)
+      .map(([k, v]) => `<tr><td style="padding:6px 12px;font-weight:600;color:#555;white-space:nowrap">${k}</td><td style="padding:6px 12px">${v}</td></tr>`)
+      .join('');
+    sendMail({
+      to: notifyEmail,
+      subject: `Новая заявка с сайта EAUC Nordic — ${form.name}`,
+      html: `
+        <div style="font-family:sans-serif;max-width:600px;margin:0 auto">
+          <div style="background:#0d1b3e;padding:24px 32px">
+            <h1 style="color:#fff;margin:0;font-size:20px">EAUC Nordic</h1>
+          </div>
+          <div style="padding:24px 32px;background:#f9f9f9">
+            <h2 style="margin:0 0 16px;color:#0d1b3e">Новая заявка: ${form.name}</h2>
+            <table style="border-collapse:collapse;width:100%;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.08)">
+              ${rows}
+            </table>
+            <p style="margin:16px 0 0;color:#888;font-size:12px">
+              Получено ${new Date().toLocaleString('ru-RU', { timeZone: 'Europe/Copenhagen' })} · IP: ${ip ?? '—'}
+            </p>
+          </div>
+        </div>`,
+    }).catch((err) => console.error('[mailer] send error:', err));
+  }
+
   res.status(201).json(serialize(submission));
 
 });
