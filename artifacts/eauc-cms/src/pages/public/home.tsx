@@ -629,7 +629,15 @@ function DonateBlock({ s, lang }: { s: DonateSection; lang: Lang }) {
           </div>
           <input type="email" placeholder={ui.emailPlaceholder} value={email} onChange={e => setEmail(e.target.value)}
             style={{ width: '100%', padding: '15px 20px', borderRadius: 12, border: '2px solid #d8d2c8', fontFamily: 'Inter, sans-serif', fontSize: 15, color: NAVY, marginBottom: 24, boxSizing: 'border-box', background: '#fff', minHeight: 52 }} />
-          <button style={{ width: '100%', padding: '16px', borderRadius: 999, background: BLUE, color: '#fff', border: 'none', fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 17, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, minHeight: 52 }}>
+          <button
+            onClick={() => {
+              if (s.donateUrl) {
+                window.open(s.donateUrl, '_blank', 'noopener,noreferrer');
+              }
+            }}
+            disabled={!s.donateUrl}
+            title={!s.donateUrl ? 'Donate URL not configured' : undefined}
+            style={{ width: '100%', padding: '16px', borderRadius: 999, background: s.donateUrl ? BLUE : '#aaa', color: '#fff', border: 'none', fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 17, cursor: s.donateUrl ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, minHeight: 52, opacity: s.donateUrl ? 1 : 0.6 }}>
             <Heart size={18} fill="#fff" /> {s.buttonLabel}
           </button>
           <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#999', marginTop: 16 }}>{s.note}</p>

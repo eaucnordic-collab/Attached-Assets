@@ -364,6 +364,7 @@ function DonateEditor({ s, onChange }: { s: DonateSection; onChange: (s: DonateS
         />
       </Field>
       <TextInput label="Knaptekst" value={s.buttonLabel} onChange={v => onChange({ ...s, buttonLabel: v })} />
+      <TextInput label="Donate URL (MobilePay / Stripe / andet)" value={s.donateUrl ?? ''} onChange={v => onChange({ ...s, donateUrl: v })} placeholder="https://..." />
       <TextInput label="Notat under knap" value={s.note} onChange={v => onChange({ ...s, note: v })} />
     </div>
   );
