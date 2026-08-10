@@ -21,3 +21,10 @@ timeoutMs = 20000
 
 [nix]
 channel = "stable-25_05"
+
+[userenv]
+
+[userenv.shared]
+NOTIFY_EMAIL = "eaucnordic@gmail.com"
+SMTP_HOST = "smtp.gmail.com"
+SMTP_PORT = "587"
