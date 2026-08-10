@@ -631,6 +631,15 @@ function DonateBlock({ s, lang }: { s: DonateSection; lang: Lang }) {
             style={{ width: '100%', padding: '15px 20px', borderRadius: 12, border: '2px solid #d8d2c8', fontFamily: 'Inter, sans-serif', fontSize: 15, color: NAVY, marginBottom: 24, boxSizing: 'border-box', background: '#fff', minHeight: 52 }} />
           <button
             onClick={() => {
+              const amount = custom ? parseInt(custom) : selected;
+              if (!amount || amount <= 0) return;
+              // Send email notification (fire-and-forget)
+              fetch('/api/donate/notify', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ amount, email: email || undefined }),
+              }).catch(() => {});
+              // Open donation URL
               if (s.donateUrl) {
                 window.open(s.donateUrl, '_blank', 'noopener,noreferrer');
               }
