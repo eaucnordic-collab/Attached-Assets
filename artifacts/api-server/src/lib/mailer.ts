@@ -20,6 +20,7 @@ export interface MailOptions {
   to: string;
   subject: string;
   html: string;
+  replyTo?: string;
 }
 
 export async function sendMail(options: MailOptions): Promise<boolean> {
@@ -30,6 +31,7 @@ export async function sendMail(options: MailOptions): Promise<boolean> {
   }
   await transport.sendMail({
     from: `"EAUC Nordic" <${process.env.SMTP_USER}>`,
+    replyTo: options.replyTo,
     ...options,
   });
   return true;

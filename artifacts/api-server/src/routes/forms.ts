@@ -126,23 +126,39 @@ router.post("/forms/:id/submit", async (req, res): Promise<void> => {
   const notifyEmail = process.env.NOTIFY_EMAIL;
   if (notifyEmail) {
     const fields = parsed.data.data as Record<string, string>;
+    const senderEmail = fields['email'] || fields['Email'] || fields['e-mail'] || '';
+    const senderName = fields['name'] || fields['Name'] || fields['navn'] || '';
+
+    // Build table rows — highlight email row
     const rows = Object.entries(fields)
-      .map(([k, v]) => `<tr><td style="padding:6px 12px;font-weight:600;color:#555;white-space:nowrap">${k}</td><td style="padding:6px 12px">${v}</td></tr>`)
+      .map(([k, v]) => {
+        const isEmail = /^e?-?mail$/i.test(k);
+        return `<tr style="${isEmail ? 'background:#fffbe6' : ''}">
+          <td style="padding:8px 12px;font-weight:600;color:#555;white-space:nowrap;border-bottom:1px solid #f0f0f0">${k}</td>
+          <td style="padding:8px 12px;border-bottom:1px solid #f0f0f0">${isEmail ? `<a href="mailto:${v}" style="color:#0d1b3e">${v}</a>` : v}</td>
+        </tr>`;
+      })
       .join('');
+
     sendMail({
       to: notifyEmail,
-      subject: `Новая заявка с сайта EAUC Nordic — ${form.name}`,
+      replyTo: senderEmail ? `${senderName} <${senderEmail}>` : undefined,
+      subject: `Новая заявка с сайта EAUC Nordic${senderName ? ` от ${senderName}` : ''}`,
       html: `
         <div style="font-family:sans-serif;max-width:600px;margin:0 auto">
           <div style="background:#0d1b3e;padding:24px 32px">
             <h1 style="color:#fff;margin:0;font-size:20px">EAUC Nordic</h1>
+            <p style="color:#c8a84b;margin:4px 0 0;font-size:14px">Новая заявка с сайта</p>
           </div>
           <div style="padding:24px 32px;background:#f9f9f9">
-            <h2 style="margin:0 0 16px;color:#0d1b3e">Новая заявка: ${form.name}</h2>
+            ${senderEmail ? `<div style="background:#e8f4fd;border-left:4px solid #0d1b3e;padding:12px 16px;margin-bottom:20px;border-radius:0 8px 8px 0">
+              <p style="margin:0;font-size:13px;color:#555">Ответить отправителю:</p>
+              <a href="mailto:${senderEmail}" style="font-size:16px;font-weight:600;color:#0d1b3e;text-decoration:none">${senderEmail}</a>
+            </div>` : ''}
             <table style="border-collapse:collapse;width:100%;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.08)">
               ${rows}
             </table>
-            <p style="margin:16px 0 0;color:#888;font-size:12px">
+            <p style="margin:16px 0 0;color:#aaa;font-size:12px">
               Получено ${new Date().toLocaleString('ru-RU', { timeZone: 'Europe/Copenhagen' })} · IP: ${ip ?? '—'}
             </p>
           </div>
