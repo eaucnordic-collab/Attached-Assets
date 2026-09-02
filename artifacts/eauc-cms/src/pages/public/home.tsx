@@ -3,7 +3,7 @@ import {
   Heart, Shield, Smile, Facebook, Instagram,
   Users, FileText, HandHeart, Mail, MapPin, Phone, ExternalLink,
   ChevronDown, Menu, X, Send, CheckCircle, Newspaper,
-  Landmark, Globe2, Copy, Check,
+  Landmark, Copy, Check,
 } from 'lucide-react';
 import {
   AnySection, HeroSection, MissionSection, HowSection, StatsSection,
@@ -609,15 +609,10 @@ function BoardBlock({ s }: { s: BoardSection }) {
 }
 
 function DonateBlock({ s, lang }: { s: DonateSection; lang: Lang }) {
-  type PaymentMethod = 'bank' | 'paypal';
-
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('bank');
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const width = useWindowWidth();
   const isMobile = width < 768;
   const ui = UI_TRANSLATIONS[lang].donate;
-  const paypalUrl = (s.paypalUrl || s.donateUrl || '').trim();
-  const hasPaypalUrl = /^https?:\/\//i.test(paypalUrl);
   const bankDetails = [
     { key: 'bank', label: ui.bankName, value: s.bankName || 'Danske Bank' },
     { key: 'registration', label: ui.bankRegistration, value: s.bankRegistration || '9570' },
@@ -625,11 +620,6 @@ function DonateBlock({ s, lang }: { s: DonateSection; lang: Lang }) {
     { key: 'iban', label: ui.bankIban, value: s.bankIban || 'DK2630000014146679' },
     { key: 'swift', label: ui.bankSwift, value: s.bankSwift || 'DABADKKK' },
   ];
-  const paymentMethods: { id: PaymentMethod; label: string; icon: React.ReactNode }[] = [
-    { id: 'bank', label: ui.paymentBank, icon: <Landmark size={17} /> },
-    { id: 'paypal', label: ui.paymentPaypal, icon: <Globe2 size={17} /> },
-  ];
-
   const copyBankValue = async (key: string, value: string) => {
     try {
       await navigator.clipboard.writeText(value.replace(/\s/g, ''));
@@ -648,86 +638,34 @@ function DonateBlock({ s, lang }: { s: DonateSection; lang: Lang }) {
           <p style={{ maxWidth: 720, fontFamily: 'Inter, sans-serif', fontSize: isMobile ? 15 : 17, color: '#5f6673', lineHeight: 1.65, margin: '0 auto 38px' }}>{s.subtitle}</p>
 
           <div style={{ background: '#fff', border: '1px solid #d9dee7', borderRadius: 14, boxShadow: '0 2px 8px rgba(13,27,62,0.08)', overflow: 'hidden' }}>
-            <div role="tablist" aria-label="Payment methods" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', background: '#f7f8fa', borderBottom: '1px solid #dfe3e9' }}>
-              {paymentMethods.map(method => {
-                const active = paymentMethod === method.id;
-                return (
-                  <button
-                    key={method.id}
-                    role="tab"
-                    aria-selected={active}
-                    onClick={() => setPaymentMethod(method.id)}
-                    style={{
-                      minWidth: 0,
-                      minHeight: isMobile ? 58 : 54,
-                      padding: isMobile ? '10px 6px' : '12px 20px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: isMobile ? 6 : 9,
-                      border: 'none',
-                      borderRadius: active ? 8 : 0,
-                      margin: active ? 5 : 0,
-                      background: active ? '#fff' : 'transparent',
-                      boxShadow: active ? '0 1px 5px rgba(13,27,62,0.12)' : 'none',
-                      color: active ? NAVY : '#646b75',
-                      fontFamily: 'Inter, sans-serif',
-                      fontSize: isMobile ? 13 : 15,
-                      fontWeight: active ? 700 : 500,
-                      cursor: 'pointer',
-                    }}
-                  >
-                    {method.icon}
-                    <span style={{ overflowWrap: 'anywhere' }}>{method.label}</span>
-                  </button>
-                );
-              })}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 9, minHeight: isMobile ? 58 : 54, padding: '0 16px', background: '#f7f8fa', borderBottom: '1px solid #dfe3e9', color: NAVY, fontFamily: 'Inter, sans-serif', fontSize: isMobile ? 13 : 15, fontWeight: 700 }}>
+              <Landmark size={17} />
+              <span>{ui.paymentBank}</span>
             </div>
 
             <div role="tabpanel" style={{ minHeight: isMobile ? 360 : 370, padding: isMobile ? '34px 18px 28px' : '38px 44px 34px' }}>
-              {paymentMethod === 'bank' && (
-                <div style={{ maxWidth: 590, margin: '0 auto' }}>
-                  <h3 style={{ fontFamily: 'Inter, sans-serif', fontSize: 24, fontWeight: 750, color: NAVY, margin: '0 0 8px' }}>{ui.bankTitle}</h3>
-                  <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, color: '#68707c', margin: '0 0 26px' }}>{ui.bankSubtitle}</p>
-                  <div style={{ border: '1px solid #d9dee6', borderRadius: 9, overflow: 'hidden', textAlign: 'left' }}>
-                    {bankDetails.map((detail, index) => (
-                      <div key={detail.key} style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '150px minmax(0, 1fr)', alignItems: 'center', gap: isMobile ? 6 : 20, padding: isMobile ? '12px 14px' : '12px 16px', borderBottom: index < bankDetails.length - 1 ? '1px solid #e2e5ea' : 'none' }}>
-                        <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, color: '#747b85' }}>{detail.label}</span>
-                        <span style={{ minWidth: 0, display: 'flex', justifyContent: isMobile ? 'space-between' : 'flex-end', alignItems: 'center', gap: 10 }}>
-                          <strong style={{ minWidth: 0, color: NAVY, fontFamily: 'Inter, sans-serif', fontSize: isMobile ? 14 : 15, textAlign: 'right', overflowWrap: 'anywhere' }}>{detail.value}</strong>
-                          <button
-                            onClick={() => copyBankValue(detail.key, detail.value)}
-                            title={copiedField === detail.key ? ui.copied : ui.copy}
-                            aria-label={`${ui.copy}: ${detail.label}`}
-                            style={{ flexShrink: 0, width: 30, height: 30, border: 'none', borderRadius: 6, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: copiedField === detail.key ? '#e7f7ef' : 'transparent', color: copiedField === detail.key ? '#059669' : '#8a919c', cursor: 'pointer' }}
-                          >
-                            {copiedField === detail.key ? <Check size={15} /> : <Copy size={15} />}
-                          </button>
-                        </span>
+              <div style={{ maxWidth: 590, margin: '0 auto' }}>
+                <h3 style={{ fontFamily: 'Inter, sans-serif', fontSize: 24, fontWeight: 750, color: NAVY, margin: '0 0 8px' }}>{ui.bankTitle}</h3>
+                <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, color: '#68707c', margin: '0 0 26px' }}>{ui.bankSubtitle}</p>
+                <div style={{ border: '1px solid #d9dee6', borderRadius: 9, overflow: 'hidden', textAlign: 'left' }}>
+                  {bankDetails.map((detail, index) => (
+                    <div key={detail.key} style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '150px minmax(0, 1fr)', alignItems: 'center', gap: isMobile ? 6 : 20, padding: isMobile ? '12px 14px' : '12px 16px', borderBottom: index < bankDetails.length - 1 ? '1px solid #e2e5ea' : 'none' }}>
+                      <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, color: '#747b85' }}>{detail.label}</span>
+                      <span style={{ minWidth: 0, display: 'flex', justifyContent: isMobile ? 'space-between' : 'flex-end', alignItems: 'center', gap: 10 }}>
+                        <strong style={{ minWidth: 0, color: NAVY, fontFamily: 'Inter, sans-serif', fontSize: isMobile ? 14 : 15, textAlign: 'right', overflowWrap: 'anywhere' }}>{detail.value}</strong>
+                        <button
+                          onClick={() => copyBankValue(detail.key, detail.value)}
+                          title={copiedField === detail.key ? ui.copied : ui.copy}
+                          aria-label={`${ui.copy}: ${detail.label}`}
+                          style={{ flexShrink: 0, width: 30, height: 30, border: 'none', borderRadius: 6, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: copiedField === detail.key ? '#e7f7ef' : 'transparent', color: copiedField === detail.key ? '#059669' : '#8a919c', cursor: 'pointer' }}
+                        >
+                          {copiedField === detail.key ? <Check size={15} /> : <Copy size={15} />}
+                        </button>
+                      </span>
                       </div>
-                    ))}
-                  </div>
+                  ))}
                 </div>
-              )}
-
-              {paymentMethod === 'paypal' && (
-                <div style={{ maxWidth: 520, margin: '0 auto', paddingTop: isMobile ? 16 : 4 }}>
-                  <h3 style={{ fontFamily: 'Inter, sans-serif', fontSize: 24, fontWeight: 750, color: NAVY, margin: '0 0 8px' }}>{ui.paypalTitle}</h3>
-                  <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, color: '#68707c', margin: '0 0 24px' }}>{ui.paypalSubtitle}</p>
-                  {hasPaypalUrl ? (
-                    <a href={paypalUrl} target="_blank" rel="noreferrer" style={{ minHeight: 50, padding: '0 24px', borderRadius: 8, background: '#0070ba', color: '#fff', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 9, textDecoration: 'none', fontFamily: 'Inter, sans-serif', fontSize: 15, fontWeight: 700 }}>
-                      <Globe2 size={18} /> {ui.paypalButton}
-                    </a>
-                  ) : (
-                    <>
-                      <button disabled style={{ minHeight: 50, padding: '0 24px', borderRadius: 8, background: '#9aabba', color: '#fff', border: 'none', fontFamily: 'Inter, sans-serif', fontSize: 15, fontWeight: 700, cursor: 'not-allowed' }}>
-                        {ui.paypalButton}
-                      </button>
-                      <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#8b5e00', margin: '14px 0 0' }}>{ui.paypalNotConfigured}</p>
-                    </>
-                  )}
-                </div>
-              )}
+              </div>
             </div>
           </div>
         </FadeUp>

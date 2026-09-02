@@ -55,11 +55,8 @@ export type UI = {
   footer: { about: string; contact: string; privacy: string; copyright: string };
   footerFull: FooterFull;
   donate: {
-    customPlaceholder: string; emailLabel: string; emailPlaceholder: string; currency: string;
-    paymentCard: string; paymentBank: string; paymentPaypal: string;
-    cardTitle: string; cardSubtitle: string;
+    paymentBank: string;
     bankTitle: string; bankSubtitle: string;
-    paypalTitle: string; paypalSubtitle: string; paypalButton: string; paypalNotConfigured: string;
     bankName: string; bankRegistration: string; bankAccount: string; bankIban: string; bankSwift: string;
     copy: string; copied: string;
   };
@@ -88,11 +85,8 @@ export const UI_TRANSLATIONS: Record<Lang, UI> = {
       privacy: 'Privatlivspolitik', cookies: 'Cookiepolitik', copyright: '© 2026 European Association of Ukrainian Children – Nordic (EAUC Nordic) · CVR 46329406',
     },
     donate: {
-      customPlaceholder: 'Andet beløb', emailLabel: 'Email (til kvittering)', emailPlaceholder: 'din@email.dk', currency: 'kr',
-      paymentCard: 'Kort', paymentBank: 'Bank', paymentPaypal: 'PayPal',
-      cardTitle: 'Donér med kort', cardSubtitle: 'Vælg et beløb og betal sikkert via Stripe.',
+      paymentBank: 'Bank',
       bankTitle: 'Bankoverførsel', bankSubtitle: 'Overfør direkte til vores konto.',
-      paypalTitle: 'PayPal', paypalSubtitle: 'Donér nemt via PayPal.', paypalButton: 'Donér via PayPal', paypalNotConfigured: 'PayPal-link er endnu ikke konfigureret.',
       bankName: 'Bank', bankRegistration: 'Reg.nr.', bankAccount: 'Kontonr.', bankIban: 'IBAN', bankSwift: 'SWIFT / BIC',
       copy: 'Kopiér', copied: 'Kopieret',
     },
@@ -115,11 +109,8 @@ export const UI_TRANSLATIONS: Record<Lang, UI> = {
       privacy: 'Політика конфіденційності', cookies: 'Політика cookies', copyright: '© 2026 European Association of Ukrainian Children – Nordic (EAUC Nordic) · CVR 46329406',
     },
     donate: {
-      customPlaceholder: 'Інша сума', emailLabel: 'Email (для квитанції)', emailPlaceholder: 'ваш@email.ua', currency: 'kr',
-      paymentCard: 'Картка', paymentBank: 'Банк', paymentPaypal: 'PayPal',
-      cardTitle: 'Пожертвувати карткою', cardSubtitle: 'Оберіть суму та безпечно оплатіть через Stripe.',
+      paymentBank: 'Банк',
       bankTitle: 'Банківський переказ', bankSubtitle: 'Переказ безпосередньо на наш рахунок.',
-      paypalTitle: 'PayPal', paypalSubtitle: 'Зробіть пожертву через PayPal.', paypalButton: 'Пожертвувати через PayPal', paypalNotConfigured: 'Посилання PayPal ще не налаштоване.',
       bankName: 'Банк', bankRegistration: 'Реєстр. номер', bankAccount: 'Номер рахунку', bankIban: 'IBAN', bankSwift: 'SWIFT / BIC',
       copy: 'Копіювати', copied: 'Скопійовано',
     },
@@ -142,11 +133,8 @@ export const UI_TRANSLATIONS: Record<Lang, UI> = {
       privacy: 'Privacy policy', cookies: 'Cookie policy', copyright: '© 2026 European Association of Ukrainian Children – Nordic (EAUC Nordic) · CVR 46329406',
     },
     donate: {
-      customPlaceholder: 'Custom amount', emailLabel: 'Email (for receipt)', emailPlaceholder: 'your@email.com', currency: 'kr',
-      paymentCard: 'Card', paymentBank: 'Bank', paymentPaypal: 'PayPal',
-      cardTitle: 'Donate by card', cardSubtitle: 'Choose an amount and pay securely via Stripe.',
+      paymentBank: 'Bank',
       bankTitle: 'Bank transfer', bankSubtitle: 'Transfer directly to our account.',
-      paypalTitle: 'PayPal', paypalSubtitle: 'Donate easily via PayPal.', paypalButton: 'Donate via PayPal', paypalNotConfigured: 'The PayPal link has not been configured yet.',
       bankName: 'Bank', bankRegistration: 'Reg. no.', bankAccount: 'Account no.', bankIban: 'IBAN', bankSwift: 'SWIFT / BIC',
       copy: 'Copy', copied: 'Copied',
     },

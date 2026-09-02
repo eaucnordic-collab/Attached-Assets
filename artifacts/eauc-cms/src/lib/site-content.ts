@@ -21,8 +21,6 @@ export type DonateSection  = SectionBase & {
   amounts: number[];
   buttonLabel: string;
   note: string;
-  donateUrl?: string;
-  paypalUrl?: string;
   bankName?: string;
   bankRegistration?: string;
   bankAccount?: string;
@@ -145,7 +143,6 @@ export const DEFAULT_CONTENT: SiteContent = {
       amounts: [100, 250, 500, 1000],
       buttonLabel: 'Donér nu',
       note: 'Sikker betaling · Skattefradrag · 100% gennemsigtighed',
-      paypalUrl: '',
       bankName: 'Danske Bank',
       bankRegistration: '9570',
       bankAccount: '14146679',

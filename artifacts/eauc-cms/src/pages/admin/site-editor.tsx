@@ -365,10 +365,6 @@ function DonateEditor({ s, onChange }: { s: DonateSection; onChange: (s: DonateS
       </Field>
       <TextInput label="Knaptekst" value={s.buttonLabel} onChange={v => onChange({ ...s, buttonLabel: v })} />
       <div className="rounded-lg border p-4 space-y-4">
-        <p className="text-sm font-semibold">PayPal</p>
-        <TextInput label="PayPal donation URL" value={s.paypalUrl ?? s.donateUrl ?? ''} onChange={v => onChange({ ...s, paypalUrl: v })} placeholder="https://www.paypal.com/donate/..." />
-      </div>
-      <div className="rounded-lg border p-4 space-y-4">
         <p className="text-sm font-semibold">Bankoverførsel</p>
         <TextInput label="Bank" value={s.bankName ?? 'Danske Bank'} onChange={v => onChange({ ...s, bankName: v })} />
         <TextInput label="Reg.nr." value={s.bankRegistration ?? '9570'} onChange={v => onChange({ ...s, bankRegistration: v })} />
