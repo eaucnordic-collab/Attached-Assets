@@ -604,11 +604,19 @@ function DonateBlock({ s, lang }: { s: DonateSection; lang: Lang }) {
   const [selected, setSelected] = useState(s.amounts[1] ?? s.amounts[0]);
   const [custom, setCustom] = useState('');
   const [email, setEmail] = useState('');
-  const [donateStatus, setDonateStatus] = useState<'idle' | 'loading' | 'success'>('idle');
+  const [donateStatus, setDonateStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const width = useWindowWidth();
   const isMobile = width < 768;
   const ui = UI_TRANSLATIONS[lang].donate;
-  useEffect(() => { setSelected(s.amounts[1] ?? s.amounts[0]); setCustom(''); }, [s.amounts]);
+  useEffect(() => {
+    setSelected(s.amounts[1] ?? s.amounts[0]);
+    setCustom('');
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('donation') === 'success') {
+      setDonateStatus('success');
+      window.history.replaceState({}, '', window.location.pathname + window.location.hash);
+    }
+  }, [s.amounts]);
   return (
     <section id="donér" style={{ background: CREAM, padding: '80px 24px 100px' }}>
       <div style={{ maxWidth: 520, margin: '0 auto', textAlign: 'center' }}>
@@ -651,17 +659,23 @@ function DonateBlock({ s, lang }: { s: DonateSection; lang: Lang }) {
                 if (!amount || amount <= 0) return;
                 setDonateStatus('loading');
                 try {
-                  await fetch('/api/donate/notify', {
+                  const response = await fetch('/api/donate/checkout', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ amount, email: email || undefined }),
                   });
-                } catch (_) {}
-                setDonateStatus('success');
+                  const result = await response.json() as { url?: string; error?: string };
+                  if (!response.ok || !result.url) {
+                    throw new Error(result.error || 'Unable to start payment');
+                  }
+                  window.location.assign(result.url);
+                } catch (_) {
+                  setDonateStatus('error');
+                }
               }}
               disabled={donateStatus === 'loading'}
               style={{ width: '100%', padding: '16px', borderRadius: 999, background: BLUE, color: '#fff', border: 'none', fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 17, cursor: donateStatus === 'loading' ? 'wait' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, minHeight: 52, opacity: donateStatus === 'loading' ? 0.7 : 1, transition: 'opacity 0.2s' }}>
-              <Heart size={18} fill="#fff" /> {donateStatus === 'loading' ? '...' : s.buttonLabel}
+              <Heart size={18} fill="#fff" /> {donateStatus === 'loading' ? '...' : donateStatus === 'error' ? (lang === 'da' ? 'Prøv igen' : lang === 'uk' ? 'Спробувати ще раз' : 'Try again') : s.buttonLabel}
             </button>
           )}
           <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#999', marginTop: 16 }}>{s.note}</p>
