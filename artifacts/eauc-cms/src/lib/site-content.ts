@@ -148,8 +148,8 @@ export const DEFAULT_CONTENT: SiteContent = {
       paypalUrl: '',
       bankName: 'Danske Bank',
       bankRegistration: '9570',
-      bankAccount: '0014035575',
-      bankIban: 'DK12 3000 0014 0355 75',
+      bankAccount: '14146679',
+      bankIban: 'DK2630000014146679',
       bankSwift: 'DABADKKK',
     },
     {

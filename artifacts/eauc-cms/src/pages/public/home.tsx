@@ -621,8 +621,8 @@ function DonateBlock({ s, lang }: { s: DonateSection; lang: Lang }) {
   const bankDetails = [
     { key: 'bank', label: ui.bankName, value: s.bankName || 'Danske Bank' },
     { key: 'registration', label: ui.bankRegistration, value: s.bankRegistration || '9570' },
-    { key: 'account', label: ui.bankAccount, value: s.bankAccount || '0014035575' },
-    { key: 'iban', label: ui.bankIban, value: s.bankIban || 'DK12 3000 0014 0355 75' },
+    { key: 'account', label: ui.bankAccount, value: s.bankAccount || '14146679' },
+    { key: 'iban', label: ui.bankIban, value: s.bankIban || 'DK2630000014146679' },
     { key: 'swift', label: ui.bankSwift, value: s.bankSwift || 'DABADKKK' },
   ];
   const paymentMethods: { id: PaymentMethod; label: string; icon: React.ReactNode }[] = [
