@@ -386,7 +386,7 @@ function HeroBlock({ s }: { s: HeroSection }) {
         position: 'relative', zIndex: 1,
         width: '100%', maxWidth: 1200,
         margin: '0 auto',
-        padding: isMobile ? '110px 20px 60px' : '0 48px',
+         padding: isMobile ? '110px 20px 60px' : '92px 48px 48px',
          boxSizing: 'border-box',
          display: 'grid',
          gridTemplateColumns: isMobile ? 'minmax(0, 1fr)' : 'minmax(0, 560px) minmax(240px, 340px)',
