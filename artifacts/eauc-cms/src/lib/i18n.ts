@@ -55,7 +55,9 @@ export type UI = {
   footer: { about: string; contact: string; privacy: string; copyright: string };
   footerFull: FooterFull;
   donate: {
-    paymentBank: string;
+    paymentCard: string; paymentBank: string;
+    cardTitle: string; cardSubtitle: string; oneTime: string; monthly: string;
+    monthlyWhy: string; monthlyDescription: string; otherAmount: string; donate: string; perMonth: string;
     bankTitle: string; bankSubtitle: string;
     bankName: string; bankRegistration: string; bankAccount: string; bankIban: string; bankSwift: string;
     copy: string; copied: string;
@@ -85,7 +87,11 @@ export const UI_TRANSLATIONS: Record<Lang, UI> = {
       privacy: 'Privatlivspolitik', cookies: 'Cookiepolitik', copyright: '© 2026 European Association of Ukrainian Children – Nordic (EAUC Nordic) · CVR 46329406',
     },
     donate: {
-      paymentBank: 'Bank',
+      paymentCard: 'Kort', paymentBank: 'Bank',
+      cardTitle: 'Kort / betalingskort', cardSubtitle: 'Støt med et engangsbeløb eller fast hver måned.',
+      oneTime: 'Engangs', monthly: 'Månedligt',
+      monthlyWhy: 'Derfor hjælper månedligt os mest', monthlyDescription: 'En fast månedlig donation betyder rigtig meget for os. Den gør det muligt at planlægge transport, indkøb af medicinsk udstyr og aktiviteter for børnene i god tid.',
+      otherAmount: 'Andet beløb', donate: 'Donér', perMonth: '/ md',
       bankTitle: 'Bankoverførsel', bankSubtitle: 'Overfør direkte til vores konto.',
       bankName: 'Bank', bankRegistration: 'Reg.nr.', bankAccount: 'Kontonr.', bankIban: 'IBAN', bankSwift: 'SWIFT / BIC',
       copy: 'Kopiér', copied: 'Kopieret',
@@ -109,7 +115,11 @@ export const UI_TRANSLATIONS: Record<Lang, UI> = {
       privacy: 'Політика конфіденційності', cookies: 'Політика cookies', copyright: '© 2026 European Association of Ukrainian Children – Nordic (EAUC Nordic) · CVR 46329406',
     },
     donate: {
-      paymentBank: 'Банк',
+      paymentCard: 'Картка', paymentBank: 'Банк',
+      cardTitle: 'Картка', cardSubtitle: 'Підтримайте нас одноразовим або щомісячним внеском.',
+      oneTime: 'Одноразово', monthly: 'Щомісяця',
+      monthlyWhy: 'Чому щомісячна підтримка особливо важлива', monthlyDescription: 'Регулярна пожертва допомагає нам заздалегідь планувати транспорт, закупівлю медичного обладнання та активності для дітей.',
+      otherAmount: 'Інша сума', donate: 'Пожертвувати', perMonth: '/ міс.',
       bankTitle: 'Банківський переказ', bankSubtitle: 'Переказ безпосередньо на наш рахунок.',
       bankName: 'Банк', bankRegistration: 'Реєстр. номер', bankAccount: 'Номер рахунку', bankIban: 'IBAN', bankSwift: 'SWIFT / BIC',
       copy: 'Копіювати', copied: 'Скопійовано',
@@ -133,7 +143,11 @@ export const UI_TRANSLATIONS: Record<Lang, UI> = {
       privacy: 'Privacy policy', cookies: 'Cookie policy', copyright: '© 2026 European Association of Ukrainian Children – Nordic (EAUC Nordic) · CVR 46329406',
     },
     donate: {
-      paymentBank: 'Bank',
+      paymentCard: 'Card', paymentBank: 'Bank',
+      cardTitle: 'Card payment', cardSubtitle: 'Support us with a one-time or monthly donation.',
+      oneTime: 'One-time', monthly: 'Monthly',
+      monthlyWhy: 'Why monthly support helps us most', monthlyDescription: 'A regular monthly donation helps us plan transport, medical equipment and activities for children well in advance.',
+      otherAmount: 'Other amount', donate: 'Donate', perMonth: '/ mo.',
       bankTitle: 'Bank transfer', bankSubtitle: 'Transfer directly to our account.',
       bankName: 'Bank', bankRegistration: 'Reg. no.', bankAccount: 'Account no.', bankIban: 'IBAN', bankSwift: 'SWIFT / BIC',
       copy: 'Copy', copied: 'Copied',

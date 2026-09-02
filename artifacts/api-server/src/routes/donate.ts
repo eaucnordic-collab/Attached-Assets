@@ -23,8 +23,9 @@ function getOrigin(req: any): string {
 }
 
 router.post("/checkout", async (req, res) => {
-  const { amount, email } = req.body as { amount?: unknown; email?: unknown };
+  const { amount, email, recurring } = req.body as { amount?: unknown; email?: unknown; recurring?: unknown };
   const amountInKr = typeof amount === "number" ? amount : Number(amount);
+  const isRecurring = recurring === true;
 
   if (!Number.isFinite(amountInKr) || !Number.isInteger(amountInKr) || amountInKr < 1 || amountInKr > 1_000_000) {
     res.status(400).json({ error: "Choose a valid donation amount in DKK." });
@@ -39,15 +40,19 @@ router.post("/checkout", async (req, res) => {
     const donorEmail = isValidEmail(email) ? email : undefined;
     const origin = getOrigin(req);
     const params = new URLSearchParams();
-    params.set("mode", "payment");
+    params.set("mode", isRecurring ? "subscription" : "payment");
     params.set("payment_method_types[0]", "card");
     params.set("line_items[0][price_data][currency]", "dkk");
     params.set("line_items[0][price_data][product_data][name]", "Donation to EAUC Nordic");
     params.set("line_items[0][price_data][unit_amount]", String(amountInKr * 100));
+    if (isRecurring) {
+      params.set("line_items[0][price_data][recurring][interval]", "month");
+    }
     params.set("line_items[0][quantity]", "1");
     if (donorEmail) params.set("customer_email", donorEmail);
     params.set("metadata[donation_amount_kr]", String(amountInKr));
     params.set("metadata[donor_email]", donorEmail ?? "");
+    params.set("metadata[donation_frequency]", isRecurring ? "monthly" : "one_time");
     params.set("success_url", `${origin}/?donation=success&session_id={CHECKOUT_SESSION_ID}#don%C3%A9r`);
     params.set("cancel_url", `${origin}/?donation=cancelled#don%C3%A9r`);
 
