@@ -395,12 +395,12 @@ function HeroBlock({ s }: { s: HeroSection }) {
       }}>
         {/* Left: text */}
         <div style={{ flex: '1 1 auto', maxWidth: isMobile ? '100%' : 560 }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,0.10)', border: '1px solid rgba(255,255,255,0.18)', borderRadius: 999, padding: '5px 14px', marginBottom: 28 }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, maxWidth: '100%', boxSizing: 'border-box', background: 'rgba(255,255,255,0.10)', border: '1px solid rgba(255,255,255,0.18)', borderRadius: 999, padding: '5px 14px', marginBottom: 28 }}>
             <span style={{ width: 8, height: 8, borderRadius: '50%', background: GOLD, display: 'inline-block' }} />
-            <span style={{ color: '#fff', fontSize: 12, fontWeight: 500, letterSpacing: '0.08em', fontFamily: 'Inter, sans-serif' }}>{s.badge}</span>
+            <span style={{ color: '#fff', fontSize: 12, fontWeight: 500, letterSpacing: '0.08em', fontFamily: 'Inter, sans-serif', overflowWrap: 'anywhere' }}>{s.badge}</span>
           </div>
-          <h1 style={{ fontFamily: 'Playfair Display, serif', fontSize: 'clamp(30px,5vw,56px)', fontWeight: 700, lineHeight: 1.1, color: '#fff', margin: '0 0 6px' }}>{s.heading}</h1>
-          <h1 style={{ fontFamily: 'Playfair Display, serif', fontSize: 'clamp(30px,5vw,56px)', fontWeight: 700, lineHeight: 1.15, color: GOLD, margin: '0 0 22px' }}>{s.headingAccent}</h1>
+          <h1 style={{ maxWidth: '100%', overflowWrap: 'anywhere', fontFamily: 'Playfair Display, serif', fontSize: isMobile ? 'clamp(30px,9vw,44px)' : 'clamp(30px,5vw,56px)', fontWeight: 700, lineHeight: 1.1, color: '#fff', margin: '0 0 6px' }}>{s.heading}</h1>
+          <h1 style={{ maxWidth: '100%', overflowWrap: 'anywhere', fontFamily: 'Playfair Display, serif', fontSize: isMobile ? 'clamp(30px,9vw,44px)' : 'clamp(30px,5vw,56px)', fontWeight: 700, lineHeight: 1.15, color: GOLD, margin: '0 0 22px' }}>{s.headingAccent}</h1>
           <p style={{ fontFamily: 'Inter, sans-serif', fontSize: isMobile ? 15 : 16, color: 'rgba(255,255,255,0.82)', lineHeight: 1.65, maxWidth: 460, margin: '0 0 36px' }}>{s.subtitle}</p>
           <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
             <a href={s.ctaUrl} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: GOLD, color: NAVY, borderRadius: 999, padding: '14px 28px', fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 15, cursor: 'pointer', textDecoration: 'none', minHeight: 44 }}>
