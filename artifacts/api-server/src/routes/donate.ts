@@ -48,8 +48,8 @@ router.post("/checkout", async (req, res) => {
     if (donorEmail) params.set("customer_email", donorEmail);
     params.set("metadata[donation_amount_kr]", String(amountInKr));
     params.set("metadata[donor_email]", donorEmail ?? "");
-    params.set("success_url", `${origin}/?donation=success&session_id={CHECKOUT_SESSION_ID}#donér`);
-    params.set("cancel_url", `${origin}/?donation=cancelled#donér`);
+    params.set("success_url", `${origin}/?donation=success&session_id={CHECKOUT_SESSION_ID}#don%C3%A9r`);
+    params.set("cancel_url", `${origin}/?donation=cancelled#don%C3%A9r`);
 
     const response = await stripeProxy("/v1/checkout/sessions", {
       method: "POST",

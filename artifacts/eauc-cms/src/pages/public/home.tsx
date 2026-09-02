@@ -394,14 +394,20 @@ function HeroBlock({ s }: { s: HeroSection }) {
         flexDirection: isMobile ? 'column' : 'row',
       }}>
         {/* Left: text */}
-        <div style={{ flex: '1 1 auto', maxWidth: isMobile ? '100%' : 560 }}>
+        <div style={{
+          flex: '1 1 0%',
+          width: '100%',
+          minWidth: 0,
+          maxWidth: isMobile ? '100%' : 560,
+          boxSizing: 'border-box',
+        }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, maxWidth: '100%', boxSizing: 'border-box', background: 'rgba(255,255,255,0.10)', border: '1px solid rgba(255,255,255,0.18)', borderRadius: 999, padding: '5px 14px', marginBottom: 28 }}>
             <span style={{ width: 8, height: 8, borderRadius: '50%', background: GOLD, display: 'inline-block' }} />
             <span style={{ color: '#fff', fontSize: 12, fontWeight: 500, letterSpacing: '0.08em', fontFamily: 'Inter, sans-serif', overflowWrap: 'anywhere' }}>{s.badge}</span>
           </div>
-          <h1 style={{ maxWidth: '100%', overflowWrap: 'anywhere', fontFamily: 'Playfair Display, serif', fontSize: isMobile ? 'clamp(30px,9vw,44px)' : 'clamp(30px,5vw,56px)', fontWeight: 700, lineHeight: 1.1, color: '#fff', margin: '0 0 6px' }}>{s.heading}</h1>
-          <h1 style={{ maxWidth: '100%', overflowWrap: 'anywhere', fontFamily: 'Playfair Display, serif', fontSize: isMobile ? 'clamp(30px,9vw,44px)' : 'clamp(30px,5vw,56px)', fontWeight: 700, lineHeight: 1.15, color: GOLD, margin: '0 0 22px' }}>{s.headingAccent}</h1>
-          <p style={{ fontFamily: 'Inter, sans-serif', fontSize: isMobile ? 15 : 16, color: 'rgba(255,255,255,0.82)', lineHeight: 1.65, maxWidth: 460, margin: '0 0 36px' }}>{s.subtitle}</p>
+          <h1 style={{ width: '100%', maxWidth: '100%', minWidth: 0, overflowWrap: 'anywhere', wordBreak: 'break-word', fontFamily: 'Playfair Display, serif', fontSize: isMobile ? 'clamp(30px,9vw,44px)' : 'clamp(30px,5vw,56px)', fontWeight: 700, lineHeight: 1.1, color: '#fff', margin: '0 0 6px' }}>{s.heading}</h1>
+          <h1 style={{ width: '100%', maxWidth: '100%', minWidth: 0, overflowWrap: 'anywhere', wordBreak: 'break-word', fontFamily: 'Playfair Display, serif', fontSize: isMobile ? 'clamp(30px,9vw,44px)' : 'clamp(30px,5vw,56px)', fontWeight: 700, lineHeight: 1.15, color: GOLD, margin: '0 0 22px' }}>{s.headingAccent}</h1>
+          <p style={{ width: '100%', minWidth: 0, fontFamily: 'Inter, sans-serif', fontSize: isMobile ? 15 : 16, color: 'rgba(255,255,255,0.82)', lineHeight: 1.65, maxWidth: 460, overflowWrap: 'anywhere', wordBreak: 'break-word', margin: '0 0 36px' }}>{s.subtitle}</p>
           <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
             <a href={s.ctaUrl} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: GOLD, color: NAVY, borderRadius: 999, padding: '14px 28px', fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 15, cursor: 'pointer', textDecoration: 'none', minHeight: 44 }}>
               <Heart size={16} fill={NAVY} /> {s.ctaLabel}
@@ -605,18 +611,56 @@ function DonateBlock({ s, lang }: { s: DonateSection; lang: Lang }) {
   const [custom, setCustom] = useState('');
   const [email, setEmail] = useState('');
   const [donateStatus, setDonateStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const donationReturnHandled = useRef(false);
   const width = useWindowWidth();
   const isMobile = width < 768;
   const ui = UI_TRANSLATIONS[lang].donate;
   useEffect(() => {
     setSelected(s.amounts[1] ?? s.amounts[0]);
     setCustom('');
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('donation') === 'success') {
-      setDonateStatus('success');
-      window.history.replaceState({}, '', window.location.pathname + window.location.hash);
-    }
   }, [s.amounts]);
+
+  useEffect(() => {
+    if (donationReturnHandled.current) return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('donation') !== 'success') return;
+    donationReturnHandled.current = true;
+
+    const sessionId = params.get('session_id');
+    const clearDonationParams = () => {
+      params.delete('donation');
+      params.delete('session_id');
+      const query = params.toString();
+      window.history.replaceState(
+        {},
+        '',
+        `${window.location.pathname}${query ? `?${query}` : ''}${window.location.hash}`,
+      );
+    };
+
+    if (!sessionId) {
+      setDonateStatus('error');
+      clearDonationParams();
+      return;
+    }
+
+    let cancelled = false;
+    setDonateStatus('loading');
+    fetch(`/api/donate/complete?session_id=${encodeURIComponent(sessionId)}`)
+      .then(async response => {
+        const result = await response.json() as { paid?: boolean };
+        if (!response.ok || result.paid !== true) throw new Error('Payment was not confirmed');
+        if (!cancelled) setDonateStatus('success');
+      })
+      .catch(() => {
+        if (!cancelled) setDonateStatus('error');
+      })
+      .finally(() => {
+        if (!cancelled) clearDonationParams();
+      });
+
+    return () => { cancelled = true; };
+  }, []);
   return (
     <section id="donér" style={{ background: CREAM, padding: '80px 24px 100px' }}>
       <div style={{ maxWidth: 520, margin: '0 auto', textAlign: 'center' }}>
