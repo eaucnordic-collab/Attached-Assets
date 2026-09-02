@@ -387,15 +387,16 @@ function HeroBlock({ s }: { s: HeroSection }) {
         width: '100%', maxWidth: 1200,
         margin: '0 auto',
         padding: isMobile ? '110px 20px 60px' : '0 48px',
-        display: 'flex',
+         boxSizing: 'border-box',
+         display: 'grid',
+         gridTemplateColumns: isMobile ? 'minmax(0, 1fr)' : 'minmax(0, 560px) minmax(240px, 340px)',
         alignItems: 'center',
         justifyContent: 'space-between',
-        gap: 40,
-        flexDirection: isMobile ? 'column' : 'row',
+         columnGap: isMobile ? 0 : 'clamp(24px, 5vw, 72px)',
+         rowGap: isMobile ? 32 : 0,
       }}>
         {/* Left: text */}
         <div style={{
-          flex: '1 1 0%',
           width: '100%',
           minWidth: 0,
           maxWidth: isMobile ? '100%' : 560,
