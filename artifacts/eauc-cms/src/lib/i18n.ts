@@ -54,7 +54,15 @@ export type ContactForm = {
 export type UI = {
   footer: { about: string; contact: string; privacy: string; copyright: string };
   footerFull: FooterFull;
-  donate: { customPlaceholder: string; emailLabel: string; emailPlaceholder: string; currency: string };
+  donate: {
+    customPlaceholder: string; emailLabel: string; emailPlaceholder: string; currency: string;
+    paymentCard: string; paymentBank: string; paymentPaypal: string;
+    cardTitle: string; cardSubtitle: string;
+    bankTitle: string; bankSubtitle: string;
+    paypalTitle: string; paypalSubtitle: string; paypalButton: string; paypalNotConfigured: string;
+    bankName: string; bankRegistration: string; bankAccount: string; bankIban: string; bankSwift: string;
+    copy: string; copied: string;
+  };
   about: {
     orgStructure: string; nonprofitSub: string;
     boardTitle: string; boardSub: string; volunteerTitle: string; volunteerSub: string;
@@ -79,7 +87,15 @@ export const UI_TRANSLATIONS: Record<Lang, UI> = {
       followUs: 'Følg os',
       privacy: 'Privatlivspolitik', cookies: 'Cookiepolitik', copyright: '© 2026 European Association of Ukrainian Children – Nordic (EAUC Nordic) · CVR 46329406',
     },
-    donate: { customPlaceholder: 'Andet beløb', emailLabel: 'Email (til kvittering)', emailPlaceholder: 'din@email.dk', currency: 'kr' },
+    donate: {
+      customPlaceholder: 'Andet beløb', emailLabel: 'Email (til kvittering)', emailPlaceholder: 'din@email.dk', currency: 'kr',
+      paymentCard: 'Kort', paymentBank: 'Bank', paymentPaypal: 'PayPal',
+      cardTitle: 'Donér med kort', cardSubtitle: 'Vælg et beløb og betal sikkert via Stripe.',
+      bankTitle: 'Bankoverførsel', bankSubtitle: 'Overfør direkte til vores konto.',
+      paypalTitle: 'PayPal', paypalSubtitle: 'Donér nemt via PayPal.', paypalButton: 'Donér via PayPal', paypalNotConfigured: 'PayPal-link er endnu ikke konfigureret.',
+      bankName: 'Bank', bankRegistration: 'Reg.nr.', bankAccount: 'Kontonr.', bankIban: 'IBAN', bankSwift: 'SWIFT',
+      copy: 'Kopiér', copied: 'Kopieret',
+    },
     about: { orgStructure: 'Organisationsstruktur', nonprofitSub: 'Almennyttig forening · Danmark', boardTitle: 'Bestyrelse', boardSub: 'Strategisk ledelse', volunteerTitle: 'Frivillige', volunteerSub: 'Værtsfamilier & støtter', registrationTitle: 'Registreringsoplysninger', cvrLabel: 'CVR-NUMMER', nameLabel: 'FORENINGENS NAVN', addressLabel: 'ADRESSE' },
   },
   uk: {
@@ -98,7 +114,15 @@ export const UI_TRANSLATIONS: Record<Lang, UI> = {
       followUs: 'Слідкуйте за нами',
       privacy: 'Політика конфіденційності', cookies: 'Політика cookies', copyright: '© 2026 European Association of Ukrainian Children – Nordic (EAUC Nordic) · CVR 46329406',
     },
-    donate: { customPlaceholder: 'Інша сума', emailLabel: 'Email (для квитанції)', emailPlaceholder: 'ваш@email.ua', currency: 'kr' },
+    donate: {
+      customPlaceholder: 'Інша сума', emailLabel: 'Email (для квитанції)', emailPlaceholder: 'ваш@email.ua', currency: 'kr',
+      paymentCard: 'Картка', paymentBank: 'Банк', paymentPaypal: 'PayPal',
+      cardTitle: 'Пожертвувати карткою', cardSubtitle: 'Оберіть суму та безпечно оплатіть через Stripe.',
+      bankTitle: 'Банківський переказ', bankSubtitle: 'Переказ безпосередньо на наш рахунок.',
+      paypalTitle: 'PayPal', paypalSubtitle: 'Зробіть пожертву через PayPal.', paypalButton: 'Пожертвувати через PayPal', paypalNotConfigured: 'Посилання PayPal ще не налаштоване.',
+      bankName: 'Банк', bankRegistration: 'Реєстр. номер', bankAccount: 'Номер рахунку', bankIban: 'IBAN', bankSwift: 'SWIFT',
+      copy: 'Копіювати', copied: 'Скопійовано',
+    },
     about: { orgStructure: 'Структура організації', nonprofitSub: 'Некомерційна організація · Данія', boardTitle: 'Рада директорів', boardSub: 'Стратегічне керівництво', volunteerTitle: 'Волонтери', volunteerSub: 'Сімʼї-господарі та прихильники', registrationTitle: 'Реєстраційна інформація', cvrLabel: 'CVR-НОМЕР', nameLabel: 'НАЗВА ОРГАНІЗАЦІЇ', addressLabel: 'АДРЕСА' },
   },
   en: {
@@ -117,7 +141,15 @@ export const UI_TRANSLATIONS: Record<Lang, UI> = {
       followUs: 'Follow us',
       privacy: 'Privacy policy', cookies: 'Cookie policy', copyright: '© 2026 European Association of Ukrainian Children – Nordic (EAUC Nordic) · CVR 46329406',
     },
-    donate: { customPlaceholder: 'Custom amount', emailLabel: 'Email (for receipt)', emailPlaceholder: 'your@email.com', currency: 'kr' },
+    donate: {
+      customPlaceholder: 'Custom amount', emailLabel: 'Email (for receipt)', emailPlaceholder: 'your@email.com', currency: 'kr',
+      paymentCard: 'Card', paymentBank: 'Bank', paymentPaypal: 'PayPal',
+      cardTitle: 'Donate by card', cardSubtitle: 'Choose an amount and pay securely via Stripe.',
+      bankTitle: 'Bank transfer', bankSubtitle: 'Transfer directly to our account.',
+      paypalTitle: 'PayPal', paypalSubtitle: 'Donate easily via PayPal.', paypalButton: 'Donate via PayPal', paypalNotConfigured: 'The PayPal link has not been configured yet.',
+      bankName: 'Bank', bankRegistration: 'Reg. no.', bankAccount: 'Account no.', bankIban: 'IBAN', bankSwift: 'SWIFT',
+      copy: 'Copy', copied: 'Copied',
+    },
     about: { orgStructure: 'Organisational structure', nonprofitSub: 'Non-profit organisation · Denmark', boardTitle: 'Board of Directors', boardSub: 'Strategic leadership', volunteerTitle: 'Volunteers', volunteerSub: 'Host families & supporters', registrationTitle: 'Registration details', cvrLabel: 'CVR NUMBER', nameLabel: 'ORGANISATION NAME', addressLabel: 'ADDRESS' },
   },
 };
@@ -378,6 +410,10 @@ export function getTranslatedContent(lang: Lang, daContent: import('./site-conte
     sections: daContent.sections.map(daSection => {
       const ts = translatedMap.get(daSection.id);
       if (!ts) return daSection; // no translation → show Danish
+
+       if (ts.type === 'donate' && daSection.type === 'donate') {
+         return { ...daSection, ...ts, visible: daSection.visible };
+       }
 
       // News items are content (not UI labels) — always use the Danish items
       // so articles appear on every language. Only heading/subtitle is translated.

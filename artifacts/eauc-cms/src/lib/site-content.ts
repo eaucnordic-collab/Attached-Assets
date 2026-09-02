@@ -14,7 +14,21 @@ export type HowSection     = SectionBase & { type: 'how';     heading: string; s
 export type StatsSection   = SectionBase & { type: 'stats';   heading: string; subtitle: string; imageUrl: string; items: StatItem[] };
 export type AboutSection   = SectionBase & { type: 'about';   tagline: string; heading: string; text: string; cvr: string; orgName: string; address: string };
 export type BoardSection   = SectionBase & { type: 'board';   heading: string; members: MemberItem[] };
-export type DonateSection  = SectionBase & { type: 'donate';  heading: string; subtitle: string; amounts: number[]; buttonLabel: string; note: string; donateUrl?: string };
+export type DonateSection  = SectionBase & {
+  type: 'donate';
+  heading: string;
+  subtitle: string;
+  amounts: number[];
+  buttonLabel: string;
+  note: string;
+  donateUrl?: string;
+  paypalUrl?: string;
+  bankName?: string;
+  bankRegistration?: string;
+  bankAccount?: string;
+  bankIban?: string;
+  bankSwift?: string;
+};
 export type TextSection    = SectionBase & { type: 'text';    heading: string; text: string; background: 'cream' | 'white' | 'navy' };
 export type NewsSection    = SectionBase & { type: 'news';    heading: string; subtitle: string; items: NewsItem[] };
 export type ContactSection = SectionBase & { type: 'contact'; heading: string; subtitle: string; email: string; phone: string };
@@ -131,6 +145,12 @@ export const DEFAULT_CONTENT: SiteContent = {
       amounts: [100, 250, 500, 1000],
       buttonLabel: 'Donér nu',
       note: 'Sikker betaling · Skattefradrag · 100% gennemsigtighed',
+      paypalUrl: '',
+      bankName: 'Danske Bank',
+      bankRegistration: '9570',
+      bankAccount: '0014035575',
+      bankIban: 'DK12 3000 0014 0355 75',
+      bankSwift: 'DABADKKK',
     },
     {
       id: 'contact', type: 'contact', visible: true,
