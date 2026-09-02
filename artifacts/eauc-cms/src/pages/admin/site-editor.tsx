@@ -364,7 +364,18 @@ function DonateEditor({ s, onChange }: { s: DonateSection; onChange: (s: DonateS
         />
       </Field>
       <TextInput label="Knaptekst" value={s.buttonLabel} onChange={v => onChange({ ...s, buttonLabel: v })} />
-      <TextInput label="Donate URL (MobilePay / Stripe / andet)" value={s.donateUrl ?? ''} onChange={v => onChange({ ...s, donateUrl: v })} placeholder="https://..." />
+      <div className="rounded-lg border p-4 space-y-4">
+        <p className="text-sm font-semibold">PayPal</p>
+        <TextInput label="PayPal donation URL" value={s.paypalUrl ?? s.donateUrl ?? ''} onChange={v => onChange({ ...s, paypalUrl: v })} placeholder="https://www.paypal.com/donate/..." />
+      </div>
+      <div className="rounded-lg border p-4 space-y-4">
+        <p className="text-sm font-semibold">Bankoverførsel</p>
+        <TextInput label="Bank" value={s.bankName ?? 'Danske Bank'} onChange={v => onChange({ ...s, bankName: v })} />
+        <TextInput label="Reg.nr." value={s.bankRegistration ?? '9570'} onChange={v => onChange({ ...s, bankRegistration: v })} />
+        <TextInput label="Kontonr." value={s.bankAccount ?? '0014035575'} onChange={v => onChange({ ...s, bankAccount: v })} />
+        <TextInput label="IBAN" value={s.bankIban ?? 'DK12 3000 0014 0355 75'} onChange={v => onChange({ ...s, bankIban: v })} />
+        <TextInput label="SWIFT" value={s.bankSwift ?? 'DABADKKK'} onChange={v => onChange({ ...s, bankSwift: v })} />
+      </div>
       <TextInput label="Notat under knap" value={s.note} onChange={v => onChange({ ...s, note: v })} />
     </div>
   );

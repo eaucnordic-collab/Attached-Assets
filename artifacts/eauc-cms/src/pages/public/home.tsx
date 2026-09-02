@@ -3,6 +3,7 @@ import {
   Heart, Shield, Smile, Facebook, Instagram,
   Users, FileText, HandHeart, Mail, MapPin, Phone, ExternalLink,
   ChevronDown, Menu, X, Send, CheckCircle, Newspaper,
+  Landmark, Globe2, Copy, Check,
 } from 'lucide-react';
 import {
   AnySection, HeroSection, MissionSection, HowSection, StatsSection,
@@ -608,122 +609,127 @@ function BoardBlock({ s }: { s: BoardSection }) {
 }
 
 function DonateBlock({ s, lang }: { s: DonateSection; lang: Lang }) {
-  const [selected, setSelected] = useState(s.amounts[1] ?? s.amounts[0]);
-  const [custom, setCustom] = useState('');
-  const [email, setEmail] = useState('');
-  const [donateStatus, setDonateStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
-  const donationReturnHandled = useRef(false);
+  type PaymentMethod = 'bank' | 'paypal';
+
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('bank');
+  const [copiedField, setCopiedField] = useState<string | null>(null);
   const width = useWindowWidth();
   const isMobile = width < 768;
   const ui = UI_TRANSLATIONS[lang].donate;
-  useEffect(() => {
-    setSelected(s.amounts[1] ?? s.amounts[0]);
-    setCustom('');
-  }, [s.amounts]);
+  const paypalUrl = (s.paypalUrl || s.donateUrl || '').trim();
+  const hasPaypalUrl = /^https?:\/\//i.test(paypalUrl);
+  const bankDetails = [
+    { key: 'bank', label: ui.bankName, value: s.bankName || 'Danske Bank' },
+    { key: 'registration', label: ui.bankRegistration, value: s.bankRegistration || '9570' },
+    { key: 'account', label: ui.bankAccount, value: s.bankAccount || '0014035575' },
+    { key: 'iban', label: ui.bankIban, value: s.bankIban || 'DK12 3000 0014 0355 75' },
+    { key: 'swift', label: ui.bankSwift, value: s.bankSwift || 'DABADKKK' },
+  ];
+  const paymentMethods: { id: PaymentMethod; label: string; icon: React.ReactNode }[] = [
+    { id: 'bank', label: ui.paymentBank, icon: <Landmark size={17} /> },
+    { id: 'paypal', label: ui.paymentPaypal, icon: <Globe2 size={17} /> },
+  ];
 
-  useEffect(() => {
-    if (donationReturnHandled.current) return;
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('donation') !== 'success') return;
-    donationReturnHandled.current = true;
-
-    const sessionId = params.get('session_id');
-    const clearDonationParams = () => {
-      params.delete('donation');
-      params.delete('session_id');
-      const query = params.toString();
-      window.history.replaceState(
-        {},
-        '',
-        `${window.location.pathname}${query ? `?${query}` : ''}${window.location.hash}`,
-      );
-    };
-
-    if (!sessionId) {
-      setDonateStatus('error');
-      clearDonationParams();
-      return;
+  const copyBankValue = async (key: string, value: string) => {
+    try {
+      await navigator.clipboard.writeText(value.replace(/\s/g, ''));
+      setCopiedField(key);
+      window.setTimeout(() => setCopiedField(current => current === key ? null : current), 1600);
+    } catch {
+      setCopiedField(null);
     }
+  };
 
-    let cancelled = false;
-    setDonateStatus('loading');
-    fetch(`/api/donate/complete?session_id=${encodeURIComponent(sessionId)}`)
-      .then(async response => {
-        const result = await response.json() as { paid?: boolean };
-        if (!response.ok || result.paid !== true) throw new Error('Payment was not confirmed');
-        if (!cancelled) setDonateStatus('success');
-      })
-      .catch(() => {
-        if (!cancelled) setDonateStatus('error');
-      })
-      .finally(() => {
-        if (!cancelled) clearDonationParams();
-      });
-
-    return () => { cancelled = true; };
-  }, []);
   return (
-    <section id="donér" style={{ background: CREAM, padding: '80px 24px 100px' }}>
-      <div style={{ maxWidth: 520, margin: '0 auto', textAlign: 'center' }}>
+    <section id="donér" style={{ background: 'linear-gradient(180deg, #eef4ff 0%, #f7f4ef 100%)', padding: isMobile ? '64px 16px 80px' : '88px 24px 110px' }}>
+      <div style={{ maxWidth: 900, margin: '0 auto', textAlign: 'center' }}>
         <FadeUp>
-          <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: 'clamp(28px,6vw,42px)', fontWeight: 700, color: NAVY, margin: '0 0 16px' }}>{s.heading}</h2>
-          <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 15, color: '#555', lineHeight: 1.65, margin: '0 0 40px' }}>{s.subtitle}</p>
-          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2,1fr)' : 'repeat(4,1fr)', gap: 12, marginBottom: 12 }}>
-            {s.amounts.map(a => (
-              <button key={a} onClick={() => { setSelected(a); setCustom(''); }}
-                style={{ fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 16, padding: '16px 0', borderRadius: 12, cursor: 'pointer', border: selected === a && !custom ? `2px solid ${BLUE}` : '2px solid #d8d2c8', background: selected === a && !custom ? '#eef3fc' : '#fff', color: selected === a && !custom ? BLUE : NAVY, minHeight: 52 }}>
-                {a.toLocaleString('da-DK')} {ui.currency}
-              </button>
-            ))}
-          </div>
-          <input type="number" placeholder={ui.customPlaceholder} value={custom} onChange={e => { setCustom(e.target.value); setSelected(0); }}
-            style={{ width: '100%', padding: '15px 20px', borderRadius: 12, border: '2px solid #d8d2c8', fontFamily: 'Inter, sans-serif', fontSize: 15, color: NAVY, marginBottom: 20, boxSizing: 'border-box', background: '#fff', minHeight: 52 }} />
-          <div style={{ marginBottom: 8, textAlign: 'left' }}>
-            <label style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#555' }}>{ui.emailLabel}</label>
-          </div>
-          <input type="email" placeholder={ui.emailPlaceholder} value={email} onChange={e => setEmail(e.target.value)}
-            style={{ width: '100%', padding: '15px 20px', borderRadius: 12, border: '2px solid #d8d2c8', fontFamily: 'Inter, sans-serif', fontSize: 15, color: NAVY, marginBottom: 24, boxSizing: 'border-box', background: '#fff', minHeight: 52 }} />
-          {donateStatus === 'success' ? (
-            <div style={{ textAlign: 'center', padding: '16px 0' }}>
-              <CheckCircle size={40} color="#059669" style={{ marginBottom: 12 }} />
-              <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 16, fontWeight: 600, color: NAVY, margin: '0 0 4px' }}>
-                {lang === 'da' ? 'Tak for din interesse!' : lang === 'uk' ? 'Дякуємо за вашу підтримку!' : 'Thank you!'}
-              </p>
-              <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, color: '#666', margin: '0 0 16px' }}>
-                {lang === 'da' ? 'Vi vender tilbage til dig snarest.' : lang === 'uk' ? 'Ми зв\'яжемося з вами найближчим часом.' : 'We will get back to you soon.'}
-              </p>
-              <button onClick={() => { setDonateStatus('idle'); setEmail(''); setCustom(''); }}
-                style={{ background: 'none', border: '2px solid #d8d2c8', borderRadius: 999, padding: '10px 24px', fontFamily: 'Inter, sans-serif', fontSize: 14, color: NAVY, cursor: 'pointer' }}>
-                {lang === 'da' ? 'Donér igen' : lang === 'uk' ? 'Пожертвувати знову' : 'Donate again'}
-              </button>
+          <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: 'clamp(30px,6vw,44px)', fontWeight: 700, color: NAVY, margin: '0 0 12px' }}>{s.heading}</h2>
+          <p style={{ maxWidth: 720, fontFamily: 'Inter, sans-serif', fontSize: isMobile ? 15 : 17, color: '#5f6673', lineHeight: 1.65, margin: '0 auto 38px' }}>{s.subtitle}</p>
+
+          <div style={{ background: '#fff', border: '1px solid #d9dee7', borderRadius: 14, boxShadow: '0 2px 8px rgba(13,27,62,0.08)', overflow: 'hidden' }}>
+            <div role="tablist" aria-label="Payment methods" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', background: '#f7f8fa', borderBottom: '1px solid #dfe3e9' }}>
+              {paymentMethods.map(method => {
+                const active = paymentMethod === method.id;
+                return (
+                  <button
+                    key={method.id}
+                    role="tab"
+                    aria-selected={active}
+                    onClick={() => setPaymentMethod(method.id)}
+                    style={{
+                      minWidth: 0,
+                      minHeight: isMobile ? 58 : 54,
+                      padding: isMobile ? '10px 6px' : '12px 20px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: isMobile ? 6 : 9,
+                      border: 'none',
+                      borderRadius: active ? 8 : 0,
+                      margin: active ? 5 : 0,
+                      background: active ? '#fff' : 'transparent',
+                      boxShadow: active ? '0 1px 5px rgba(13,27,62,0.12)' : 'none',
+                      color: active ? NAVY : '#646b75',
+                      fontFamily: 'Inter, sans-serif',
+                      fontSize: isMobile ? 13 : 15,
+                      fontWeight: active ? 700 : 500,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    {method.icon}
+                    <span style={{ overflowWrap: 'anywhere' }}>{method.label}</span>
+                  </button>
+                );
+              })}
             </div>
-          ) : (
-            <button
-              onClick={async () => {
-                const amount = custom ? parseInt(custom) : selected;
-                if (!amount || amount <= 0) return;
-                setDonateStatus('loading');
-                try {
-                  const response = await fetch('/api/donate/checkout', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ amount, email: email || undefined }),
-                  });
-                  const result = await response.json() as { url?: string; error?: string };
-                  if (!response.ok || !result.url) {
-                    throw new Error(result.error || 'Unable to start payment');
-                  }
-                  window.location.assign(result.url);
-                } catch (_) {
-                  setDonateStatus('error');
-                }
-              }}
-              disabled={donateStatus === 'loading'}
-              style={{ width: '100%', padding: '16px', borderRadius: 999, background: BLUE, color: '#fff', border: 'none', fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 17, cursor: donateStatus === 'loading' ? 'wait' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, minHeight: 52, opacity: donateStatus === 'loading' ? 0.7 : 1, transition: 'opacity 0.2s' }}>
-              <Heart size={18} fill="#fff" /> {donateStatus === 'loading' ? '...' : donateStatus === 'error' ? (lang === 'da' ? 'Prøv igen' : lang === 'uk' ? 'Спробувати ще раз' : 'Try again') : s.buttonLabel}
-            </button>
-          )}
-          <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#999', marginTop: 16 }}>{s.note}</p>
+
+            <div role="tabpanel" style={{ minHeight: isMobile ? 360 : 370, padding: isMobile ? '34px 18px 28px' : '38px 44px 34px' }}>
+              {paymentMethod === 'bank' && (
+                <div style={{ maxWidth: 590, margin: '0 auto' }}>
+                  <h3 style={{ fontFamily: 'Inter, sans-serif', fontSize: 24, fontWeight: 750, color: NAVY, margin: '0 0 8px' }}>{ui.bankTitle}</h3>
+                  <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, color: '#68707c', margin: '0 0 26px' }}>{ui.bankSubtitle}</p>
+                  <div style={{ border: '1px solid #d9dee6', borderRadius: 9, overflow: 'hidden', textAlign: 'left' }}>
+                    {bankDetails.map((detail, index) => (
+                      <div key={detail.key} style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '150px minmax(0, 1fr)', alignItems: 'center', gap: isMobile ? 6 : 20, padding: isMobile ? '12px 14px' : '12px 16px', borderBottom: index < bankDetails.length - 1 ? '1px solid #e2e5ea' : 'none' }}>
+                        <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, color: '#747b85' }}>{detail.label}</span>
+                        <span style={{ minWidth: 0, display: 'flex', justifyContent: isMobile ? 'space-between' : 'flex-end', alignItems: 'center', gap: 10 }}>
+                          <strong style={{ minWidth: 0, color: NAVY, fontFamily: 'Inter, sans-serif', fontSize: isMobile ? 14 : 15, textAlign: 'right', overflowWrap: 'anywhere' }}>{detail.value}</strong>
+                          <button
+                            onClick={() => copyBankValue(detail.key, detail.value)}
+                            title={copiedField === detail.key ? ui.copied : ui.copy}
+                            aria-label={`${ui.copy}: ${detail.label}`}
+                            style={{ flexShrink: 0, width: 30, height: 30, border: 'none', borderRadius: 6, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: copiedField === detail.key ? '#e7f7ef' : 'transparent', color: copiedField === detail.key ? '#059669' : '#8a919c', cursor: 'pointer' }}
+                          >
+                            {copiedField === detail.key ? <Check size={15} /> : <Copy size={15} />}
+                          </button>
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {paymentMethod === 'paypal' && (
+                <div style={{ maxWidth: 520, margin: '0 auto', paddingTop: isMobile ? 16 : 4 }}>
+                  <h3 style={{ fontFamily: 'Inter, sans-serif', fontSize: 24, fontWeight: 750, color: NAVY, margin: '0 0 8px' }}>{ui.paypalTitle}</h3>
+                  <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, color: '#68707c', margin: '0 0 24px' }}>{ui.paypalSubtitle}</p>
+                  {hasPaypalUrl ? (
+                    <a href={paypalUrl} target="_blank" rel="noreferrer" style={{ minHeight: 50, padding: '0 24px', borderRadius: 8, background: '#0070ba', color: '#fff', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 9, textDecoration: 'none', fontFamily: 'Inter, sans-serif', fontSize: 15, fontWeight: 700 }}>
+                      <Globe2 size={18} /> {ui.paypalButton}
+                    </a>
+                  ) : (
+                    <>
+                      <button disabled style={{ minHeight: 50, padding: '0 24px', borderRadius: 8, background: '#9aabba', color: '#fff', border: 'none', fontFamily: 'Inter, sans-serif', fontSize: 15, fontWeight: 700, cursor: 'not-allowed' }}>
+                        {ui.paypalButton}
+                      </button>
+                      <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#8b5e00', margin: '14px 0 0' }}>{ui.paypalNotConfigured}</p>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
         </FadeUp>
       </div>
     </section>
