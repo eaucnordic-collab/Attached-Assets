@@ -624,6 +624,16 @@ export default function SiteEditor() {
     return () => window.removeEventListener('eauc-content-changed', handler);
   }, []);
 
+  useEffect(() => {
+    if (content.sections.some(section => section.type === 'footer')) return;
+    const defaultFooter = DEFAULT_CONTENT.sections.find(section => section.type === 'footer');
+    if (defaultFooter) {
+      setContent(current => current.sections.some(section => section.type === 'footer')
+        ? current
+        : { ...current, sections: [...current.sections, defaultFooter] });
+    }
+  }, [content]);
+
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     if (over && active.id !== over.id) {
