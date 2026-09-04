@@ -30,11 +30,23 @@ export type DonateSection  = SectionBase & {
 export type TextSection    = SectionBase & { type: 'text';    heading: string; text: string; background: 'cream' | 'white' | 'navy' };
 export type NewsSection    = SectionBase & { type: 'news';    heading: string; subtitle: string; items: NewsItem[] };
 export type ContactSection = SectionBase & { type: 'contact'; heading: string; subtitle: string; email: string; phone: string };
+export type FooterLocaleContent = {
+  tagline: string; followUs: string; navTitle: string;
+  navMission: string; navHow: string; navAbout: string; navDonate: string; navContact: string;
+  contactTitle: string; address: string; legalTitle: string; registeredAs: string;
+  taxNote: string; transparencyNote: string; privacyLabel: string; cookiesLabel: string; copyright: string;
+};
+export type FooterSection = SectionBase & {
+  type: 'footer';
+  logoUrl: string; email: string; cvr: string;
+  facebookUrl: string; instagramUrl: string; privacyUrl: string; cookiesUrl: string;
+  locales: { da: FooterLocaleContent; uk: FooterLocaleContent; en: FooterLocaleContent };
+};
 
 export type AnySection =
   | HeroSection | MissionSection | HowSection | StatsSection
   | AboutSection | BoardSection | DonateSection | TextSection
-  | NewsSection | ContactSection;
+  | NewsSection | ContactSection | FooterSection;
 
 export type SiteContent = { sections: AnySection[] };
 
@@ -156,6 +168,51 @@ export const DEFAULT_CONTENT: SiteContent = {
       email: 'info@eaucnordic.com',
       phone: '+45 25 56 81 31',
     },
+    {
+      id: 'footer', type: 'footer', visible: true,
+      logoUrl: '/logo.png',
+      email: 'info@eaucnordic.com',
+      cvr: '46329406',
+      facebookUrl: 'https://www.facebook.com/profile.php?id=61592491217605',
+      instagramUrl: 'https://www.instagram.com/eaucnordic/',
+      privacyUrl: '#',
+      cookiesUrl: '#',
+      locales: {
+        da: {
+          tagline: 'Vi giver ukrainske børn tryghed, oplevelser og håb — ét pusterum ad gangen.',
+          followUs: 'Følg os', navTitle: 'Navigation', navMission: 'Vores mission', navHow: 'Sådan gør vi',
+          navAbout: 'Om foreningen', navDonate: 'Donér nu', navContact: 'Kontakt', contactTitle: 'Kontakt os',
+          address: 'Byparken 75, 1. 1\n5700 Svendborg\nDanmark', legalTitle: 'Juridisk information',
+          registeredAs: 'Registreret som almennyttig, non-profit forening i Danmark',
+          taxNote: '🇩🇰 Donationer er fradragsberettigede iht. ligningslovens § 8A',
+          transparencyNote: '98% af alle midler går direkte til børnene',
+          privacyLabel: 'Privatlivspolitik', cookiesLabel: 'Cookiepolitik',
+          copyright: '© 2026 European Association of Ukrainian Children – Nordic (EAUC Nordic) · CVR 46329406',
+        },
+        uk: {
+          tagline: 'Ми даємо українським дітям безпеку, враження та надію — один перепочинок за раз.',
+          followUs: 'Слідкуйте за нами', navTitle: 'Навігація', navMission: 'Наша місія', navHow: 'Як ми це робимо',
+          navAbout: 'Про організацію', navDonate: 'Пожертвувати', navContact: 'Контакт', contactTitle: 'Звʼяжіться з нами',
+          address: 'Byparken 75, 1. 1\n5700 Svendborg\nДанія', legalTitle: 'Юридична інформація',
+          registeredAs: 'Зареєстровано як некомерційна організація в Данії',
+          taxNote: '🇩🇰 Пожертвування підлягають податковому вирахуванню в Данії',
+          transparencyNote: '98% усіх коштів іде безпосередньо дітям',
+          privacyLabel: 'Політика конфіденційності', cookiesLabel: 'Політика cookies',
+          copyright: '© 2026 European Association of Ukrainian Children – Nordic (EAUC Nordic) · CVR 46329406',
+        },
+        en: {
+          tagline: 'We give Ukrainian children security, experiences and hope — one break at a time.',
+          followUs: 'Follow us', navTitle: 'Navigation', navMission: 'Our mission', navHow: 'How we do it',
+          navAbout: 'About us', navDonate: 'Donate now', navContact: 'Contact', contactTitle: 'Get in touch',
+          address: 'Byparken 75, 1. 1\n5700 Svendborg\nDenmark', legalTitle: 'Legal information',
+          registeredAs: 'Registered as a non-profit organisation in Denmark',
+          taxNote: '🇩🇰 Donations are tax-deductible in Denmark',
+          transparencyNote: '98% of all funds go directly to the children',
+          privacyLabel: 'Privacy policy', cookiesLabel: 'Cookie policy',
+          copyright: '© 2026 European Association of Ukrainian Children – Nordic (EAUC Nordic) · CVR 46329406',
+        },
+      },
+    },
   ],
 };
 
@@ -170,12 +227,13 @@ export function loadSiteContent(): SiteContent {
       const parsed = JSON.parse(raw) as SiteContent;
       let dirty = false;
 
-      // Migrate: add news/contact sections if missing
+      // Migrate: add news/contact/footer sections if missing
       const hasNews    = parsed.sections.some(s => s.type === 'news');
       const hasContact = parsed.sections.some(s => s.type === 'contact');
-      if (!hasNews || !hasContact) {
+      const hasFooter  = parsed.sections.some(s => s.type === 'footer');
+      if (!hasNews || !hasContact || !hasFooter) {
         const extras = DEFAULT_CONTENT.sections.filter(s =>
-          (s.type === 'news' && !hasNews) || (s.type === 'contact' && !hasContact)
+          (s.type === 'news' && !hasNews) || (s.type === 'contact' && !hasContact) || (s.type === 'footer' && !hasFooter)
         );
         parsed.sections = [...parsed.sections, ...extras];
         dirty = true;
@@ -240,7 +298,12 @@ export async function fetchSiteContentFromAPI(): Promise<SiteContent | null> {
     const res = await fetch(API_URL);
     if (res.status === 404) return null;
     if (!res.ok) return null;
-    return (await res.json()) as SiteContent;
+    const content = (await res.json()) as SiteContent;
+    if (!content.sections.some(section => section.type === 'footer')) {
+      const footer = DEFAULT_CONTENT.sections.find(section => section.type === 'footer');
+      if (footer) content.sections.push(footer);
+    }
+    return content;
   } catch {
     return null;
   }
@@ -280,6 +343,7 @@ export const SECTION_LABELS: Record<AnySection['type'], string> = {
   text:    'Tekstblok',
   news:    'Nyheder & Rapporter',
   contact: 'Kontaktformular',
+  footer:  'Footer',
 };
 
 export const TEXT_SECTION_TEMPLATE: TextSection = {

@@ -8,7 +8,7 @@ import {
 import {
   AnySection, HeroSection, MissionSection, HowSection, StatsSection,
   AboutSection, BoardSection, DonateSection, TextSection,
-  NewsSection, ContactSection,
+  NewsSection, ContactSection, FooterSection,
   SiteContent, loadSiteContent, saveSiteContent, fetchSiteContentFromAPI,
 } from '../../lib/site-content';
 import { useSubmitForm, useListForms } from '@workspace/api-client-react';
@@ -257,10 +257,10 @@ function FooterColTitle({ children }: { children: React.ReactNode }) {
   );
 }
 
-function SiteFooter({ lang }: { lang: Lang }) {
+function SiteFooter({ lang, footer }: { lang: Lang; footer: FooterSection }) {
   const width = useWindowWidth();
   const isMobile = width < 768;
-  const f = UI_TRANSLATIONS[lang].footerFull;
+  const f = footer.locales[lang] ?? footer.locales.da;
 
   return (
     <footer style={{ background: '#080c16', fontFamily: 'Inter, sans-serif' }}>
@@ -274,12 +274,12 @@ function SiteFooter({ lang }: { lang: Lang }) {
       }}>
         {/* Col 1 — Brand */}
         <div>
-          <img src="/logo.png" alt="EAUC Nordic" style={{ height: 150, width: 'auto', objectFit: 'contain', marginBottom: 18 }} />
+          <img src={footer.logoUrl || '/logo.png'} alt="EAUC Nordic" style={{ height: 150, width: 'auto', objectFit: 'contain', marginBottom: 18 }} />
           <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', lineHeight: 1.7, margin: '0 0 28px', maxWidth: 260 }}>{f.tagline}</p>
           <div style={{ marginBottom: 8 }}><FooterColTitle>{f.followUs}</FooterColTitle></div>
           <div style={{ display: 'flex', gap: 10 }}>
-            <SocialIcon href="https://www.facebook.com/profile.php?id=61592491217605"><Facebook size={16} /></SocialIcon>
-            <SocialIcon href="https://www.instagram.com/eaucnordic/"><Instagram size={16} /></SocialIcon>
+            {footer.facebookUrl && <SocialIcon href={footer.facebookUrl}><Facebook size={16} /></SocialIcon>}
+            {footer.instagramUrl && <SocialIcon href={footer.instagramUrl}><Instagram size={16} /></SocialIcon>}
           </div>
         </div>
         {/* Col 2 — Navigation */}
@@ -300,17 +300,17 @@ function SiteFooter({ lang }: { lang: Lang }) {
             <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
               <MapPin size={16} color={GOLD} style={{ marginTop: 2, flexShrink: 0 }} />
               <div>
-                {f.addressLines.map((line, i) => (
+                {f.address.split('\n').filter(Boolean).map((line, i) => (
                   <div key={i} style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', lineHeight: 1.6 }}>{line}</div>
                 ))}
               </div>
             </div>
             <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
               <Mail size={16} color={GOLD} style={{ flexShrink: 0 }} />
-              <a href={`mailto:${f.email}`} style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', textDecoration: 'none', transition: 'color 0.15s' }}
+              <a href={`mailto:${footer.email}`} style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', textDecoration: 'none', transition: 'color 0.15s' }}
                 onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#fff'; }}
                 onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.6)'; }}
-              >{f.email}</a>
+              >{footer.email}</a>
             </div>
           </div>
         </div>
@@ -320,7 +320,7 @@ function SiteFooter({ lang }: { lang: Lang }) {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, padding: '8px 14px', width: 'fit-content' }}>
               <ExternalLink size={13} color={GOLD} />
-              <span style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.8)', letterSpacing: '0.02em' }}>{f.cvr}</span>
+              <span style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.8)', letterSpacing: '0.02em' }}>CVR: {footer.cvr}</span>
             </div>
             <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', lineHeight: 1.6, margin: 0 }}>{f.registeredAs}</p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 4 }}>
@@ -345,14 +345,14 @@ function SiteFooter({ lang }: { lang: Lang }) {
       }}>
         <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.28)', lineHeight: 1.5 }}>{f.copyright}</span>
         <div style={{ display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap' }}>
-          <a href="#" style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', textDecoration: 'none', minHeight: 44, display: 'flex', alignItems: 'center' } as React.CSSProperties}
+          <a href={footer.privacyUrl || '#'} style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', textDecoration: 'none', minHeight: 44, display: 'flex', alignItems: 'center' } as React.CSSProperties}
             onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.7)'; }}
             onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.35)'; }}
-          >{f.privacy}</a>
-          <a href="#" style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', textDecoration: 'none', minHeight: 44, display: 'flex', alignItems: 'center' } as React.CSSProperties}
+          >{f.privacyLabel}</a>
+          <a href={footer.cookiesUrl || '#'} style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', textDecoration: 'none', minHeight: 44, display: 'flex', alignItems: 'center' } as React.CSSProperties}
             onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.7)'; }}
             onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.35)'; }}
-          >{f.cookies}</a>
+          >{f.cookiesLabel}</a>
         </div>
       </div>
     </footer>
@@ -1142,12 +1142,13 @@ export default function EaucHome() {
 
   const handleLangChange = (l: Lang) => { setLang(l); saveLang(l); };
   const content = getTranslatedContent(lang, daContent);
+  const footer = content.sections.find((section): section is FooterSection => section.type === 'footer');
 
   return (
     <div style={{ fontFamily: 'Inter, sans-serif', background: CREAM }}>
       <SiteHeader lang={lang} onLangChange={handleLangChange} />
-      {content.sections.map(s => <SectionBlock key={s.id} section={s} lang={lang} />)}
-      <SiteFooter lang={lang} />
+      {content.sections.filter(s => s.type !== 'footer').map(s => <SectionBlock key={s.id} section={s} lang={lang} />)}
+      {footer?.visible && <SiteFooter lang={lang} footer={footer} />}
     </div>
   );
 }

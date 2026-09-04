@@ -8,7 +8,7 @@ import {
   type StatItem, type MemberItem, type NewsItem,
   type HeroSection, type MissionSection, type HowSection, type StatsSection,
   type AboutSection, type BoardSection, type DonateSection, type TextSection,
-  type NewsSection, type ContactSection,
+  type NewsSection, type ContactSection, type FooterSection, type FooterLocaleContent,
 } from '@/lib/site-content';
 import {
   DndContext, closestCenter, KeyboardSensor, PointerSensor,
@@ -43,7 +43,7 @@ function SectionRow({
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: section.id });
   const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.4 : 1 };
-  const FIXED = ['hero', 'donate'];
+  const FIXED = ['hero', 'donate', 'footer'];
   const canDelete = !FIXED.includes(section.type);
 
   return (
@@ -463,6 +463,76 @@ function ContactEditor({ s, onChange }: { s: ContactSection; onChange: (s: Conta
   );
 }
 
+// ─── Footer editor ─────────────────────────────────────────────────────────────
+function FooterEditor({ s, onChange }: { s: FooterSection; onChange: (s: FooterSection) => void }) {
+  const [language, setLanguage] = useState<keyof FooterSection['locales']>('da');
+  const locale = s.locales[language];
+  const updateShared = (key: keyof FooterSection, value: string) => onChange({ ...s, [key]: value });
+  const updateLocale = (key: keyof FooterLocaleContent, value: string) => onChange({
+    ...s,
+    locales: { ...s.locales, [language]: { ...locale, [key]: value } },
+  });
+
+  return (
+    <div className="space-y-5">
+      <div className="grid grid-cols-3 gap-2">
+        {([
+          ['da', 'Dansk'],
+          ['uk', 'Українська'],
+          ['en', 'English'],
+        ] as const).map(([code, label]) => (
+          <Button key={code} type="button" size="sm" variant={language === code ? 'default' : 'outline'} onClick={() => setLanguage(code)}>
+            {label}
+          </Button>
+        ))}
+      </div>
+
+      <div className="space-y-4">
+        <TextareaInput label="Tekst under logo" value={locale.tagline} onChange={v => updateLocale('tagline', v)} rows={3} />
+        <TextInput label="Følg os — overskrift" value={locale.followUs} onChange={v => updateLocale('followUs', v)} />
+      </div>
+
+      <div className="border-t pt-5 space-y-4">
+        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Navigation</p>
+        <TextInput label="Kolonneoverskrift" value={locale.navTitle} onChange={v => updateLocale('navTitle', v)} />
+        <TextInput label="Mission" value={locale.navMission} onChange={v => updateLocale('navMission', v)} />
+        <TextInput label="Sådan gør vi" value={locale.navHow} onChange={v => updateLocale('navHow', v)} />
+        <TextInput label="Om foreningen" value={locale.navAbout} onChange={v => updateLocale('navAbout', v)} />
+        <TextInput label="Donér" value={locale.navDonate} onChange={v => updateLocale('navDonate', v)} />
+        <TextInput label="Kontakt" value={locale.navContact} onChange={v => updateLocale('navContact', v)} />
+      </div>
+
+      <div className="border-t pt-5 space-y-4">
+        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Kontakt</p>
+        <TextInput label="Kolonneoverskrift" value={locale.contactTitle} onChange={v => updateLocale('contactTitle', v)} />
+        <TextareaInput label="Adresse" value={locale.address} onChange={v => updateLocale('address', v)} rows={3} />
+      </div>
+
+      <div className="border-t pt-5 space-y-4">
+        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Juridisk information</p>
+        <TextInput label="Kolonneoverskrift" value={locale.legalTitle} onChange={v => updateLocale('legalTitle', v)} />
+        <TextareaInput label="Registreringstekst" value={locale.registeredAs} onChange={v => updateLocale('registeredAs', v)} rows={2} />
+        <TextareaInput label="Skattefradrag" value={locale.taxNote} onChange={v => updateLocale('taxNote', v)} rows={2} />
+        <TextareaInput label="Gennemsigtighed" value={locale.transparencyNote} onChange={v => updateLocale('transparencyNote', v)} rows={2} />
+        <TextInput label="Privatliv — linktekst" value={locale.privacyLabel} onChange={v => updateLocale('privacyLabel', v)} />
+        <TextInput label="Cookies — linktekst" value={locale.cookiesLabel} onChange={v => updateLocale('cookiesLabel', v)} />
+        <TextareaInput label="Copyright" value={locale.copyright} onChange={v => updateLocale('copyright', v)} rows={2} />
+      </div>
+
+      <div className="border-t pt-5 space-y-4">
+        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Fælles for alle sprog</p>
+        <ImageInput label="Logo" value={s.logoUrl} onChange={v => updateShared('logoUrl', v)} />
+        <TextInput label="E-mail" value={s.email} onChange={v => updateShared('email', v)} />
+        <TextInput label="CVR-nummer" value={s.cvr} onChange={v => updateShared('cvr', v)} />
+        <TextInput label="Facebook URL" value={s.facebookUrl} onChange={v => updateShared('facebookUrl', v)} />
+        <TextInput label="Instagram URL" value={s.instagramUrl} onChange={v => updateShared('instagramUrl', v)} />
+        <TextInput label="Privatlivspolitik URL" value={s.privacyUrl} onChange={v => updateShared('privacyUrl', v)} />
+        <TextInput label="Cookiepolitik URL" value={s.cookiesUrl} onChange={v => updateShared('cookiesUrl', v)} />
+      </div>
+    </div>
+  );
+}
+
 // ─── Section editor dispatcher ─────────────────────────────────────────────────
 function SectionEditor({ section, onChange }: { section: AnySection; onChange: (s: AnySection) => void }) {
   switch (section.type) {
@@ -476,6 +546,7 @@ function SectionEditor({ section, onChange }: { section: AnySection; onChange: (
     case 'text':    return <TextSectionEditor s={section} onChange={onChange as (s: any) => void} />;
     case 'news':    return <NewsEditor       s={section} onChange={onChange as (s: any) => void} />;
     case 'contact': return <ContactEditor    s={section} onChange={onChange as (s: any) => void} />;
+    case 'footer':  return <FooterEditor     s={section} onChange={onChange as (s: any) => void} />;
   }
 }
 
