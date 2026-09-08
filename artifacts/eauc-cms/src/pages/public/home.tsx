@@ -11,7 +11,7 @@ import {
   NewsSection, ContactSection, FooterSection,
   SiteContent, loadSiteContent, saveSiteContent, fetchSiteContentFromAPI,
 } from '../../lib/site-content';
-import { useSubmitForm, useListForms } from '@workspace/api-client-react';
+import { useSubmitForm, useListForms, useListNews } from '@workspace/api-client-react';
 import {
   Lang, UI_TRANSLATIONS, CONTACT_UI, NAV_UI,
   LANGUAGES, loadLang, saveLang, getTranslatedContent,
@@ -866,10 +866,27 @@ const TAG_COLORS: Record<string, string> = {
 function NewsBlock({ s, lang }: { s: NewsSection; lang: Lang }) {
   const width = useWindowWidth();
   const isMobile = width < 768;
+  const { data: newsData, isLoading } = useListNews({ status: 'published' });
+  const articles = newsData?.items ?? [];
   const allArticlesLabel: Record<Lang, string> = {
     da: 'Se alle artikler',
     uk: 'Переглянути всі статті',
     en: 'View all articles',
+  };
+  const emptyLabel: Record<Lang, string> = {
+    da: 'Der er endnu ingen offentliggjorte artikler.',
+    uk: 'Опублікованих статей поки немає.',
+    en: 'There are no published articles yet.',
+  };
+  const loadingLabel: Record<Lang, string> = {
+    da: 'Indlæser artikler...',
+    uk: 'Завантаження статей...',
+    en: 'Loading articles...',
+  };
+  const dateLocale: Record<Lang, string> = {
+    da: 'da-DK',
+    uk: 'uk-UA',
+    en: 'en-GB',
   };
   return (
     <section id="nyheder" style={{ background: '#fff', padding: '80px 24px' }}>
@@ -886,17 +903,25 @@ function NewsBlock({ s, lang }: { s: NewsSection; lang: Lang }) {
         </FadeUp>
         <div style={{
           display: 'grid',
-          gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(300px, 1fr))',
+          gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, minmax(0, 1fr))',
           gap: 28,
           alignItems: 'stretch',
         }}>
-          {s.items.map((item, i) => (
-            <FadeUp key={item.id} delay={i * 100} style={{ height: '100%' }}>
+          {isLoading ? (
+            <p style={{ gridColumn: '1 / -1', textAlign: 'center', color: '#666', fontFamily: 'Inter, sans-serif' }}>
+              {loadingLabel[lang]}
+            </p>
+          ) : articles.length === 0 ? (
+            <p style={{ gridColumn: '1 / -1', textAlign: 'center', color: '#666', fontFamily: 'Inter, sans-serif' }}>
+              {emptyLabel[lang]}
+            </p>
+          ) : articles.map((article, i) => (
+            <FadeUp key={article.id} delay={i * 100} style={{ height: '100%' }}>
               <article style={{
                 background: '#fff', borderRadius: 18, overflow: 'hidden',
                 border: '1px solid rgba(0,0,0,0.08)',
                 boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
-                transition: 'transform 0.25s, box-shadow 0.25s', cursor: 'default',
+                transition: 'transform 0.25s, box-shadow 0.25s',
                 display: 'flex', flexDirection: 'column', height: '100%',
               }}
                 onMouseEnter={e => {
@@ -908,28 +933,49 @@ function NewsBlock({ s, lang }: { s: NewsSection; lang: Lang }) {
                   (e.currentTarget as HTMLElement).style.boxShadow = '0 2px 12px rgba(0,0,0,0.06)';
                 }}
               >
-                {item.imageUrl && (
-                  <div style={{ aspectRatio: '16/9', overflow: 'hidden' }}>
-                    <img src={item.imageUrl} alt={item.title} style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.5s' }}
+                <a href={`/news/${article.id}`} style={{ display: 'block', aspectRatio: '16/9', overflow: 'hidden', background: '#f1f3f5', textDecoration: 'none' }}>
+                  {article.coverImage ? (
+                    <img src={article.coverImage} alt={article.title} style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.5s' }}
                       onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = 'scale(1.04)'; }}
                       onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = 'scale(1)'; }}
                     />
-                  </div>
-                )}
+                  ) : (
+                    <span style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#9aa1ad', fontFamily: 'Inter, sans-serif' }}>
+                      EAUC Nordic
+                    </span>
+                  )}
+                </a>
                 <div style={{ padding: '24px 28px 28px', display: 'flex', flexDirection: 'column', flex: 1 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
                     <span style={{
                       display: 'inline-block', padding: '4px 12px', borderRadius: 999,
-                      background: TAG_COLORS[item.tag] ? `${TAG_COLORS[item.tag]}18` : '#f0f0f0',
-                      color: TAG_COLORS[item.tag] ?? '#555',
+                      background: article.category && TAG_COLORS[article.category] ? `${TAG_COLORS[article.category]}18` : '#f0f0f0',
+                      color: article.category && TAG_COLORS[article.category] ? TAG_COLORS[article.category] : '#555',
                       fontFamily: 'Inter, sans-serif', fontSize: 11, fontWeight: 700, letterSpacing: '0.06em',
                     }}>
-                      {item.tag}
+                      {article.category || 'EAUC Nordic'}
                     </span>
-                    <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#999' }}>{item.date}</span>
+                    <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#999' }}>
+                      {new Date(article.publishedAt || article.createdAt).toLocaleDateString(dateLocale[lang], { month: 'long', year: 'numeric' })}
+                    </span>
                   </div>
-                  <h3 style={{ fontFamily: 'Playfair Display, serif', fontSize: 19, fontWeight: 700, color: NAVY, margin: '0 0 12px', lineHeight: 1.3 }}>{item.title}</h3>
-                  <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, color: '#666', lineHeight: 1.7, margin: 0, flex: 1 }}>{item.text}</p>
+                  <h3 style={{ fontFamily: 'Playfair Display, serif', fontSize: 19, fontWeight: 700, color: NAVY, margin: '0 0 12px', lineHeight: 1.3 }}>
+                    <a href={`/news/${article.id}`} style={{ color: 'inherit', textDecoration: 'none' }}>{article.title}</a>
+                  </h3>
+                  <p style={{
+                    fontFamily: 'Inter, sans-serif',
+                    fontSize: 14,
+                    color: '#666',
+                    lineHeight: 1.7,
+                    margin: 0,
+                    flex: 1,
+                    display: '-webkit-box',
+                    WebkitLineClamp: 4,
+                    WebkitBoxOrient: 'vertical',
+                    overflow: 'hidden',
+                  }}>
+                    {article.excerpt || article.content}
+                  </p>
                 </div>
               </article>
             </FadeUp>
