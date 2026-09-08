@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useParams, useLocation } from 'wouter';
 import { useGetNewsPost, useCreateNewsPost, useUpdateNewsPost, usePublishNewsPost } from '@workspace/api-client-react';
 import { useQueryClient } from '@tanstack/react-query';
@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, Save, Globe } from 'lucide-react';
+import { ArrowLeft, Save, Globe, Upload } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function AdminNewsEdit() {
@@ -24,6 +24,8 @@ export default function AdminNewsEdit() {
   const createMutation = useCreateNewsPost();
   const updateMutation = useUpdateNewsPost();
   const publishMutation = usePublishNewsPost();
+  const coverInputRef = useRef<HTMLInputElement>(null);
+  const [isUploadingCover, setIsUploadingCover] = useState(false);
 
   const [formData, setFormData] = useState({
     title: '',
@@ -83,6 +85,50 @@ export default function AdminNewsEdit() {
       },
       onError: () => toast.error('Не удалось опубликовать статью. Попробуйте ещё раз.'),
     });
+  };
+
+  const handleCoverUpload = async (file: File) => {
+    if (!file.type.startsWith('image/')) {
+      toast.error('Выберите файл изображения.');
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error('Размер изображения не должен превышать 10 МБ.');
+      return;
+    }
+
+    setIsUploadingCover(true);
+    try {
+      const urlResponse = await fetch('/api/storage/uploads/request-url', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: file.name,
+          size: file.size,
+          contentType: file.type,
+        }),
+      });
+      if (!urlResponse.ok) throw new Error('Failed to request upload URL');
+
+      const { uploadURL, objectPath } = await urlResponse.json();
+      const uploadResponse = await fetch(uploadURL, {
+        method: 'PUT',
+        headers: { 'Content-Type': file.type },
+        body: file,
+      });
+      if (!uploadResponse.ok) throw new Error('Failed to upload image');
+
+      setFormData((current) => ({
+        ...current,
+        coverImage: `/api/storage${objectPath}`,
+      }));
+      toast.success('Изображение загружено');
+    } catch {
+      toast.error('Не удалось загрузить изображение. Попробуйте ещё раз.');
+    } finally {
+      setIsUploadingCover(false);
+      if (coverInputRef.current) coverInputRef.current.value = '';
+    }
   };
 
   const isSaving = createMutation.isPending || updateMutation.isPending;
@@ -174,10 +220,39 @@ export default function AdminNewsEdit() {
                 />
               </div>
               <div className="space-y-2">
-                <Label>Cover Image URL</Label>
-                <Input 
-                  value={formData.coverImage} 
-                  onChange={e => setFormData({ ...formData, coverImage: e.target.value })} 
+                <Label>Cover Image</Label>
+                <input
+                  ref={coverInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(event) => {
+                    const file = event.target.files?.[0];
+                    if (file) void handleCoverUpload(file);
+                  }}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full gap-2"
+                  disabled={isUploadingCover}
+                  onClick={() => coverInputRef.current?.click()}
+                >
+                  <Upload className="w-4 h-4" />
+                  {isUploadingCover ? 'Uploading image...' : 'Choose image from device'}
+                </Button>
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t" />
+                  </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-card px-2 text-muted-foreground">or paste a URL</span>
+                  </div>
+                </div>
+                <Input
+                  value={formData.coverImage}
+                  onChange={e => setFormData({ ...formData, coverImage: e.target.value })}
+                  placeholder="https://..."
                 />
                 {formData.coverImage && (
                   <div className="mt-2 aspect-video rounded-md overflow-hidden bg-muted border">
