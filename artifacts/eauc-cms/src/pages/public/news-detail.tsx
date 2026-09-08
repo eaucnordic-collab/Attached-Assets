@@ -5,10 +5,30 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ArrowLeft, Calendar, User } from 'lucide-react';
 
+function getArticleParagraphs(content: string): string[] {
+  if (typeof DOMParser !== 'undefined' && /<[^>]+>/.test(content)) {
+    const document = new DOMParser().parseFromString(content, 'text/html');
+    const blocks = Array.from(document.body.children)
+      .map((element) => element.textContent?.trim() ?? '')
+      .filter(Boolean);
+    if (blocks.length > 0) return blocks;
+  }
+
+  return content
+    .split(/\n+/)
+    .map((paragraph) => paragraph.trim())
+    .filter(Boolean);
+}
+
 export default function NewsDetail() {
   const params = useParams();
-  const id = Number(params.id);
-  const { data: article, isLoading } = useGetNewsPost(id, { query: { enabled: !!id, queryKey: ['/api/news', id] } });
+  const id = Number(params.slug);
+  const { data: article, isLoading, isError } = useGetNewsPost(id, {
+    query: {
+      enabled: Number.isInteger(id) && id > 0,
+      queryKey: ['/api/news', id],
+    },
+  });
 
   if (isLoading) {
     return (
@@ -26,7 +46,7 @@ export default function NewsDetail() {
     );
   }
 
-  if (!article) {
+  if (isError || !article) {
     return (
       <div className="container mx-auto px-4 py-24 text-center">
         <h1 className="text-3xl font-bold mb-4">Article Not Found</h1>
@@ -84,7 +104,9 @@ export default function NewsDetail() {
       <div className="container mx-auto px-4 max-w-3xl">
         <div className="prose prose-lg md:prose-xl max-w-none text-gray-800 prose-headings:text-gray-900 prose-a:text-primary hover:prose-a:text-primary/80 prose-img:rounded-2xl">
           {article.content ? (
-            article.content.split('\n').map((para, i) => <p key={i}>{para}</p>)
+            getArticleParagraphs(article.content).map((paragraph, index) => (
+              <p key={index}>{paragraph}</p>
+            ))
           ) : (
             <p>No content provided.</p>
           )}
