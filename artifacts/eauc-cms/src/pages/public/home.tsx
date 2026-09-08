@@ -863,9 +863,14 @@ const TAG_COLORS: Record<string, string> = {
   'Nyhed':      '#059669',
 };
 
-function NewsBlock({ s }: { s: NewsSection }) {
+function NewsBlock({ s, lang }: { s: NewsSection; lang: Lang }) {
   const width = useWindowWidth();
   const isMobile = width < 768;
+  const allArticlesLabel: Record<Lang, string> = {
+    da: 'Se alle artikler',
+    ua: 'Переглянути всі статті',
+    en: 'View all articles',
+  };
   return (
     <section id="nyheder" style={{ background: '#fff', padding: '80px 24px' }}>
       <div style={{ maxWidth: 1060, margin: '0 auto' }}>
@@ -929,6 +934,39 @@ function NewsBlock({ s }: { s: NewsSection }) {
             </FadeUp>
           ))}
         </div>
+        <FadeUp delay={150}>
+          <div style={{ display: 'flex', justifyContent: 'center', marginTop: 40 }}>
+            <a
+              href="/news"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                minHeight: 48,
+                padding: '12px 26px',
+                borderRadius: 8,
+                background: '#1d7d6b',
+                color: '#fff',
+                fontFamily: 'Inter, sans-serif',
+                fontSize: 15,
+                fontWeight: 700,
+                textDecoration: 'none',
+                boxShadow: '0 8px 20px rgba(29,125,107,0.2)',
+                transition: 'transform 0.2s, background 0.2s',
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.background = '#176858';
+                e.currentTarget.style.transform = 'translateY(-2px)';
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.background = '#1d7d6b';
+                e.currentTarget.style.transform = 'translateY(0)';
+              }}
+            >
+              {allArticlesLabel[lang]}
+            </a>
+          </div>
+        </FadeUp>
       </div>
     </section>
   );
@@ -1106,7 +1144,7 @@ function SectionBlock({ section, lang }: { section: AnySection; lang: Lang }) {
     case 'board':   return <BoardBlock s={section} />;
     case 'donate':  return <DonateBlock s={section} lang={lang} />;
     case 'text':    return <TextBlock s={section} />;
-    case 'news':    return <NewsBlock s={section} />;
+    case 'news':    return <NewsBlock s={section} lang={lang} />;
     case 'contact': return <ContactBlock s={section} lang={lang} />;
     default:        return null;
   }
