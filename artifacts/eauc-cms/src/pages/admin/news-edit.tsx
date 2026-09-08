@@ -56,14 +56,16 @@ export default function AdminNewsEdit() {
           toast.success('Article created');
           queryClient.invalidateQueries({ queryKey: ['/api/news'] });
           setLocation(`/admin/news/${newArticle.id}`);
-        }
+        },
+        onError: () => toast.error('Не удалось сохранить статью. Проверьте обязательные поля.'),
       });
     } else {
       updateMutation.mutate({ id, data: formData }, {
         onSuccess: () => {
           toast.success('Article updated');
           queryClient.invalidateQueries({ queryKey: ['/api/news', id] });
-        }
+        },
+        onError: () => toast.error('Не удалось сохранить изменения статьи.'),
       });
     }
   };
@@ -73,11 +75,13 @@ export default function AdminNewsEdit() {
       toast.error('Save the article first before publishing');
       return;
     }
-    publishMutation.mutate({ id }, {
+    publishMutation.mutate({ id, data: { publish: true } }, {
       onSuccess: () => {
-        toast.success('Article published');
+        toast.success('Статья опубликована');
         queryClient.invalidateQueries({ queryKey: ['/api/news', id] });
-      }
+        queryClient.invalidateQueries({ queryKey: ['/api/news'] });
+      },
+      onError: () => toast.error('Не удалось опубликовать статью. Попробуйте ещё раз.'),
     });
   };
 
