@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useGetSettings, useUpdateSettings, useGetTheme, useUpdateTheme } from '@workspace/api-client-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
@@ -8,8 +8,9 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Save, Globe, Palette } from 'lucide-react';
+import { Save, Globe, Palette, LockKeyhole } from 'lucide-react';
 import { toast } from 'sonner';
+import { useAuth } from '@/hooks/use-auth';
 
 type SiteFormValues = {
   siteName: string;
@@ -29,11 +30,16 @@ type ThemeFormValues = {
 };
 
 export default function AdminSettings() {
+  const { user } = useAuth();
   const queryClient = useQueryClient();
   const { data: settings } = useGetSettings();
   const { data: theme } = useGetTheme();
   const updateSettingsMutation = useUpdateSettings();
   const updateThemeMutation = useUpdateTheme();
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [changingPassword, setChangingPassword] = useState(false);
 
   const siteForm = useForm<SiteFormValues>({ defaultValues: { siteName: 'EAUC Nordic' } });
   const themeForm = useForm<ThemeFormValues>({ defaultValues: {
@@ -87,6 +93,36 @@ export default function AdminSettings() {
     });
   };
 
+  const onPasswordSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (newPassword.length < 10) {
+      toast.error('Новый пароль должен содержать не менее 10 символов');
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      toast.error('Новые пароли не совпадают');
+      return;
+    }
+    setChangingPassword(true);
+    try {
+      const response = await fetch('/api/auth/change-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: user?.email, currentPassword, newPassword }),
+      });
+      const result = await response.json() as { error?: string };
+      if (!response.ok) throw new Error(result.error || 'Не удалось изменить пароль');
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+      toast.success('Пароль успешно изменён');
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Не удалось изменить пароль');
+    } finally {
+      setChangingPassword(false);
+    }
+  };
+
   return (
     <AdminLayout>
       <div className="p-6 md:p-10 max-w-3xl mx-auto w-full space-y-8">
@@ -94,6 +130,36 @@ export default function AdminSettings() {
           <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
           <p className="text-muted-foreground">Configure your site settings and appearance.</p>
         </div>
+
+        <form onSubmit={onPasswordSubmit}>
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2"><LockKeyhole className="w-4 h-4" /> Смена пароля</CardTitle>
+              <CardDescription>Введите текущий пароль и задайте новый пароль администратора.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-1.5">
+                <Label htmlFor="current-password">Текущий пароль</Label>
+                <Input id="current-password" type="password" autoComplete="current-password" value={currentPassword} onChange={event => setCurrentPassword(event.target.value)} required />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="new-password">Новый пароль</Label>
+                <Input id="new-password" type="password" autoComplete="new-password" value={newPassword} onChange={event => setNewPassword(event.target.value)} minLength={10} required />
+                <p className="text-xs text-muted-foreground">Минимум 10 символов.</p>
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="confirm-password">Повторите новый пароль</Label>
+                <Input id="confirm-password" type="password" autoComplete="new-password" value={confirmPassword} onChange={event => setConfirmPassword(event.target.value)} minLength={10} required />
+              </div>
+              <div className="flex justify-end">
+                <Button type="submit" disabled={changingPassword} className="gap-2">
+                  <LockKeyhole className="w-4 h-4" />
+                  {changingPassword ? 'Сохранение…' : 'Изменить пароль'}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </form>
 
         {/* Site Settings */}
         <form onSubmit={siteForm.handleSubmit(onSiteSubmit)}>

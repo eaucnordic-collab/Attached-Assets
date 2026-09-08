@@ -11,7 +11,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 
 export default function AdminLogin() {
   const [email, setEmail] = useState('admin@eaucnordic.com');
-  const [password, setPassword] = useState('admin123');
+  const [password, setPassword] = useState('');
   const [, setLocation] = useLocation();
   const { login } = useAuth();
   const loginMutation = useLogin();
@@ -21,13 +21,13 @@ export default function AdminLogin() {
     e.preventDefault();
     setError('');
 
-    // Local credential check — no database required for this prototype
-    if (email === 'admin@eaucnordic.com' && password === 'admin123') {
-      login({ id: 1, email: 'admin@eaucnordic.com', name: 'Admin' }, 'local-session');
-      setLocation('/admin');
-    } else {
-      setError('Invalid credentials. Please check your email and password.');
-    }
+    loginMutation.mutate({ data: { email, password } }, {
+      onSuccess: user => {
+        login(user, String(user.id));
+        setLocation('/admin');
+      },
+      onError: () => setError('Invalid credentials. Please check your email and password.'),
+    });
   };
 
   return (
@@ -66,6 +66,7 @@ export default function AdminLogin() {
                 type="password" 
                 value={password} 
                 onChange={(e) => setPassword(e.target.value)} 
+                autoComplete="current-password"
                 required 
                 data-testid="input-password"
               />
