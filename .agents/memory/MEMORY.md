@@ -2,3 +2,4 @@
 - [Orval Zod integer bug](orval-zod-integer.md) — Orval 8.23 + Zod v3: use `type: number` not `type: integer` in OpenAPI specs to avoid zod.int() codegen errors.
 - [API server response pattern](api-response-pattern.md) — Routes use serialize() helper from lib/serialize.ts instead of Zod .parse() for responses; Zod is used only for request body/param validation.
 - [Stripe return URLs](stripe-return-urls.md) — Percent-encode non-ASCII characters in Checkout success/cancel URLs before sending them to Stripe.
+- [Production admin bootstrap](production-admin-bootstrap.md) — Production may have the users schema but no admin row; bootstrap the first admin from a protected secret.

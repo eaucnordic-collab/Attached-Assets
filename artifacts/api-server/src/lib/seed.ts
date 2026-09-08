@@ -1,6 +1,7 @@
-import { db, formsTable } from "@workspace/db";
+import { db, formsTable, usersTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
 import { logger } from "./logger";
+import { hashPassword } from "./password";
 
 const CONTACT_FORM_NAME = "Contact Form";
 
@@ -30,5 +31,32 @@ export async function seedContactForm() {
     logger.info("Seeded Contact Form");
   } catch (err) {
     logger.error({ err }, "Failed to seed contact form");
+  }
+}
+
+export async function seedAdminUser() {
+  try {
+    const existing = await db
+      .select({ id: usersTable.id })
+      .from(usersTable)
+      .where(eq(usersTable.email, "admin@eaucnordic.com"))
+      .limit(1);
+
+    if (existing.length > 0) return;
+
+    const password = process.env.ADMIN_RESET_PASSWORD;
+    if (!password || password.length < 10) {
+      logger.warn("Admin user is missing and ADMIN_RESET_PASSWORD is not configured");
+      return;
+    }
+
+    await db.insert(usersTable).values({
+      email: "admin@eaucnordic.com",
+      password: hashPassword(password),
+      name: "Admin",
+    });
+    logger.info("Seeded administrator account");
+  } catch (err) {
+    logger.error({ err }, "Failed to seed administrator account");
   }
 }
