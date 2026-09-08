@@ -888,15 +888,16 @@ function NewsBlock({ s, lang }: { s: NewsSection; lang: Lang }) {
           display: 'grid',
           gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(300px, 1fr))',
           gap: 28,
+          alignItems: 'stretch',
         }}>
           {s.items.map((item, i) => (
-            <FadeUp key={item.id} delay={i * 100}>
+            <FadeUp key={item.id} delay={i * 100} style={{ height: '100%' }}>
               <article style={{
                 background: '#fff', borderRadius: 18, overflow: 'hidden',
                 border: '1px solid rgba(0,0,0,0.08)',
                 boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
                 transition: 'transform 0.25s, box-shadow 0.25s', cursor: 'default',
-                display: 'flex', flexDirection: 'column',
+                display: 'flex', flexDirection: 'column', height: '100%',
               }}
                 onMouseEnter={e => {
                   (e.currentTarget as HTMLElement).style.transform = 'translateY(-4px)';
