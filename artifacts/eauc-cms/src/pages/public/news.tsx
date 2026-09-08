@@ -4,20 +4,57 @@ import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Calendar } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Calendar, Home } from 'lucide-react';
+import { Lang, loadLang } from '@/lib/i18n';
+
+const NEWS_UI: Record<Lang, {
+  home: string;
+  title: string;
+  subtitle: string;
+  empty: string;
+  read: string;
+}> = {
+  da: {
+    home: 'Til forsiden',
+    title: 'Seneste nyt',
+    subtitle: 'Nyheder, pressemeddelelser og indblik fra EAUC Nordic.',
+    empty: 'Ingen artikler fundet.',
+    read: 'Læs artiklen',
+  },
+  uk: {
+    home: 'На головну',
+    title: 'Останні новини',
+    subtitle: 'Новини, пресрелізи та матеріали EAUC Nordic.',
+    empty: 'Статей не знайдено.',
+    read: 'Читати статтю',
+  },
+  en: {
+    home: 'Back to home',
+    title: 'Latest News',
+    subtitle: 'Updates, press releases, and insights from EAUC Nordic.',
+    empty: 'No news articles found.',
+    read: 'Read article',
+  },
+};
 
 export default function News() {
+  const ui = NEWS_UI[loadLang()];
   const { data: newsData, isLoading } = useListNews({ status: 'published' });
   const news = newsData?.items || [];
 
   return (
     <div className="bg-white min-h-screen pb-24">
       <div className="bg-gray-50 py-16 md:py-24 border-b">
-        <div className="container mx-auto px-4 max-w-5xl text-center">
-          <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-6 text-gray-900">Latest News</h1>
+        <div className="container mx-auto px-4 max-w-5xl">
+          <Button variant="ghost" size="sm" className="mb-10 -ml-3 gap-2" asChild>
+            <Link href="/"><Home className="w-4 h-4" /> {ui.home}</Link>
+          </Button>
+          <div className="text-center">
+          <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-6 text-gray-900">{ui.title}</h1>
           <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto">
-            Updates, press releases, and insights from EAUC Nordic.
+            {ui.subtitle}
           </p>
+          </div>
         </div>
       </div>
 
@@ -35,7 +72,7 @@ export default function News() {
             ))
           ) : news.length === 0 ? (
             <div className="col-span-full py-12 text-center text-muted-foreground">
-              No news articles found.
+              {ui.empty}
             </div>
           ) : (
             news.map((article) => (
@@ -61,7 +98,7 @@ export default function News() {
                 </h3>
                 <p className="text-gray-600 line-clamp-3 mb-4 flex-1">{article.excerpt}</p>
                 <Link href={`/news/${article.id}`} className="text-primary font-semibold flex items-center gap-1 group-hover:gap-2 transition-all mt-auto">
-                  Read article <ArrowRight className="w-4 h-4" />
+                  {ui.read} <ArrowRight className="w-4 h-4" />
                 </Link>
               </article>
             ))

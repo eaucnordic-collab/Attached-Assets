@@ -868,7 +868,7 @@ function NewsBlock({ s, lang }: { s: NewsSection; lang: Lang }) {
   const isMobile = width < 768;
   const allArticlesLabel: Record<Lang, string> = {
     da: 'Se alle artikler',
-    ua: 'Переглянути всі статті',
+    uk: 'Переглянути всі статті',
     en: 'View all articles',
   };
   return (
