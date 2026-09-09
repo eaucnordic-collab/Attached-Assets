@@ -22,6 +22,8 @@ const router: IRouter = Router();
 router.get("/news", async (req, res): Promise<void> => {
   const status = req.query.status as string | undefined;
   const category = req.query.category as string | undefined;
+  const language = req.query.language as string | undefined;
+  const translationGroup = req.query.translationGroup as string | undefined;
   const page = parseInt((req.query.page as string) || "1", 10);
   const limit = parseInt((req.query.limit as string) || "10", 10);
 
@@ -31,6 +33,12 @@ router.get("/news", async (req, res): Promise<void> => {
   }
   if (category) {
     all = all.filter((n) => n.category === category);
+  }
+  if (language) {
+    all = all.filter((n) => n.language === language);
+  }
+  if (translationGroup) {
+    all = all.filter((n) => n.translationGroup === translationGroup);
   }
   const total = all.length;
   const items = all.slice((page - 1) * limit, page * limit);
@@ -54,6 +62,8 @@ router.post("/news", async (req, res): Promise<void> => {
       coverImage: parsed.data.coverImage ?? null,
       author: parsed.data.author ?? null,
       category: parsed.data.category ?? null,
+      language: parsed.data.language ?? "da",
+      translationGroup: parsed.data.translationGroup || parsed.data.slug,
       tags: (parsed.data.tags as string[]) ?? [],
       pinned: parsed.data.pinned ?? false,
     })
@@ -90,7 +100,12 @@ router.patch("/news/:id", async (req, res): Promise<void> => {
   }
   const [post] = await db
     .update(newsTable)
-    .set(parsed.data)
+    .set({
+      ...parsed.data,
+      ...(parsed.data.translationGroup === ""
+        ? { translationGroup: parsed.data.slug || undefined }
+        : {}),
+    })
     .where(eq(newsTable.id, params.data.id))
     .returning();
   if (!post) {

@@ -1,10 +1,11 @@
 import { useParams, Link } from 'wouter';
-import { useGetNewsPost } from '@workspace/api-client-react';
+import { useGetNewsPost, useListNews } from '@workspace/api-client-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ArrowLeft, Calendar, Home, User } from 'lucide-react';
 import { Lang, loadLang } from '@/lib/i18n';
+import { articleContentToHtml } from '@/lib/sanitize-article-html';
 
 const ARTICLE_UI: Record<Lang, {
   home: string;
@@ -36,23 +37,9 @@ const ARTICLE_UI: Record<Lang, {
   },
 };
 
-function getArticleParagraphs(content: string): string[] {
-  if (typeof DOMParser !== 'undefined' && /<[^>]+>/.test(content)) {
-    const document = new DOMParser().parseFromString(content, 'text/html');
-    const blocks = Array.from(document.body.children)
-      .map((element) => element.textContent?.trim() ?? '')
-      .filter(Boolean);
-    if (blocks.length > 0) return blocks;
-  }
-
-  return content
-    .split(/\n+/)
-    .map((paragraph) => paragraph.trim())
-    .filter(Boolean);
-}
-
 export default function NewsDetail() {
-  const ui = ARTICLE_UI[loadLang()];
+  const lang = loadLang();
+  const ui = ARTICLE_UI[lang];
   const params = useParams();
   const id = Number(params.slug);
   const { data: article, isLoading, isError } = useGetNewsPost(id, {
@@ -61,8 +48,24 @@ export default function NewsDetail() {
       queryKey: ['/api/news', id],
     },
   });
+  const { data: translatedNews, isLoading: isTranslationLoading } = useListNews(
+    {
+      status: 'published',
+      language: lang,
+      translationGroup: article?.translationGroup,
+      limit: 1,
+    },
+    {
+      query: {
+        enabled: Boolean(article?.translationGroup && article.language !== lang),
+      },
+    },
+  );
+  const displayedArticle = article?.language === lang
+    ? article
+    : translatedNews?.items[0];
 
-  if (isLoading) {
+  if (isLoading || (article?.language !== lang && isTranslationLoading)) {
     return (
       <div className="container mx-auto px-4 py-16 max-w-3xl">
         <Skeleton className="h-8 w-24 mb-8" />
@@ -78,7 +81,7 @@ export default function NewsDetail() {
     );
   }
 
-  if (isError || !article) {
+  if (isError || !displayedArticle) {
     return (
       <div className="container mx-auto px-4 py-24 text-center">
         <h1 className="text-3xl font-bold mb-4">{ui.notFound}</h1>
@@ -103,50 +106,48 @@ export default function NewsDetail() {
         </div>
         
         <div className="flex items-center gap-3 mb-6">
-          {article.category && <Badge variant="secondary">{article.category}</Badge>}
+          {displayedArticle.category && <Badge variant="secondary">{displayedArticle.category}</Badge>}
           <div className="flex items-center gap-2 text-sm text-gray-500 font-medium">
             <Calendar className="w-4 h-4" />
-            {new Date(article.publishedAt || article.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}
+            {new Date(displayedArticle.publishedAt || displayedArticle.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}
           </div>
         </div>
 
-        <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-8 text-gray-900 leading-tight">
-          {article.title}
+        <h1 className="text-3xl md:text-4xl font-bold tracking-tight mb-8 text-gray-900 leading-tight">
+          {displayedArticle.title}
         </h1>
         
-        {article.excerpt && (
-          <p className="text-xl text-gray-600 leading-relaxed font-medium mb-8">
-            {article.excerpt}
+        {displayedArticle.excerpt && (
+          <p className="text-lg md:text-xl text-gray-600 leading-relaxed font-medium mb-8">
+            {displayedArticle.excerpt}
           </p>
         )}
 
-        {article.author && (
+        {displayedArticle.author && (
           <div className="flex items-center gap-3 py-6 border-y mb-12">
             <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center">
               <User className="w-5 h-5" />
             </div>
             <div>
-              <div className="font-semibold text-gray-900">{article.author}</div>
+              <div className="font-semibold text-gray-900">{displayedArticle.author}</div>
               <div className="text-sm text-gray-500">{ui.author}</div>
             </div>
           </div>
         )}
       </div>
 
-      {article.coverImage && (
+      {displayedArticle.coverImage && (
         <div className="container mx-auto px-4 max-w-5xl mb-16">
           <div className="aspect-[21/9] w-full rounded-3xl overflow-hidden shadow-lg bg-gray-100">
-            <img src={article.coverImage} alt={article.title} className="w-full h-full object-cover" />
+            <img src={displayedArticle.coverImage} alt={displayedArticle.title} className="w-full h-full object-cover" />
           </div>
         </div>
       )}
 
       <div className="container mx-auto px-4 max-w-3xl">
-        <div className="prose prose-lg md:prose-xl max-w-none text-gray-800 prose-headings:text-gray-900 prose-a:text-primary hover:prose-a:text-primary/80 prose-img:rounded-2xl">
-          {article.content ? (
-            getArticleParagraphs(article.content).map((paragraph, index) => (
-              <p key={index}>{paragraph}</p>
-            ))
+        <div className="prose max-w-none text-[16px] md:text-[18px] leading-[1.8] text-gray-800 prose-headings:text-gray-900 prose-h2:text-3xl prose-h3:text-2xl prose-a:text-primary hover:prose-a:text-primary/80 prose-blockquote:border-primary prose-blockquote:text-gray-600">
+          {displayedArticle.content ? (
+            <div dangerouslySetInnerHTML={{ __html: articleContentToHtml(displayedArticle.content) }} />
           ) : (
             <p>{ui.noContent}</p>
           )}

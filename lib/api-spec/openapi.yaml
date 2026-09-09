@@ -510,6 +510,17 @@ paths:
             type: string
           required: false
         - in: query
+          name: language
+          schema:
+            type: string
+            enum: [da, uk, en]
+          required: false
+        - in: query
+          name: translationGroup
+          schema:
+            type: string
+          required: false
+        - in: query
           name: page
           schema:
             type: number
@@ -1640,7 +1651,7 @@ components:
     # ─── NEWS ─────────────────────────────────────────────────────────────────
     NewsPost:
       type: object
-      required: [id, title, slug, status, createdAt, updatedAt]
+      required: [id, title, slug, language, translationGroup, status, createdAt, updatedAt]
       properties:
         id:
           type: number
@@ -1658,6 +1669,11 @@ components:
           type: ["string", "null"]
         category:
           type: ["string", "null"]
+        language:
+          type: string
+          enum: [da, uk, en]
+        translationGroup:
+          type: string
         tags:
           type: array
           items:
@@ -1711,6 +1727,11 @@ components:
           type: string
         category:
           type: string
+        language:
+          type: string
+          enum: [da, uk, en]
+        translationGroup:
+          type: string
         tags:
           type: array
           items:
@@ -1735,6 +1756,11 @@ components:
           type: ["string", "null"]
         category:
           type: ["string", "null"]
+        language:
+          type: string
+          enum: [da, uk, en]
+        translationGroup:
+          type: string
         tags:
           type: array
           items:

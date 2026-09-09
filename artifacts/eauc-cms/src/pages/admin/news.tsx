@@ -65,6 +65,7 @@ export default function AdminNews() {
             <TableRow>
               <TableHead className="w-[400px]">Title</TableHead>
               <TableHead>Category</TableHead>
+              <TableHead>Language</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Date</TableHead>
               <TableHead className="text-right">Actions</TableHead>
@@ -72,14 +73,15 @@ export default function AdminNews() {
           </TableHeader>
           <TableBody>
             {isLoading ? (
-              <TableRow><TableCell colSpan={5} className="text-center py-8">Loading news...</TableCell></TableRow>
+              <TableRow><TableCell colSpan={6} className="text-center py-8">Loading news...</TableCell></TableRow>
             ) : filteredNews.length === 0 ? (
-              <TableRow><TableCell colSpan={5} className="text-center py-8 text-muted-foreground">No articles found.</TableCell></TableRow>
+              <TableRow><TableCell colSpan={6} className="text-center py-8 text-muted-foreground">No articles found.</TableCell></TableRow>
             ) : (
               filteredNews.map((article) => (
                 <TableRow key={article.id}>
                   <TableCell className="font-medium">{article.title}</TableCell>
                   <TableCell>{article.category ? <Badge variant="outline">{article.category}</Badge> : '-'}</TableCell>
+                  <TableCell><Badge variant="secondary">{article.language.toUpperCase()}</Badge></TableCell>
                   <TableCell>
                     <Badge variant={article.status === 'published' ? 'default' : 'secondary'} className="gap-1">
                       {article.status === 'published' ? <CheckCircle2 className="w-3 h-3" /> : <Circle className="w-3 h-3" />}

@@ -5,11 +5,14 @@
  * EAUC Nordic CMS API
  * OpenAPI spec version: 0.1.0
  */
+import type { ListNewsLanguage } from './listNewsLanguage';
 import type { ListNewsStatus } from './listNewsStatus';
 
 export type ListNewsParams = {
 status?: ListNewsStatus;
 category?: string;
+language?: ListNewsLanguage;
+translationGroup?: string;
 page?: number;
 limit?: number;
 };

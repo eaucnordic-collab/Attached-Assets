@@ -9,6 +9,8 @@ export const newsTable = pgTable("news", {
   coverImage: text("cover_image"),
   author: text("author"),
   category: text("category"),
+  language: text("language").notNull().default("da"),
+  translationGroup: text("translation_group").notNull().default(""),
   tags: text("tags").array().notNull().default([]),
   status: text("status").notNull().default("draft"),
   pinned: boolean("pinned").notNull().default(false),

@@ -866,7 +866,7 @@ const TAG_COLORS: Record<string, string> = {
 function NewsBlock({ s, lang }: { s: NewsSection; lang: Lang }) {
   const width = useWindowWidth();
   const isMobile = width < 768;
-  const { data: newsData, isLoading } = useListNews({ status: 'published' });
+  const { data: newsData, isLoading } = useListNews({ status: 'published', language: lang });
   const articles = newsData?.items ?? [];
   const allArticlesLabel: Record<Lang, string> = {
     da: 'Se alle artikler',

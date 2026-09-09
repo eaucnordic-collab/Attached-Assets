@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useParams, useLocation } from 'wouter';
-import { useGetNewsPost, useCreateNewsPost, useUpdateNewsPost, usePublishNewsPost } from '@workspace/api-client-react';
+import { useGetNewsPost, useCreateNewsPost, useUpdateNewsPost, usePublishNewsPost, useListNews } from '@workspace/api-client-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,6 +9,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowLeft, Save, Globe, Upload } from 'lucide-react';
 import { toast } from 'sonner';
+import { RichTextEditor } from '@/components/rich-text-editor';
+
+type ArticleLanguage = 'da' | 'uk' | 'en';
 
 export default function AdminNewsEdit() {
   const params = useParams();
@@ -24,6 +27,7 @@ export default function AdminNewsEdit() {
   const createMutation = useCreateNewsPost();
   const updateMutation = useUpdateNewsPost();
   const publishMutation = usePublishNewsPost();
+  const { data: allNewsData } = useListNews({ status: 'all', limit: 100 });
   const coverInputRef = useRef<HTMLInputElement>(null);
   const [isUploadingCover, setIsUploadingCover] = useState(false);
 
@@ -34,7 +38,9 @@ export default function AdminNewsEdit() {
     content: '',
     category: '',
     author: '',
-    coverImage: ''
+    coverImage: '',
+    language: 'da' as ArticleLanguage,
+    translationGroup: '',
   });
 
   useEffect(() => {
@@ -46,7 +52,9 @@ export default function AdminNewsEdit() {
         content: article.content || '',
         category: article.category || '',
         author: article.author || '',
-        coverImage: article.coverImage || ''
+        coverImage: article.coverImage || '',
+        language: article.language,
+        translationGroup: article.translationGroup,
       });
     }
   }, [article, isNew]);
@@ -184,10 +192,9 @@ export default function AdminNewsEdit() {
               </div>
               <div className="space-y-2">
                 <Label>Full Content</Label>
-                <Textarea 
-                  rows={15}
-                  value={formData.content} 
-                  onChange={e => setFormData({ ...formData, content: e.target.value })} 
+                <RichTextEditor
+                  value={formData.content}
+                  onChange={(content) => setFormData((current) => ({ ...current, content }))}
                 />
               </div>
             </CardContent>
@@ -198,6 +205,45 @@ export default function AdminNewsEdit() {
           <Card>
             <CardHeader><CardTitle>Metadata</CardTitle></CardHeader>
             <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="article-language">Article language</Label>
+                <select
+                  id="article-language"
+                  value={formData.language}
+                  onChange={(event) => setFormData({ ...formData, language: event.target.value as ArticleLanguage })}
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                >
+                  <option value="da">Dansk</option>
+                  <option value="uk">Українська</option>
+                  <option value="en">English</option>
+                </select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="translation-group">Translation of</Label>
+                <select
+                  id="translation-group"
+                  value={formData.translationGroup}
+                  onChange={(event) => setFormData({ ...formData, translationGroup: event.target.value })}
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                >
+                  <option value="">New independent article</option>
+                  {(allNewsData?.items ?? [])
+                    .filter((item) => item.id !== id)
+                    .filter((item, index, items) =>
+                      items.findIndex((candidate) =>
+                        (candidate.translationGroup || candidate.slug) === (item.translationGroup || item.slug)
+                      ) === index
+                    )
+                    .map((item) => (
+                      <option key={item.translationGroup || item.slug} value={item.translationGroup || item.slug}>
+                        {item.title} ({item.language.toUpperCase()})
+                      </option>
+                    ))}
+                </select>
+                <p className="text-xs text-muted-foreground">
+                  Select the same material for its Danish, Ukrainian and English versions.
+                </p>
+              </div>
               <div className="space-y-2">
                 <Label>URL Slug</Label>
                 <Input 

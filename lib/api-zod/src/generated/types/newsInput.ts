@@ -5,6 +5,7 @@
  * EAUC Nordic CMS API
  * OpenAPI spec version: 0.1.0
  */
+import type { NewsInputLanguage } from './newsInputLanguage';
 
 export interface NewsInput {
   title: string;
@@ -14,6 +15,8 @@ export interface NewsInput {
   coverImage?: string;
   author?: string;
   category?: string;
+  language?: NewsInputLanguage;
+  translationGroup?: string;
   tags?: string[];
   pinned?: boolean;
 }

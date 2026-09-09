@@ -200,6 +200,15 @@ export interface NavReorderInput {
   itemIds: number[];
 }
 
+export type NewsPostLanguage = typeof NewsPostLanguage[keyof typeof NewsPostLanguage];
+
+
+export const NewsPostLanguage = {
+  da: 'da',
+  uk: 'uk',
+  en: 'en',
+} as const;
+
 export type NewsPostStatus = typeof NewsPostStatus[keyof typeof NewsPostStatus];
 
 
@@ -222,6 +231,8 @@ export interface NewsPost {
   author?: string | null;
   /** @nullable */
   category?: string | null;
+  language: NewsPostLanguage;
+  translationGroup: string;
   tags?: string[];
   status: NewsPostStatus;
   pinned?: boolean;
@@ -242,6 +253,15 @@ export interface NewsListResponse {
   limit: number;
 }
 
+export type NewsInputLanguage = typeof NewsInputLanguage[keyof typeof NewsInputLanguage];
+
+
+export const NewsInputLanguage = {
+  da: 'da',
+  uk: 'uk',
+  en: 'en',
+} as const;
+
 export interface NewsInput {
   title: string;
   slug: string;
@@ -250,9 +270,20 @@ export interface NewsInput {
   coverImage?: string;
   author?: string;
   category?: string;
+  language?: NewsInputLanguage;
+  translationGroup?: string;
   tags?: string[];
   pinned?: boolean;
 }
+
+export type NewsUpdateLanguage = typeof NewsUpdateLanguage[keyof typeof NewsUpdateLanguage];
+
+
+export const NewsUpdateLanguage = {
+  da: 'da',
+  uk: 'uk',
+  en: 'en',
+} as const;
 
 export interface NewsUpdate {
   title?: string;
@@ -267,6 +298,8 @@ export interface NewsUpdate {
   author?: string | null;
   /** @nullable */
   category?: string | null;
+  language?: NewsUpdateLanguage;
+  translationGroup?: string;
   tags?: string[];
   pinned?: boolean;
   /** @nullable */
@@ -814,6 +847,8 @@ export const ListPagesStatus = {
 export type ListNewsParams = {
 status?: ListNewsStatus;
 category?: string;
+language?: ListNewsLanguage;
+translationGroup?: string;
 page?: number;
 limit?: number;
 };
@@ -825,6 +860,15 @@ export const ListNewsStatus = {
   draft: 'draft',
   published: 'published',
   all: 'all',
+} as const;
+
+export type ListNewsLanguage = typeof ListNewsLanguage[keyof typeof ListNewsLanguage];
+
+
+export const ListNewsLanguage = {
+  da: 'da',
+  uk: 'uk',
+  en: 'en',
 } as const;
 
 export type ListEventsParams = {

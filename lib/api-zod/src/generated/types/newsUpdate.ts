@@ -5,6 +5,7 @@
  * EAUC Nordic CMS API
  * OpenAPI spec version: 0.1.0
  */
+import type { NewsUpdateLanguage } from './newsUpdateLanguage';
 
 export interface NewsUpdate {
   title?: string;
@@ -19,6 +20,8 @@ export interface NewsUpdate {
   author?: string | null;
   /** @nullable */
   category?: string | null;
+  language?: NewsUpdateLanguage;
+  translationGroup?: string;
   tags?: string[];
   pinned?: boolean;
   /** @nullable */

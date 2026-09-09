@@ -38,8 +38,9 @@ const NEWS_UI: Record<Lang, {
 };
 
 export default function News() {
-  const ui = NEWS_UI[loadLang()];
-  const { data: newsData, isLoading } = useListNews({ status: 'published' });
+  const lang = loadLang();
+  const ui = NEWS_UI[lang];
+  const { data: newsData, isLoading } = useListNews({ status: 'published', language: lang });
   const news = newsData?.items || [];
 
   return (
