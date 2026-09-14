@@ -176,6 +176,7 @@ function SiteHeader({ lang, onLangChange }: { lang: Lang; onLangChange: (l: Lang
               }}>
                 {([
                     { href: '#mission',  label: NAV_UI[lang].mission },
+                    { href: '#vores-arbejde', label: NAV_UI[lang].work },
                     { href: '#om-os',    label: NAV_UI[lang].about   },
                     { href: '#kontakt',  label: NAV_UI[lang].contact  },
                     { href: '#nyheder',  label: NAV_UI[lang].news     },
@@ -198,11 +199,13 @@ function SiteHeader({ lang, onLangChange }: { lang: Lang; onLangChange: (l: Lang
             )}
           </>
         ) : (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 28 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
             {([
               { href: '#mission', label: NAV_UI[lang].mission },
+              { href: '#vores-arbejde', label: NAV_UI[lang].work },
               { href: '#om-os',   label: NAV_UI[lang].about   },
               { href: '#kontakt', label: NAV_UI[lang].contact  },
+              { href: '#nyheder', label: NAV_UI[lang].news },
             ]).map(({ href, label }) => (
               <a key={href} href={href} style={{
                 color: 'rgba(255,255,255,0.88)', textDecoration: 'none',
@@ -476,7 +479,7 @@ function HowBlock({ s }: { s: HowSection }) {
   const width = useWindowWidth();
   const isMobile = width < 768;
   return (
-    <section style={{ background: CREAM, padding: '0 24px 80px' }}>
+    <section id="vores-arbejde" style={{ background: CREAM, padding: '0 24px 80px' }}>
       <div style={{ maxWidth: 820, margin: '0 auto' }}>
         <FadeUp>
           <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: 'clamp(28px,6vw,40px)', fontWeight: 700, color: NAVY, textAlign: 'center', margin: '0 0 56px' }}>{s.heading}</h2>
@@ -869,9 +872,9 @@ function NewsBlock({ s, lang }: { s: NewsSection; lang: Lang }) {
   const { data: newsData, isLoading } = useListNews({ status: 'published', language: lang });
   const articles = newsData?.items ?? [];
   const allArticlesLabel: Record<Lang, string> = {
-    da: 'Se alle artikler',
-    uk: 'Переглянути всі статті',
-    en: 'View all articles',
+    da: 'Se alle opdateringer',
+    uk: 'Переглянути всі матеріали',
+    en: 'View all updates',
   };
   const emptyLabel: Record<Lang, string> = {
     da: 'Der er endnu ingen offentliggjorte artikler.',

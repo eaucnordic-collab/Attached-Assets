@@ -48,48 +48,49 @@ export type AnySection =
   | AboutSection | BoardSection | DonateSection | TextSection
   | NewsSection | ContactSection | FooterSection;
 
-export type SiteContent = { sections: AnySection[] };
+export type SiteContent = { sections: AnySection[]; copyRevision?: number };
 
 // ─── Defaults ─────────────────────────────────────────────────────────────────
 
 export const DEFAULT_CONTENT: SiteContent = {
+  copyRevision: 2,
   sections: [
     {
       id: 'hero', type: 'hero', visible: true,
       imageUrl: 'https://images.unsplash.com/photo-1471286174890-9c112ffca5b4?q=80&w=2069&auto=format&fit=crop',
-      badge: 'INDSAMLING I GANG',
-      heading: 'Giv ukrainske børn',
-      headingAccent: 'en barndom tilbage',
-      subtitle: 'Hjælp os med at bringe ukrainske børn til Danmark — for oplevelser, tryghed og glæden ved at være barn igen.',
-      ctaLabel: 'Donér nu',
+      badge: 'STØTTEN TIL UKRAINE FORTSÆTTER',
+      heading: 'Sammen for Ukraine',
+      headingAccent: 'Fra omsorg til handling',
+      subtitle: 'EAUC Nordic støtter børn, familier og andre, der er berørt af krigen, og styrker ukrainske lokalsamfund gennem målrettet hjælp, pålidelige partnerskaber og samarbejde mellem Ukraine, Danmark og resten af Norden.',
+      ctaLabel: 'Donér',
       ctaUrl: '#donér',
-      cta2Label: 'Læs mere',
+      cta2Label: 'Læs om vores arbejde',
       cta2Url: '#mission',
     },
     {
       id: 'mission', type: 'mission', visible: true,
       heading: 'Vores mission',
-      subtitle: 'Siden krigens start har ukrainske børn mistet deres hverdag, deres venner og deres barndom. Vi vil give dem et pusterum — fyldt med leg, latter og nye venskaber i Danmark.',
+      subtitle: 'EAUC Nordic støtter mennesker, der er berørt af krigen i Ukraine, med særlig fokus på børn, familier og udsatte grupper. Vi forbinder behovene i ukrainske lokalsamfund med ressourcer, faglig viden og menneskelig støtte fra Danmark og resten af Norden. Sammen med pålidelige partnere gennemfører vi humanitære, sociale og genopbyggende initiativer, der styrker tryghed, værdighed og langsigtet trivsel.',
       cards: [
-        { icon: 'heart',  title: 'Kærlighed & Omsorg',  text: 'Vi omgiver hvert barn med varme og tryghed fra det øjeblik, de ankommer til Danmark.' },
-        { icon: 'smile',  title: 'Glæde & Oplevelser',  text: 'Tivoli, stranden, skoven — vi giver børnene minder, der varer hele livet.' },
-        { icon: 'shield', title: 'Tryghed & Håb',       text: 'Et pusterum fra krigen, hvor børn kan være børn igen og genfinde modet.' },
+        { icon: 'heart',  title: 'Værdighed og omsorg',  text: 'Vi møder hvert enkelt menneske med respekt og tager udgangspunkt i reelle behov, livssituationer og retten til at træffe egne valg.' },
+        { icon: 'smile',  title: 'Ansvarligt partnerskab',  text: 'Vi samarbejder med pålidelige organisationer, fagpersoner og lokalsamfund i Ukraine, Danmark og resten af Norden.' },
+        { icon: 'shield', title: 'Åbenhed og varig effekt', text: 'Vi anvender ressourcer ansvarligt, følger resultaterne og forklarer tydeligt, hvad støtten gør muligt.' },
       ],
     },
     {
       id: 'how', type: 'how', visible: true,
-      heading: 'Sådan gør vi',
+      heading: 'Sådan arbejder vi',
       steps: [
-        { n: '01', title: 'Du donerer',     text: 'Ethvert beløb gør en forskel. Din donation går direkte til at finansiere rejse, ophold og oplevelser.' },
-        { n: '02', title: 'Vi organiserer', text: 'Vi samarbejder med ukrainske organisationer for at finde børn, der har mest brug for et pusterum.' },
-        { n: '03', title: 'Børnene oplever',text: 'Børnene kommer til Danmark og får uger fyldt med leg, natur, kultur og nye venskaber.' },
-        { n: '04', title: 'Håbet vokser',   text: 'Børnene rejser hjem med nye kræfter, minder og troen på, at verden stadig er god.' },
+        { n: '01', title: 'Du støtter', text: 'Hver donation er med til at finansiere kvalitetssikrede indsatser, der bygger på dokumenterede behov.' },
+        { n: '02', title: 'Vi lytter og koordinerer', text: 'Sammen med ukrainske partnere fastlægger vi prioriteter, verificerer behov og vælger den mest relevante form for støtte.' },
+        { n: '03', title: 'Støtten når frem, hvor den er nødvendig', text: 'Vi målretter ressourcer til konkrete indsatser for børn, familier, udsatte mennesker, institutioner og lokalsamfund.' },
+        { n: '04', title: 'Vi følger op og rapporterer', text: 'Vi offentliggør resultater, projektopdateringer og økonomiske oplysninger, så vores arbejde forbliver gennemsigtigt.' },
       ],
     },
     {
       id: 'stats', type: 'stats', visible: true,
-      heading: 'Vores gennemslagskraft',
-      subtitle: 'Takket være jeres generøsitet har vi allerede gjort en kæmpe forskel.',
+      heading: 'Vores resultater',
+      subtitle: 'Vi offentliggør dokumenterede projektresultater, historier om partnerskaber og økonomiske rapporter, så alle støtter kan se, hvordan deres bidrag bliver anvendt.',
       imageUrl: 'https://images.unsplash.com/photo-1597848212624-a19eb35e2651?q=80&w=2069&auto=format&fit=crop',
       items: [
         { value: '127',     label: 'BØRN HJULPET' },
@@ -100,8 +101,8 @@ export const DEFAULT_CONTENT: SiteContent = {
     },
     {
       id: 'news', type: 'news', visible: true,
-      heading: 'Nyheder & Rapporter',
-      subtitle: 'Følg med i vores arbejde og se, hvad jeres donationer gør muligt.',
+      heading: 'Nyheder og rapporter',
+      subtitle: 'Læs om vores projekter, partnerskaber og resultater i Ukraine, Danmark og resten af Norden.',
       items: [
         {
           id: 'news_1',
@@ -131,9 +132,9 @@ export const DEFAULT_CONTENT: SiteContent = {
     },
     {
       id: 'about', type: 'about', visible: true,
-      tagline: 'HVEM STÅR BAG',
-      heading: 'Om foreningen',
-      text: 'European Association of Ukrainian Children – Nordic (EAUC Nordic) er stiftet som en uafhængig, almennyttig non-profit forening i Danmark. Vi arbejder for at give ukrainske børn tryghed, oplevelser og håb gennem ophold i Norden.',
+      tagline: 'OM OS',
+      heading: 'Om os',
+      text: 'European Association of Ukrainian Children - Nordic (EAUC Nordic) er en uafhængig non-profit forening registreret i Danmark. Børn er fortsat en af de centrale prioriteter i vores arbejde, samtidig med at støtten udvides til familier, udsatte voksne, ældre, mennesker med handicap samt lokale institutioner og lokalsamfund, der er berørt af krigen i Ukraine. Vi forbinder konkrete behov i Ukraine med ressourcer, viden og engagerede mennesker og organisationer i Danmark og resten af Norden.',
       cvr: '46329406',
       orgName: 'European Association of Ukrainian Children - Nordic',
       address: 'Byparken 75, 1. 1, 5700 Svendborg',
@@ -150,11 +151,11 @@ export const DEFAULT_CONTENT: SiteContent = {
     },
     {
       id: 'donate', type: 'donate', visible: true,
-      heading: 'Giv et bidrag i dag',
-      subtitle: 'Ethvert beløb gør en forskel. Vælg et beløb herunder, eller donér hvad du kan.',
+      heading: 'Støt vores arbejde',
+      subtitle: 'Hver donation hjælper os med at gennemføre ansvarlige indsatser baseret på reelle behov. Vælg et beløb nedenfor, eller giv det, du kan.',
       amounts: [100, 250, 500, 1000],
-      buttonLabel: 'Donér nu',
-      note: 'Sikker betaling · Skattefradrag · 100% gennemsigtighed',
+      buttonLabel: 'Donér 250 DKK',
+      note: 'Donationer behandles sikkert via Stripe. Se vores rapporter for information om, hvordan midlerne anvendes.',
       bankName: 'Danske Bank',
       bankRegistration: '9570',
       bankAccount: '14146679',
@@ -163,8 +164,8 @@ export const DEFAULT_CONTENT: SiteContent = {
     },
     {
       id: 'contact', type: 'contact', visible: true,
-      heading: 'Kontakt os',
-      subtitle: 'Har du spørgsmål, vil du hjælpe som frivillig, eller ønsker du at samarbejde? Vi hører gerne fra dig.',
+      heading: 'Kontakt og frivillighed',
+      subtitle: 'Har du spørgsmål, ønsker du at blive frivillig, eller vil du drøfte et muligt partnerskab? Kontakt os – vi hører gerne fra dig.',
       email: 'info@eaucnordic.com',
       phone: '+45 25 56 81 31',
     },
@@ -179,9 +180,9 @@ export const DEFAULT_CONTENT: SiteContent = {
       cookiesUrl: '#',
       locales: {
         da: {
-          tagline: 'Vi giver ukrainske børn tryghed, oplevelser og håb — ét pusterum ad gangen.',
-          followUs: 'Følg os', navTitle: 'Navigation', navMission: 'Vores mission', navHow: 'Sådan gør vi',
-          navAbout: 'Om foreningen', navDonate: 'Donér nu', navContact: 'Kontakt', contactTitle: 'Kontakt os',
+          tagline: 'Vi forbinder mennesker, ressourcer og muligheder for Ukraine.',
+          followUs: 'Følg os', navTitle: 'Navigation', navMission: 'Mission', navHow: 'Vores arbejde',
+          navAbout: 'Om os', navDonate: 'Donér', navContact: 'Kontakt', contactTitle: 'Kontakt os',
           address: 'Byparken 75, 1. 1\n5700 Svendborg\nDanmark', legalTitle: 'Juridisk information',
           registeredAs: 'Registreret som almennyttig, non-profit forening i Danmark',
           taxNote: '🇩🇰 Donationer er fradragsberettigede iht. ligningslovens § 8A',
@@ -190,9 +191,9 @@ export const DEFAULT_CONTENT: SiteContent = {
           copyright: '© 2026 European Association of Ukrainian Children – Nordic (EAUC Nordic) · CVR 46329406',
         },
         uk: {
-          tagline: 'Ми даємо українським дітям безпеку, враження та надію — один перепочинок за раз.',
-          followUs: 'Слідкуйте за нами', navTitle: 'Навігація', navMission: 'Наша місія', navHow: 'Як ми це робимо',
-          navAbout: 'Про організацію', navDonate: 'Пожертвувати', navContact: 'Контакт', contactTitle: 'Звʼяжіться з нами',
+          tagline: 'Поєднуємо людей, ресурси та можливості заради України.',
+          followUs: 'Слідкуйте за нами', navTitle: 'Навігація', navMission: 'Місія', navHow: 'Наша робота',
+          navAbout: 'Про нас', navDonate: 'Пожертвувати', navContact: 'Контакти', contactTitle: 'Звʼяжіться з нами',
           address: 'Byparken 75, 1. 1\n5700 Svendborg\nДанія', legalTitle: 'Юридична інформація',
           registeredAs: 'Зареєстровано як некомерційна організація в Данії',
           taxNote: '🇩🇰 Пожертвування підлягають податковому вирахуванню в Данії',
@@ -201,9 +202,9 @@ export const DEFAULT_CONTENT: SiteContent = {
           copyright: '© 2026 European Association of Ukrainian Children – Nordic (EAUC Nordic) · CVR 46329406',
         },
         en: {
-          tagline: 'We give Ukrainian children security, experiences and hope — one break at a time.',
-          followUs: 'Follow us', navTitle: 'Navigation', navMission: 'Our mission', navHow: 'How we do it',
-          navAbout: 'About us', navDonate: 'Donate now', navContact: 'Contact', contactTitle: 'Get in touch',
+          tagline: 'Connecting people, resources and opportunities for Ukraine.',
+          followUs: 'Follow us', navTitle: 'Navigation', navMission: 'Mission', navHow: 'Our work',
+          navAbout: 'About us', navDonate: 'Donate', navContact: 'Contact', contactTitle: 'Get in touch',
           address: 'Byparken 75, 1. 1\n5700 Svendborg\nDenmark', legalTitle: 'Legal information',
           registeredAs: 'Registered as a non-profit organisation in Denmark',
           taxNote: '🇩🇰 Donations are tax-deductible in Denmark',
@@ -219,13 +220,75 @@ export const DEFAULT_CONTENT: SiteContent = {
 // ─── Storage helpers ──────────────────────────────────────────────────────────
 
 const KEY = 'eauc_site_content_v1';
+const CURRENT_COPY_REVISION = 2;
+
+function applyCurrentCopy(content: SiteContent): SiteContent {
+  if ((content.copyRevision ?? 0) >= CURRENT_COPY_REVISION) return content;
+  const defaults = new Map(DEFAULT_CONTENT.sections.map(section => [section.id, section]));
+
+  const sections = content.sections.map(section => {
+    const source = defaults.get(section.id);
+    if (!source || source.type !== section.type) return section;
+
+    switch (section.type) {
+      case 'hero': {
+        const copy = source as HeroSection;
+        return { ...section, badge: copy.badge, heading: copy.heading, headingAccent: copy.headingAccent, subtitle: copy.subtitle, ctaLabel: copy.ctaLabel, cta2Label: copy.cta2Label };
+      }
+      case 'mission': {
+        const copy = source as MissionSection;
+        return { ...section, heading: copy.heading, subtitle: copy.subtitle, cards: copy.cards };
+      }
+      case 'how': {
+        const copy = source as HowSection;
+        return { ...section, heading: copy.heading, steps: copy.steps };
+      }
+      case 'stats': {
+        const copy = source as StatsSection;
+        return { ...section, heading: copy.heading, subtitle: copy.subtitle };
+      }
+      case 'news': {
+        const copy = source as NewsSection;
+        return { ...section, heading: copy.heading, subtitle: copy.subtitle };
+      }
+      case 'about': {
+        const copy = source as AboutSection;
+        return { ...section, tagline: copy.tagline, heading: copy.heading, text: copy.text };
+      }
+      case 'donate': {
+        const copy = source as DonateSection;
+        return { ...section, heading: copy.heading, subtitle: copy.subtitle, buttonLabel: copy.buttonLabel, note: copy.note };
+      }
+      case 'contact': {
+        const copy = source as ContactSection;
+        return { ...section, heading: copy.heading, subtitle: copy.subtitle };
+      }
+      case 'footer': {
+        const copy = source as FooterSection;
+        return {
+          ...section,
+          locales: {
+            da: { ...section.locales.da, tagline: copy.locales.da.tagline, navMission: copy.locales.da.navMission, navHow: copy.locales.da.navHow, navAbout: copy.locales.da.navAbout, navDonate: copy.locales.da.navDonate, navContact: copy.locales.da.navContact },
+            uk: { ...section.locales.uk, tagline: copy.locales.uk.tagline, navMission: copy.locales.uk.navMission, navHow: copy.locales.uk.navHow, navAbout: copy.locales.uk.navAbout, navDonate: copy.locales.uk.navDonate, navContact: copy.locales.uk.navContact },
+            en: { ...section.locales.en, tagline: copy.locales.en.tagline, navMission: copy.locales.en.navMission, navHow: copy.locales.en.navHow, navAbout: copy.locales.en.navAbout, navDonate: copy.locales.en.navDonate, navContact: copy.locales.en.navContact },
+          },
+        };
+      }
+      default:
+        return section;
+    }
+  });
+
+  return { ...content, sections, copyRevision: CURRENT_COPY_REVISION };
+}
 
 export function loadSiteContent(): SiteContent {
   try {
     const raw = localStorage.getItem(KEY);
     if (raw) {
-      const parsed = JSON.parse(raw) as SiteContent;
-      let dirty = false;
+      const original = JSON.parse(raw) as SiteContent;
+      const parsed = applyCurrentCopy(original);
+      let dirty = parsed !== original;
 
       // Migrate: add news/contact/footer sections if missing
       const hasNews    = parsed.sections.some(s => s.type === 'news');
@@ -298,7 +361,7 @@ export async function fetchSiteContentFromAPI(): Promise<SiteContent | null> {
     const res = await fetch(API_URL);
     if (res.status === 404) return null;
     if (!res.ok) return null;
-    const content = (await res.json()) as SiteContent;
+    const content = applyCurrentCopy((await res.json()) as SiteContent);
     if (!content.sections.some(section => section.type === 'footer')) {
       const footer = DEFAULT_CONTENT.sections.find(section => section.type === 'footer');
       if (footer) content.sections.push(footer);
