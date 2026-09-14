@@ -23,6 +23,34 @@ const NAVY  = '#0d1b3e';
 const BLUE  = '#1a4cdb';
 const CREAM = '#f7f4ef';
 
+const SEO_BY_LANG: Record<Lang, { title: string; description: string; locale: string }> = {
+  da: {
+    title: 'EAUC Nordic — Sammen for Ukraine',
+    description: 'EAUC Nordic støtter mennesker og lokalsamfund, der er berørt af krigen i Ukraine, gennem målrettet hjælp og pålidelige nordiske partnerskaber.',
+    locale: 'da_DK',
+  },
+  uk: {
+    title: 'EAUC Nordic — Разом для України',
+    description: 'EAUC Nordic підтримує людей і громади, які постраждали від війни в Україні, через цільову допомогу та надійні партнерства з країнами Північної Європи.',
+    locale: 'uk_UA',
+  },
+  en: {
+    title: 'EAUC Nordic — Together for Ukraine',
+    description: 'EAUC Nordic supports people and communities affected by the war in Ukraine through targeted assistance and trusted partnerships across the Nordic region.',
+    locale: 'en_GB',
+  },
+};
+
+const A11Y_BY_LANG: Record<Lang, { changeLanguage: string; openMenu: string; closeMenu: string; mainNavigation: string }> = {
+  da: { changeLanguage: 'Skift sprog', openMenu: 'Åbn menu', closeMenu: 'Luk menu', mainNavigation: 'Hovednavigation' },
+  uk: { changeLanguage: 'Змінити мову', openMenu: 'Відкрити меню', closeMenu: 'Закрити меню', mainNavigation: 'Головна навігація' },
+  en: { changeLanguage: 'Change language', openMenu: 'Open menu', closeMenu: 'Close menu', mainNavigation: 'Main navigation' },
+};
+
+function setMetaContent(selector: string, content: string) {
+  document.querySelector<HTMLMetaElement>(selector)?.setAttribute('content', content);
+}
+
 // ─── Hooks ────────────────────────────────────────────────────────────────────
 function useWindowWidth() {
   const [w, setW] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
@@ -66,9 +94,9 @@ function FadeUp({ children, delay = 0, style = {} }: { children: React.ReactNode
 }
 
 // ─── Header sub-components ────────────────────────────────────────────────────
-function SocialIcon({ href, children }: { href: string; children: React.ReactNode }) {
+function SocialIcon({ href, label, children }: { href: string; label: string; children: React.ReactNode }) {
   return (
-    <a href={href} target="_blank" rel="noreferrer" style={{
+    <a href={href} aria-label={label} target="_blank" rel="noopener noreferrer" style={{
       display: 'flex', alignItems: 'center', justifyContent: 'center',
       width: 36, height: 36, borderRadius: '50%',
       background: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.7)',
@@ -93,7 +121,7 @@ function LanguagePicker({ lang, onChange }: { lang: Lang; onChange: (l: Lang) =>
   const current = LANGUAGES.find(l => l.code === lang);
   return (
     <div ref={ref} style={{ position: 'relative' }}>
-      <button onClick={() => setOpen(o => !o)} style={{
+      <button type="button" aria-label={`${A11Y_BY_LANG[lang].changeLanguage}: ${current?.label}`} aria-haspopup="listbox" aria-expanded={open} aria-controls="language-options" onClick={() => setOpen(o => !o)} style={{
         display: 'flex', alignItems: 'center', gap: 6,
         background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)',
         borderRadius: 999, padding: '6px 12px', cursor: 'pointer', color: '#fff',
@@ -103,13 +131,13 @@ function LanguagePicker({ lang, onChange }: { lang: Lang; onChange: (l: Lang) =>
         <ChevronDown size={12} style={{ opacity: 0.7, transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
       </button>
       {open && (
-        <div style={{
+        <div id="language-options" role="listbox" aria-label={A11Y_BY_LANG[lang].changeLanguage} style={{
           position: 'absolute', top: 'calc(100% + 8px)', right: 0, zIndex: 1000,
           background: '#fff', borderRadius: 12, boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
           overflow: 'hidden', minWidth: 140,
         }}>
           {LANGUAGES.map(l => (
-            <button key={l.code} onClick={() => { onChange(l.code); setOpen(false); }}
+            <button type="button" role="option" aria-selected={l.code === lang} key={l.code} onClick={() => { onChange(l.code); setOpen(false); }}
               style={{
                 display: 'flex', alignItems: 'center', gap: 10, width: '100%', padding: '10px 16px',
                 background: l.code === lang ? '#f0f4ff' : '#fff', border: 'none', cursor: 'pointer',
@@ -161,7 +189,7 @@ function SiteHeader({ lang, onLangChange }: { lang: Lang; onLangChange: (l: Lang
           <>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <LanguagePicker lang={lang} onChange={onLangChange} />
-              <button onClick={() => setMenuOpen(o => !o)} style={{
+               <button type="button" aria-label={menuOpen ? A11Y_BY_LANG[lang].closeMenu : A11Y_BY_LANG[lang].openMenu} aria-expanded={menuOpen} aria-controls="mobile-navigation" onClick={() => setMenuOpen(o => !o)} style={{
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 background: 'none', border: 'none', cursor: 'pointer', color: '#fff', padding: 8,
               }}>
@@ -169,7 +197,7 @@ function SiteHeader({ lang, onLangChange }: { lang: Lang; onLangChange: (l: Lang
               </button>
             </div>
             {menuOpen && (
-              <div style={{
+               <nav id="mobile-navigation" aria-label={A11Y_BY_LANG[lang].mainNavigation} style={{
                 position: 'fixed', top: 60, left: 0, right: 0, bottom: 0,
                 background: 'rgba(8,12,30,0.97)', backdropFilter: 'blur(12px)',
                 display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 12, zIndex: 899,
@@ -180,6 +208,7 @@ function SiteHeader({ lang, onLangChange }: { lang: Lang; onLangChange: (l: Lang
                     { href: '#om-os',    label: NAV_UI[lang].about   },
                     { href: '#kontakt',  label: NAV_UI[lang].contact  },
                     { href: '#nyheder',  label: NAV_UI[lang].news     },
+                     { href: '#donér', label: NAV_UI[lang].donateNow },
                   ]).map(({ href, label }) => (
                   <a key={href} href={href} onClick={() => setMenuOpen(false)} style={{
                     color: '#fff', textDecoration: 'none', fontFamily: 'Inter, sans-serif',
@@ -188,24 +217,18 @@ function SiteHeader({ lang, onLangChange }: { lang: Lang; onLangChange: (l: Lang
                     {label.toUpperCase()}
                   </a>
                 ))}
-                <a href="#donér" onClick={() => setMenuOpen(false)} style={{
-                  marginTop: 16, background: GOLD, color: NAVY, borderRadius: 999,
-                  padding: '16px 36px', fontFamily: 'Inter, sans-serif', fontWeight: 700,
-                  fontSize: 18, textDecoration: 'none', minHeight: 52, display: 'flex', alignItems: 'center',
-                }}>
-                  {NAV_UI[lang].donateNow}
-                </a>
-              </div>
+               </nav>
             )}
           </>
         ) : (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+          <nav aria-label={A11Y_BY_LANG[lang].mainNavigation} style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
             {([
               { href: '#mission', label: NAV_UI[lang].mission },
               { href: '#vores-arbejde', label: NAV_UI[lang].work },
               { href: '#om-os',   label: NAV_UI[lang].about   },
               { href: '#kontakt', label: NAV_UI[lang].contact  },
               { href: '#nyheder', label: NAV_UI[lang].news },
+              { href: '#donér', label: NAV_UI[lang].donateNow },
             ]).map(({ href, label }) => (
               <a key={href} href={href} style={{
                 color: 'rgba(255,255,255,0.88)', textDecoration: 'none',
@@ -219,14 +242,7 @@ function SiteHeader({ lang, onLangChange }: { lang: Lang; onLangChange: (l: Lang
               </a>
             ))}
             <LanguagePicker lang={lang} onChange={onLangChange} />
-            <a href="#donér" style={{
-              background: GOLD, color: NAVY, borderRadius: 999, padding: '10px 22px',
-              fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 14,
-              textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 6, minHeight: 40,
-            }}>
-              <Heart size={14} fill={NAVY} /> {NAV_UI[lang].donateNow}
-            </a>
-          </div>
+          </nav>
         )}
       </div>
     </header>
@@ -281,16 +297,16 @@ function SiteFooter({ lang, footer }: { lang: Lang; footer: FooterSection }) {
           <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', lineHeight: 1.7, margin: '0 0 28px', maxWidth: 260 }}>{f.tagline}</p>
           <div style={{ marginBottom: 8 }}><FooterColTitle>{f.followUs}</FooterColTitle></div>
           <div style={{ display: 'flex', gap: 10 }}>
-            {footer.facebookUrl && <SocialIcon href={footer.facebookUrl}><Facebook size={16} /></SocialIcon>}
-            {footer.instagramUrl && <SocialIcon href={footer.instagramUrl}><Instagram size={16} /></SocialIcon>}
+            {footer.facebookUrl && <SocialIcon href={footer.facebookUrl} label="Facebook"><Facebook size={16} aria-hidden="true" /></SocialIcon>}
+            {footer.instagramUrl && <SocialIcon href={footer.instagramUrl} label="Instagram"><Instagram size={16} aria-hidden="true" /></SocialIcon>}
           </div>
         </div>
         {/* Col 2 — Navigation */}
         <div>
           <FooterColTitle>{f.navTitle}</FooterColTitle>
-          <nav style={{ display: 'flex', flexDirection: 'column' }}>
+          <nav aria-label={f.navTitle} style={{ display: 'flex', flexDirection: 'column' }}>
             <FooterLink href="#mission">{f.navMission}</FooterLink>
-            <FooterLink href="#mission">{f.navHow}</FooterLink>
+            <FooterLink href="#vores-arbejde">{f.navHow}</FooterLink>
             <FooterLink href="#om-os">{f.navAbout}</FooterLink>
             <FooterLink href="#donér">{f.navDonate}</FooterLink>
             <FooterLink href="#kontakt">{f.navContact}</FooterLink>
@@ -410,8 +426,10 @@ function HeroBlock({ s }: { s: HeroSection }) {
             <span style={{ width: 8, height: 8, borderRadius: '50%', background: GOLD, display: 'inline-block' }} />
             <span style={{ color: '#fff', fontSize: 12, fontWeight: 500, letterSpacing: '0.08em', fontFamily: 'Inter, sans-serif', overflowWrap: 'anywhere' }}>{s.badge}</span>
           </div>
-          <h1 style={{ width: '100%', maxWidth: '100%', minWidth: 0, overflowWrap: 'anywhere', wordBreak: 'break-word', fontFamily: 'Playfair Display, serif', fontSize: isMobile ? 'clamp(30px,9vw,44px)' : 'clamp(30px,5vw,56px)', fontWeight: 700, lineHeight: 1.1, color: '#fff', margin: '0 0 6px' }}>{s.heading}</h1>
-          <h1 style={{ width: '100%', maxWidth: '100%', minWidth: 0, overflowWrap: 'anywhere', wordBreak: 'break-word', fontFamily: 'Playfair Display, serif', fontSize: isMobile ? 'clamp(30px,9vw,44px)' : 'clamp(30px,5vw,56px)', fontWeight: 700, lineHeight: 1.15, color: GOLD, margin: '0 0 22px' }}>{s.headingAccent}</h1>
+          <h1 style={{ width: '100%', maxWidth: '100%', minWidth: 0, overflowWrap: 'anywhere', wordBreak: 'break-word', fontFamily: 'Playfair Display, serif', fontSize: isMobile ? 'clamp(30px,9vw,44px)' : 'clamp(30px,5vw,56px)', fontWeight: 700, lineHeight: 1.1, color: '#fff', margin: '0 0 22px' }}>
+            {s.heading}
+            <span style={{ display: 'block', color: GOLD, marginTop: 6 }}>{s.headingAccent}</span>
+          </h1>
           <p style={{ width: '100%', minWidth: 0, fontFamily: 'Inter, sans-serif', fontSize: isMobile ? 15 : 16, color: 'rgba(255,255,255,0.82)', lineHeight: 1.65, maxWidth: 460, overflowWrap: 'anywhere', wordBreak: 'break-word', margin: '0 0 36px' }}>{s.subtitle}</p>
           <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
             <a href={s.ctaUrl} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: GOLD, color: NAVY, borderRadius: 999, padding: '14px 28px', fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 15, cursor: 'pointer', textDecoration: 'none', minHeight: 44 }}>
@@ -591,7 +609,7 @@ function BoardBlock({ s }: { s: BoardSection }) {
     <section style={{ background: CREAM, padding: '0 24px 80px' }}>
       <div style={{ maxWidth: 820, margin: '0 auto' }}>
         <FadeUp>
-          <h3 style={{ fontFamily: 'Playfair Display, serif', fontSize: 24, fontWeight: 700, color: NAVY, textAlign: 'center', marginBottom: 32 }}>{s.heading}</h3>
+          <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: 24, fontWeight: 700, color: NAVY, textAlign: 'center', marginBottom: 32 }}>{s.heading}</h2>
         </FadeUp>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px,1fr))', gap: 16 }}>
           {s.members.map((m, i) => (
@@ -731,9 +749,12 @@ function DonateBlock({ s, lang }: { s: DonateSection; lang: Lang }) {
               ]).map(method => {
                 const active = paymentMethod === method.id;
                 return (
-                  <button
+                    <button
+                      type="button"
                     key={method.id}
                     role="tab"
+                      id={`payment-tab-${method.id}`}
+                      aria-controls={`payment-panel-${method.id}`}
                     aria-selected={active}
                     onClick={() => setPaymentMethod(method.id)}
                     style={{ minHeight: isMobile ? 58 : 54, margin: active ? 5 : 0, padding: isMobile ? '10px 8px' : '12px 20px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, border: 'none', borderRadius: active ? 8 : 0, background: active ? '#fff' : 'transparent', boxShadow: active ? '0 1px 5px rgba(13,27,62,0.12)' : 'none', color: active ? NAVY : '#646b75', fontFamily: 'Inter, sans-serif', fontSize: isMobile ? 13 : 15, fontWeight: active ? 700 : 500, cursor: 'pointer' }}
@@ -745,14 +766,14 @@ function DonateBlock({ s, lang }: { s: DonateSection; lang: Lang }) {
               })}
             </div>
 
-            <div role="tabpanel" style={{ minHeight: isMobile ? 420 : 455, padding: isMobile ? '32px 18px 28px' : '34px 44px 36px' }}>
+            <div id={`payment-panel-${paymentMethod}`} role="tabpanel" aria-labelledby={`payment-tab-${paymentMethod}`} tabIndex={0} style={{ minHeight: isMobile ? 420 : 455, padding: isMobile ? '32px 18px 28px' : '34px 44px 36px' }}>
               {paymentMethod === 'card' && (
                 <div style={{ maxWidth: 560, margin: '0 auto' }}>
                   <h3 style={{ fontFamily: 'Inter, sans-serif', fontSize: isMobile ? 22 : 24, fontWeight: 750, color: NAVY, margin: '0 0 8px' }}>{ui.cardTitle}</h3>
                   <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, color: '#68707c', margin: '0 0 22px' }}>{ui.cardSubtitle}</p>
 
                   {donateStatus === 'success' ? (
-                    <div style={{ padding: '42px 0 24px' }}>
+                    <div role="status" aria-live="polite" style={{ padding: '42px 0 24px' }}>
                       <CheckCircle size={46} color="#059669" style={{ marginBottom: 14 }} />
                       <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 17, fontWeight: 700, color: NAVY, margin: '0 0 6px' }}>
                         {lang === 'da' ? 'Tak for din donation!' : lang === 'uk' ? 'Дякуємо за вашу пожертву!' : 'Thank you for your donation!'}
@@ -760,7 +781,7 @@ function DonateBlock({ s, lang }: { s: DonateSection; lang: Lang }) {
                       <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, color: '#68707c', margin: '0 0 20px' }}>
                         {lang === 'da' ? 'Din betaling er gennemført.' : lang === 'uk' ? 'Ваш платіж успішно завершено.' : 'Your payment was completed successfully.'}
                       </p>
-                      <button onClick={() => setDonateStatus('idle')} style={{ border: '1px solid #d4d8df', borderRadius: 8, background: '#fff', padding: '10px 20px', color: NAVY, fontFamily: 'Inter, sans-serif', cursor: 'pointer' }}>
+                      <button type="button" onClick={() => setDonateStatus('idle')} style={{ border: '1px solid #d4d8df', borderRadius: 8, background: '#fff', padding: '10px 20px', color: NAVY, fontFamily: 'Inter, sans-serif', cursor: 'pointer' }}>
                         {lang === 'da' ? 'Donér igen' : lang === 'uk' ? 'Пожертвувати знову' : 'Donate again'}
                       </button>
                     </div>
@@ -770,7 +791,7 @@ function DonateBlock({ s, lang }: { s: DonateSection; lang: Lang }) {
                         {(['once', 'monthly'] as DonationFrequency[]).map(option => {
                           const active = frequency === option;
                           return (
-                            <button key={option} onClick={() => { setFrequency(option); setDonateStatus('idle'); }} style={{ minHeight: 40, border: 'none', background: active ? '#171925' : '#fff', color: active ? '#fff' : NAVY, fontFamily: 'Inter, sans-serif', fontSize: 14, fontWeight: 650, cursor: 'pointer' }}>
+                            <button type="button" aria-pressed={active} key={option} onClick={() => { setFrequency(option); setDonateStatus('idle'); }} style={{ minHeight: 40, border: 'none', background: active ? '#171925' : '#fff', color: active ? '#fff' : NAVY, fontFamily: 'Inter, sans-serif', fontSize: 14, fontWeight: 650, cursor: 'pointer' }}>
                               {option === 'once' ? ui.oneTime : ui.monthly}
                             </button>
                           );
@@ -790,7 +811,7 @@ function DonateBlock({ s, lang }: { s: DonateSection; lang: Lang }) {
                         {suggestedAmounts.map(value => {
                           const active = selectedAmount === value && !customAmount;
                           return (
-                            <button key={value} onClick={() => { setSelectedAmount(value); setCustomAmount(''); setDonateStatus('idle'); }} style={{ minHeight: 46, border: active ? '1px solid #171925' : '1px solid #d9dde4', borderRadius: 7, background: active ? '#171925' : '#fff', color: active ? '#fff' : NAVY, fontFamily: 'Inter, sans-serif', fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>
+                            <button type="button" aria-pressed={active} key={value} onClick={() => { setSelectedAmount(value); setCustomAmount(''); setDonateStatus('idle'); }} style={{ minHeight: 46, border: active ? '1px solid #171925' : '1px solid #d9dde4', borderRadius: 7, background: active ? '#171925' : '#fff', color: active ? '#fff' : NAVY, fontFamily: 'Inter, sans-serif', fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>
                               {value.toLocaleString('da-DK')} kr
                             </button>
                           );
@@ -798,8 +819,9 @@ function DonateBlock({ s, lang }: { s: DonateSection; lang: Lang }) {
                       </div>
 
                       <div style={{ position: 'relative', marginBottom: 14 }}>
-                        <input type="number" min="1" step="1" inputMode="numeric" value={customAmount} onChange={event => { setCustomAmount(event.target.value); setDonateStatus('idle'); }} placeholder={ui.otherAmount} style={{ width: '100%', minHeight: 46, boxSizing: 'border-box', border: '1px solid #d9dde4', borderRadius: 7, padding: '11px 48px 11px 14px', color: NAVY, fontFamily: 'Inter, sans-serif', fontSize: 14 }} />
-                        <span style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', color: '#8a9099', fontFamily: 'Inter, sans-serif', fontSize: 14 }}>kr</span>
+                        <label htmlFor="custom-donation-amount" style={{ position: 'absolute', width: 1, height: 1, padding: 0, margin: -1, overflow: 'hidden', clip: 'rect(0,0,0,0)', whiteSpace: 'nowrap', border: 0 }}>{ui.otherAmount}</label>
+                        <input id="custom-donation-amount" name="donationAmount" aria-describedby="donation-currency" type="number" min="1" step="1" inputMode="numeric" value={customAmount} onChange={event => { setCustomAmount(event.target.value); setDonateStatus('idle'); }} placeholder={ui.otherAmount} style={{ width: '100%', minHeight: 46, boxSizing: 'border-box', border: '1px solid #d9dde4', borderRadius: 7, padding: '11px 48px 11px 14px', color: NAVY, fontFamily: 'Inter, sans-serif', fontSize: 14 }} />
+                        <span id="donation-currency" style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', color: '#8a9099', fontFamily: 'Inter, sans-serif', fontSize: 14 }}>kr</span>
                       </div>
 
                       {donateStatus === 'error' && (
@@ -808,7 +830,7 @@ function DonateBlock({ s, lang }: { s: DonateSection; lang: Lang }) {
                         </p>
                       )}
 
-                      <button onClick={startStripeCheckout} disabled={donateStatus === 'loading'} style={{ width: '100%', minHeight: 50, border: 'none', borderRadius: 7, background: '#ffd400', color: '#171925', fontFamily: 'Inter, sans-serif', fontSize: 15, fontWeight: 750, cursor: donateStatus === 'loading' ? 'wait' : 'pointer', opacity: donateStatus === 'loading' ? 0.7 : 1 }}>
+                      <button type="button" onClick={startStripeCheckout} disabled={donateStatus === 'loading'} aria-busy={donateStatus === 'loading'} style={{ width: '100%', minHeight: 50, border: 'none', borderRadius: 7, background: '#ffd400', color: '#171925', fontFamily: 'Inter, sans-serif', fontSize: 15, fontWeight: 750, cursor: donateStatus === 'loading' ? 'wait' : 'pointer', opacity: donateStatus === 'loading' ? 0.7 : 1 }}>
                         {donateStatus === 'loading' ? '...' : `${ui.donate} ${Number.isInteger(amount) && amount > 0 ? `${amount.toLocaleString('da-DK')} kr` : ''}${frequency === 'monthly' ? ` ${ui.perMonth}` : ''}`}
                       </button>
                     </>
@@ -826,7 +848,7 @@ function DonateBlock({ s, lang }: { s: DonateSection; lang: Lang }) {
                         <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, color: '#747b85' }}>{detail.label}</span>
                         <span style={{ minWidth: 0, display: 'flex', justifyContent: isMobile ? 'space-between' : 'flex-end', alignItems: 'center', gap: 10 }}>
                           <strong style={{ minWidth: 0, color: NAVY, fontFamily: 'Inter, sans-serif', fontSize: isMobile ? 14 : 15, textAlign: 'right', overflowWrap: 'anywhere' }}>{detail.value}</strong>
-                          <button onClick={() => copyBankValue(detail.key, detail.value)} title={copiedField === detail.key ? ui.copied : ui.copy} aria-label={`${ui.copy}: ${detail.label}`} style={{ flexShrink: 0, width: 30, height: 30, border: 'none', borderRadius: 6, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: copiedField === detail.key ? '#e7f7ef' : 'transparent', color: copiedField === detail.key ? '#059669' : '#8a919c', cursor: 'pointer' }}>
+                          <button type="button" onClick={() => copyBankValue(detail.key, detail.value)} title={copiedField === detail.key ? ui.copied : ui.copy} aria-label={`${ui.copy}: ${detail.label}`} style={{ flexShrink: 0, width: 30, height: 30, border: 'none', borderRadius: 6, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: copiedField === detail.key ? '#e7f7ef' : 'transparent', color: copiedField === detail.key ? '#059669' : '#8a919c', cursor: 'pointer' }}>
                             {copiedField === detail.key ? <Check size={15} /> : <Copy size={15} />}
                           </button>
                         </span>
@@ -1046,7 +1068,10 @@ function ContactBlock({ s, lang }: { s: ContactSection; lang: Lang }) {
     e.preventDefault();
     // Find the real contact form (prefer "Contact Form" by name, fallback to first)
     const contactForm = forms?.find(f => f.name === 'Contact Form') ?? forms?.[0];
-    if (!contactForm) return;
+    if (!contactForm) {
+      setStatus('error');
+      return;
+    }
     setStatus('loading');
     submitMutation.mutate(
       { id: contactForm.id, data: { data: { name, email, subject, message } } },
@@ -1076,7 +1101,7 @@ function ContactBlock({ s, lang }: { s: ContactSection; lang: Lang }) {
             {/* Form */}
             <div style={{ background: '#fff', borderRadius: 20, padding: isMobile ? '28px 20px' : '40px 40px', border: '1px solid #e8e3da', boxShadow: '0 4px 24px rgba(0,0,0,0.07)' }}>
               {status === 'success' ? (
-                <div style={{ textAlign: 'center', padding: '24px 0' }}>
+                <div role="status" aria-live="polite" style={{ textAlign: 'center', padding: '24px 0' }}>
                   <CheckCircle size={52} color="#059669" style={{ marginBottom: 20 }} />
                   <h3 style={{ fontFamily: 'Playfair Display, serif', fontSize: 22, color: NAVY, margin: '0 0 12px' }}>{ui.successTitle}</h3>
                   <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 15, color: '#666', margin: 0 }}>{ui.successMessage}</p>
@@ -1086,19 +1111,19 @@ function ContactBlock({ s, lang }: { s: ContactSection; lang: Lang }) {
                   </button>
                 </div>
               ) : (
-                <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                <form onSubmit={handleSubmit} aria-busy={status === 'loading'} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                   <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 16 }}>
                     <div>
-                      <label style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, fontWeight: 600, color: '#555', display: 'block', marginBottom: 6 }}>{ui.nameLabel}</label>
-                      <input value={name} onChange={e => setName(e.target.value)} placeholder={ui.namePlaceholder}
+                      <label htmlFor="contact-name" style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, fontWeight: 600, color: '#555', display: 'block', marginBottom: 6 }}>{ui.nameLabel}</label>
+                      <input id="contact-name" name="name" autoComplete="name" required value={name} onChange={e => setName(e.target.value)} placeholder={ui.namePlaceholder}
                         style={inputStyle}
                         onFocus={e => { (e.currentTarget as HTMLElement).style.borderColor = BLUE; }}
                         onBlur={e => { (e.currentTarget as HTMLElement).style.borderColor = '#e0dbd0'; }}
                       />
                     </div>
                     <div>
-                      <label style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, fontWeight: 600, color: '#555', display: 'block', marginBottom: 6 }}>{ui.emailLabel}</label>
-                      <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder={ui.emailPlaceholder}
+                      <label htmlFor="contact-email" style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, fontWeight: 600, color: '#555', display: 'block', marginBottom: 6 }}>{ui.emailLabel}</label>
+                      <input id="contact-email" name="email" type="email" autoComplete="email" required value={email} onChange={e => setEmail(e.target.value)} placeholder={ui.emailPlaceholder}
                         style={inputStyle}
                         onFocus={e => { (e.currentTarget as HTMLElement).style.borderColor = BLUE; }}
                         onBlur={e => { (e.currentTarget as HTMLElement).style.borderColor = '#e0dbd0'; }}
@@ -1106,22 +1131,27 @@ function ContactBlock({ s, lang }: { s: ContactSection; lang: Lang }) {
                     </div>
                   </div>
                   <div>
-                    <label style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, fontWeight: 600, color: '#555', display: 'block', marginBottom: 6 }}>{ui.subjectLabel}</label>
-                    <input value={subject} onChange={e => setSubject(e.target.value)} placeholder={ui.subjectPlaceholder}
+                    <label htmlFor="contact-subject" style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, fontWeight: 600, color: '#555', display: 'block', marginBottom: 6 }}>{ui.subjectLabel}</label>
+                    <input id="contact-subject" name="subject" required value={subject} onChange={e => setSubject(e.target.value)} placeholder={ui.subjectPlaceholder}
                       style={inputStyle}
                       onFocus={e => { (e.currentTarget as HTMLElement).style.borderColor = BLUE; }}
                       onBlur={e => { (e.currentTarget as HTMLElement).style.borderColor = '#e0dbd0'; }}
                     />
                   </div>
                   <div>
-                    <label style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, fontWeight: 600, color: '#555', display: 'block', marginBottom: 6 }}>{ui.messageLabel}</label>
-                    <textarea value={message} onChange={e => setMessage(e.target.value)} placeholder={ui.messagePlaceholder} rows={5} required
+                    <label htmlFor="contact-message" style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, fontWeight: 600, color: '#555', display: 'block', marginBottom: 6 }}>{ui.messageLabel}</label>
+                    <textarea id="contact-message" name="message" value={message} onChange={e => setMessage(e.target.value)} placeholder={ui.messagePlaceholder} rows={5} required
                       style={{ ...inputStyle, resize: 'vertical', minHeight: 130, lineHeight: 1.6 }}
                       onFocus={e => { (e.currentTarget as HTMLElement).style.borderColor = BLUE; }}
                       onBlur={e => { (e.currentTarget as HTMLElement).style.borderColor = '#e0dbd0'; }}
                     />
                   </div>
-                  <button type="submit" disabled={status === 'loading'}
+                  {status === 'error' && (
+                    <p role="alert" style={{ color: '#b42318', fontFamily: 'Inter, sans-serif', fontSize: 13, margin: 0 }}>
+                      {lang === 'da' ? 'Beskeden kunne ikke sendes. Prøv igen.' : lang === 'uk' ? 'Не вдалося надіслати повідомлення. Спробуйте ще раз.' : 'The message could not be sent. Please try again.'}
+                    </p>
+                  )}
+                  <button type="submit" disabled={status === 'loading'} aria-busy={status === 'loading'}
                     style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, background: BLUE, color: '#fff', border: 'none', borderRadius: 999, padding: '16px', fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 16, cursor: status === 'loading' ? 'wait' : 'pointer', opacity: status === 'loading' ? 0.7 : 1, minHeight: 52, transition: 'opacity 0.2s' }}>
                     <Send size={16} /> {status === 'loading' ? '...' : ui.sendLabel}
                   </button>
@@ -1232,10 +1262,24 @@ export default function EaucHome() {
   const content = getTranslatedContent(lang, daContent);
   const footer = content.sections.find((section): section is FooterSection => section.type === 'footer');
 
+  useEffect(() => {
+    const seo = SEO_BY_LANG[lang];
+    document.documentElement.lang = lang;
+    document.title = seo.title;
+    setMetaContent('meta[name="description"]', seo.description);
+    setMetaContent('meta[property="og:title"]', seo.title);
+    setMetaContent('meta[property="og:description"]', seo.description);
+    setMetaContent('meta[property="og:locale"]', seo.locale);
+    setMetaContent('meta[name="twitter:title"]', seo.title);
+    setMetaContent('meta[name="twitter:description"]', seo.description);
+  }, [lang]);
+
   return (
     <div style={{ fontFamily: 'Inter, sans-serif', background: CREAM }}>
       <SiteHeader lang={lang} onLangChange={handleLangChange} />
-      {content.sections.filter(s => s.type !== 'footer').map(s => <SectionBlock key={s.id} section={s} lang={lang} />)}
+      <main id="main-content">
+        {content.sections.filter(s => s.type !== 'footer').map(s => <SectionBlock key={s.id} section={s} lang={lang} />)}
+      </main>
       {footer?.visible && <SiteFooter lang={lang} footer={footer} />}
     </div>
   );
