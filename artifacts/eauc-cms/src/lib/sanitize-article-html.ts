@@ -1,7 +1,8 @@
 const ALLOWED_TAGS = new Set([
   'P', 'BR', 'STRONG', 'B', 'EM', 'I', 'H2', 'H3',
-  'BLOCKQUOTE', 'A', 'UL', 'OL', 'LI',
+  'BLOCKQUOTE', 'A', 'UL', 'OL', 'LI', 'IMG',
 ]);
+const BLOCK_TAGS = new Set(['P', 'H2', 'H3', 'BLOCKQUOTE', 'UL', 'OL', 'LI']);
 
 export function sanitizeArticleHtml(value: string): string {
   if (typeof DOMParser === 'undefined') return '';
@@ -14,9 +15,31 @@ export function sanitizeArticleHtml(value: string): string {
     }
     if (!(node instanceof Element)) return null;
 
+    if (node.tagName === 'IMG') {
+      const src = node.getAttribute('src')?.trim() ?? '';
+      if (!/^(https?:\/\/|\/api\/storage\/)/i.test(src)) return null;
+      const image = document.createElement('img');
+      image.setAttribute('src', src);
+      image.setAttribute('alt', node.getAttribute('alt')?.trim() || 'Article image');
+      image.setAttribute('loading', 'lazy');
+      return image;
+    }
+
     const children = Array.from(node.childNodes)
       .map(cleanNode)
       .filter((child): child is Node => child !== null);
+
+    if (node.tagName === 'DIV') {
+      const hasBlockChildren = Array.from(node.children).some((child) => BLOCK_TAGS.has(child.tagName));
+      if (hasBlockChildren) {
+        const fragment = document.createDocumentFragment();
+        children.forEach((child) => fragment.appendChild(child));
+        return fragment;
+      }
+      const paragraph = document.createElement('p');
+      children.forEach((child) => paragraph.appendChild(child));
+      return paragraph.textContent?.trim() || paragraph.querySelector('img') ? paragraph : null;
+    }
 
     if (!ALLOWED_TAGS.has(node.tagName)) {
       const fragment = document.createDocumentFragment();
@@ -34,6 +57,9 @@ export function sanitizeArticleHtml(value: string): string {
       }
     }
     children.forEach((child) => element.appendChild(child));
+    if (node.tagName === 'P' && !element.textContent?.trim() && !element.querySelector('img')) {
+      return null;
+    }
     return element;
   };
 

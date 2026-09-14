@@ -145,7 +145,7 @@ export default function NewsDetail() {
       )}
 
       <div className="container mx-auto px-4 max-w-3xl">
-        <div className="prose max-w-none text-[16px] md:text-[18px] leading-[1.8] text-gray-800 prose-headings:text-gray-900 prose-h2:text-3xl prose-h3:text-2xl prose-a:text-primary hover:prose-a:text-primary/80 prose-blockquote:border-primary prose-blockquote:text-gray-600">
+        <div className="prose max-w-none text-[16px] md:text-[18px] leading-[1.8] text-gray-800 prose-headings:text-gray-900 prose-h2:text-3xl prose-h3:text-2xl prose-p:mt-0 prose-p:mb-5 prose-a:text-primary hover:prose-a:text-primary/80 prose-blockquote:border-primary prose-blockquote:text-gray-600 prose-img:my-8 prose-img:h-auto prose-img:w-full prose-img:rounded-2xl">
           {displayedArticle.content ? (
             <div dangerouslySetInnerHTML={{ __html: articleContentToHtml(displayedArticle.content) }} />
           ) : (

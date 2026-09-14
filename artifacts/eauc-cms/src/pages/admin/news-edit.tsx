@@ -95,47 +95,78 @@ export default function AdminNewsEdit() {
     });
   };
 
-  const handleCoverUpload = async (file: File) => {
+  const uploadImage = async (file: File): Promise<string> => {
     if (!file.type.startsWith('image/')) {
-      toast.error('Выберите файл изображения.');
-      return;
+      throw new Error('INVALID_IMAGE_TYPE');
     }
     if (file.size > 10 * 1024 * 1024) {
-      toast.error('Размер изображения не должен превышать 10 МБ.');
-      return;
+      throw new Error('IMAGE_TOO_LARGE');
     }
 
+    const urlResponse = await fetch('/api/storage/uploads/request-url', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: file.name,
+        size: file.size,
+        contentType: file.type,
+      }),
+    });
+    if (!urlResponse.ok) throw new Error('UPLOAD_URL_FAILED');
+
+    const { uploadURL, objectPath } = await urlResponse.json();
+    const uploadResponse = await fetch(uploadURL, {
+      method: 'PUT',
+      headers: { 'Content-Type': file.type },
+      body: file,
+    });
+    if (!uploadResponse.ok) throw new Error('UPLOAD_FAILED');
+    return `/api/storage${objectPath}`;
+  };
+
+  const handleCoverUpload = async (file: File) => {
     setIsUploadingCover(true);
     try {
-      const urlResponse = await fetch('/api/storage/uploads/request-url', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: file.name,
-          size: file.size,
-          contentType: file.type,
-        }),
-      });
-      if (!urlResponse.ok) throw new Error('Failed to request upload URL');
-
-      const { uploadURL, objectPath } = await urlResponse.json();
-      const uploadResponse = await fetch(uploadURL, {
-        method: 'PUT',
-        headers: { 'Content-Type': file.type },
-        body: file,
-      });
-      if (!uploadResponse.ok) throw new Error('Failed to upload image');
-
+      const imagePath = await uploadImage(file);
       setFormData((current) => ({
         ...current,
-        coverImage: `/api/storage${objectPath}`,
+        coverImage: imagePath,
       }));
       toast.success('Изображение загружено');
-    } catch {
-      toast.error('Не удалось загрузить изображение. Попробуйте ещё раз.');
+    } catch (error) {
+      const message = error instanceof Error ? error.message : '';
+      toast.error(
+        message === 'INVALID_IMAGE_TYPE'
+          ? 'Выберите файл изображения.'
+          : message === 'IMAGE_TOO_LARGE'
+            ? 'Размер изображения не должен превышать 10 МБ.'
+            : 'Не удалось загрузить изображение. Попробуйте ещё раз.',
+      );
     } finally {
       setIsUploadingCover(false);
       if (coverInputRef.current) coverInputRef.current.value = '';
+    }
+  };
+
+  const handleInlineImageUpload = async (files: File[]): Promise<string[]> => {
+    try {
+      const imagePaths = await Promise.all(files.map(uploadImage));
+      toast.success(
+        imagePaths.length === 1
+          ? 'Зображення додано до статті'
+          : `До статті додано зображень: ${imagePaths.length}`,
+      );
+      return imagePaths;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : '';
+      toast.error(
+        message === 'INVALID_IMAGE_TYPE'
+          ? 'Оберіть лише файли зображень.'
+          : message === 'IMAGE_TOO_LARGE'
+            ? 'Розмір кожного зображення не повинен перевищувати 10 МБ.'
+            : 'Не вдалося завантажити зображення. Спробуйте ще раз.',
+      );
+      throw error;
     }
   };
 
@@ -195,7 +226,11 @@ export default function AdminNewsEdit() {
                 <RichTextEditor
                   value={formData.content}
                   onChange={(content) => setFormData((current) => ({ ...current, content }))}
+                  onUploadImages={handleInlineImageUpload}
                 />
+                <p className="text-xs text-muted-foreground">
+                  Use “Insert images” to add one or several photos directly into the article.
+                </p>
               </div>
             </CardContent>
           </Card>

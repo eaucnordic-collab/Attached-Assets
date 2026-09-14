@@ -1,24 +1,38 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   Bold, Italic, Heading2, Heading3, Quote, Link as LinkIcon,
-  Unlink, List, ListOrdered,
+  Unlink, List, ListOrdered, ImagePlus, Loader2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { articleContentToHtml, sanitizeArticleHtml } from '@/lib/sanitize-article-html';
 
 type RichTextEditorProps = {
   value: string;
   onChange: (value: string) => void;
+  onUploadImages?: (files: File[]) => Promise<string[]>;
 };
 
-export function RichTextEditor({ value, onChange }: RichTextEditorProps) {
+export function RichTextEditor({ value, onChange, onUploadImages }: RichTextEditorProps) {
   const editorRef = useRef<HTMLDivElement>(null);
+  const imageInputRef = useRef<HTMLInputElement>(null);
+  const selectionRef = useRef<Range | null>(null);
+  const [isUploadingImages, setIsUploadingImages] = useState(false);
 
   useEffect(() => {
     const editor = editorRef.current;
-    if (editor && editor.innerHTML !== value && document.activeElement !== editor) {
-      editor.innerHTML = value;
+    const normalizedValue = articleContentToHtml(value);
+    if (editor && editor.innerHTML !== normalizedValue && document.activeElement !== editor) {
+      editor.innerHTML = normalizedValue;
     }
   }, [value]);
+
+  const saveSelection = () => {
+    const selection = window.getSelection();
+    const range = selection?.rangeCount ? selection.getRangeAt(0) : null;
+    if (range && editorRef.current?.contains(range.commonAncestorContainer)) {
+      selectionRef.current = range.cloneRange();
+    }
+  };
 
   const runCommand = (command: string, commandValue?: string) => {
     editorRef.current?.focus();
@@ -31,6 +45,45 @@ export function RichTextEditor({ value, onChange }: RichTextEditorProps) {
     if (!href) return;
     const normalized = /^https?:\/\//i.test(href) ? href : `https://${href}`;
     runCommand('createLink', normalized);
+  };
+
+  const insertUploadedImages = async (files: File[]) => {
+    if (!onUploadImages || files.length === 0) return;
+    setIsUploadingImages(true);
+    try {
+      const urls = await onUploadImages(files);
+      const editor = editorRef.current;
+      if (!editor) return;
+
+      editor.focus();
+      const selection = window.getSelection();
+      let range = selectionRef.current;
+      if (!range || !editor.contains(range.commonAncestorContainer)) {
+        range = document.createRange();
+        range.selectNodeContents(editor);
+        range.collapse(false);
+      }
+      selection?.removeAllRanges();
+      selection?.addRange(range);
+
+      urls.forEach((url) => {
+        const paragraph = document.createElement('p');
+        const image = document.createElement('img');
+        image.src = url;
+        image.alt = 'Article image';
+        paragraph.appendChild(image);
+        range?.insertNode(paragraph);
+        range?.setStartAfter(paragraph);
+        range?.collapse(true);
+      });
+      onChange(sanitizeArticleHtml(editor.innerHTML));
+    } catch {
+      // The parent uploader reports the user-facing error.
+    } finally {
+      setIsUploadingImages(false);
+      selectionRef.current = null;
+      if (imageInputRef.current) imageInputRef.current.value = '';
+    }
   };
 
   const controls = [
@@ -63,6 +116,36 @@ export function RichTextEditor({ value, onChange }: RichTextEditorProps) {
             <Icon className="h-4 w-4" />
           </Button>
         ))}
+        {onUploadImages && (
+          <>
+            <span className="mx-1 h-8 w-px bg-border" />
+            <input
+              ref={imageInputRef}
+              type="file"
+              accept="image/*"
+              multiple
+              className="hidden"
+              onChange={(event) => void insertUploadedImages(Array.from(event.target.files ?? []))}
+            />
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              title="Insert images"
+              aria-label="Insert images"
+              disabled={isUploadingImages}
+              className="h-8 gap-2 px-2"
+              onMouseDown={(event) => {
+                event.preventDefault();
+                saveSelection();
+              }}
+              onClick={() => imageInputRef.current?.click()}
+            >
+              {isUploadingImages ? <Loader2 className="h-4 w-4 animate-spin" /> : <ImagePlus className="h-4 w-4" />}
+              <span className="hidden sm:inline">{isUploadingImages ? 'Uploading...' : 'Insert images'}</span>
+            </Button>
+          </>
+        )}
       </div>
       <div
         ref={editorRef}
@@ -76,8 +159,17 @@ export function RichTextEditor({ value, onChange }: RichTextEditorProps) {
           [&_blockquote]:pl-4 [&_blockquote]:italic [&_blockquote]:text-muted-foreground
           [&_ul]:my-4 [&_ul]:list-disc [&_ul]:pl-6
           [&_ol]:my-4 [&_ol]:list-decimal [&_ol]:pl-6
-          [&_a]:text-primary [&_a]:underline"
+          [&_a]:text-primary [&_a]:underline
+          [&_p]:my-3 [&_img]:my-5 [&_img]:h-auto [&_img]:max-w-full [&_img]:rounded-xl"
         onInput={(event) => onChange(event.currentTarget.innerHTML)}
+        onFocus={() => document.execCommand('defaultParagraphSeparator', false, 'p')}
+        onMouseUp={saveSelection}
+        onKeyUp={saveSelection}
+        onBlur={(event) => {
+          const cleanHtml = sanitizeArticleHtml(event.currentTarget.innerHTML);
+          if (cleanHtml !== event.currentTarget.innerHTML) event.currentTarget.innerHTML = cleanHtml;
+          onChange(cleanHtml);
+        }}
       />
     </div>
   );
