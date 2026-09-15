@@ -14,7 +14,6 @@ import partnersRouter from "./partners";
 import mediaRouter from "./media";
 import formsRouter from "./forms";
 import submissionsRouter from "./submissions";
-import donateRouter from "./donate";
 import settingsRouter from "./settings";
 import dashboardRouter from "./dashboard";
 
@@ -35,7 +34,6 @@ router.use(partnersRouter);
 router.use(mediaRouter);
 router.use(formsRouter);
 router.use(submissionsRouter);
-router.use('/donate', donateRouter);
 router.use(settingsRouter);
 router.use(dashboardRouter);
 

@@ -22,7 +22,7 @@ const GOLD  = '#c8a84b';
 const NAVY  = '#0d1b3e';
 const BLUE  = '#1a4cdb';
 const CREAM = '#f7f4ef';
-const STRIPE_DONATIONS_ENABLED = false;
+const CARD_DONATIONS_ENABLED = false;
 
 const SEO_BY_LANG: Record<Lang, { title: string; description: string; locale: string }> = {
   da: {
@@ -635,7 +635,7 @@ function DonateBlock({ s, lang }: { s: DonateSection; lang: Lang }) {
   type DonationFrequency = 'once' | 'monthly';
 
   const suggestedAmounts = s.amounts.length ? s.amounts.slice(0, 3) : [100, 250, 500];
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(STRIPE_DONATIONS_ENABLED ? 'card' : 'bank');
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(CARD_DONATIONS_ENABLED ? 'card' : 'bank');
   const [frequency, setFrequency] = useState<DonationFrequency>('once');
   const [selectedAmount, setSelectedAmount] = useState(suggestedAmounts[1] ?? suggestedAmounts[0] ?? 250);
   const [customAmount, setCustomAmount] = useState('');
@@ -668,7 +668,7 @@ function DonateBlock({ s, lang }: { s: DonateSection; lang: Lang }) {
   }, [s.amounts]);
 
   useEffect(() => {
-    if (!STRIPE_DONATIONS_ENABLED) return;
+    if (!CARD_DONATIONS_ENABLED) return;
     if (donationReturnHandled.current) return;
     const params = new URLSearchParams(window.location.search);
     const donationResult = params.get('donation');
@@ -715,7 +715,7 @@ function DonateBlock({ s, lang }: { s: DonateSection; lang: Lang }) {
 
   const amount = customAmount ? Math.floor(Number(customAmount)) : selectedAmount;
 
-  const startStripeCheckout = async () => {
+  const startCardCheckout = async () => {
     if (!Number.isInteger(amount) || amount < 1) {
       setDonateStatus('error');
       return;
@@ -744,7 +744,7 @@ function DonateBlock({ s, lang }: { s: DonateSection; lang: Lang }) {
           <p style={{ maxWidth: 720, fontFamily: 'Inter, sans-serif', fontSize: isMobile ? 15 : 17, color: '#5f6673', lineHeight: 1.65, margin: '0 auto 38px' }}>{s.subtitle}</p>
 
           <div style={{ background: '#fff', border: '1px solid #d9dee7', borderRadius: 14, boxShadow: '0 2px 8px rgba(13,27,62,0.08)', overflow: 'hidden' }}>
-            {STRIPE_DONATIONS_ENABLED && <div role="tablist" aria-label="Payment methods" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', background: '#f7f8fa', borderBottom: '1px solid #dfe3e9' }}>
+            {CARD_DONATIONS_ENABLED && <div role="tablist" aria-label="Payment methods" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', background: '#f7f8fa', borderBottom: '1px solid #dfe3e9' }}>
               {([
                 { id: 'card' as const, label: ui.paymentCard, icon: <CreditCard size={17} /> },
                 { id: 'bank' as const, label: ui.paymentBank, icon: <Landmark size={17} /> },
@@ -768,8 +768,8 @@ function DonateBlock({ s, lang }: { s: DonateSection; lang: Lang }) {
               })}
             </div>}
 
-            <div id={`payment-panel-${paymentMethod}`} role={STRIPE_DONATIONS_ENABLED ? 'tabpanel' : 'region'} aria-label={!STRIPE_DONATIONS_ENABLED ? ui.bankTitle : undefined} aria-labelledby={STRIPE_DONATIONS_ENABLED ? `payment-tab-${paymentMethod}` : undefined} tabIndex={0} style={{ minHeight: STRIPE_DONATIONS_ENABLED ? (isMobile ? 420 : 455) : 'auto', padding: isMobile ? '32px 18px 28px' : '34px 44px 36px' }}>
-              {STRIPE_DONATIONS_ENABLED && paymentMethod === 'card' && (
+            <div id={`payment-panel-${paymentMethod}`} role={CARD_DONATIONS_ENABLED ? 'tabpanel' : 'region'} aria-label={!CARD_DONATIONS_ENABLED ? ui.bankTitle : undefined} aria-labelledby={CARD_DONATIONS_ENABLED ? `payment-tab-${paymentMethod}` : undefined} tabIndex={0} style={{ minHeight: CARD_DONATIONS_ENABLED ? (isMobile ? 420 : 455) : 'auto', padding: isMobile ? '32px 18px 28px' : '34px 44px 36px' }}>
+              {CARD_DONATIONS_ENABLED && paymentMethod === 'card' && (
                 <div style={{ maxWidth: 560, margin: '0 auto' }}>
                   <h3 style={{ fontFamily: 'Inter, sans-serif', fontSize: isMobile ? 22 : 24, fontWeight: 750, color: NAVY, margin: '0 0 8px' }}>{ui.cardTitle}</h3>
                   <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, color: '#68707c', margin: '0 0 22px' }}>{ui.cardSubtitle}</p>
@@ -832,7 +832,7 @@ function DonateBlock({ s, lang }: { s: DonateSection; lang: Lang }) {
                         </p>
                       )}
 
-                      <button type="button" onClick={startStripeCheckout} disabled={donateStatus === 'loading'} aria-busy={donateStatus === 'loading'} style={{ width: '100%', minHeight: 50, border: 'none', borderRadius: 7, background: '#ffd400', color: '#171925', fontFamily: 'Inter, sans-serif', fontSize: 15, fontWeight: 750, cursor: donateStatus === 'loading' ? 'wait' : 'pointer', opacity: donateStatus === 'loading' ? 0.7 : 1 }}>
+                      <button type="button" onClick={startCardCheckout} disabled={donateStatus === 'loading'} aria-busy={donateStatus === 'loading'} style={{ width: '100%', minHeight: 50, border: 'none', borderRadius: 7, background: '#ffd400', color: '#171925', fontFamily: 'Inter, sans-serif', fontSize: 15, fontWeight: 750, cursor: donateStatus === 'loading' ? 'wait' : 'pointer', opacity: donateStatus === 'loading' ? 0.7 : 1 }}>
                         {donateStatus === 'loading' ? '...' : `${ui.donate} ${Number.isInteger(amount) && amount > 0 ? `${amount.toLocaleString('da-DK')} kr` : ''}${frequency === 'monthly' ? ` ${ui.perMonth}` : ''}`}
                       </button>
                     </>
@@ -840,7 +840,7 @@ function DonateBlock({ s, lang }: { s: DonateSection; lang: Lang }) {
                 </div>
               )}
 
-              {(!STRIPE_DONATIONS_ENABLED || paymentMethod === 'bank') && (
+              {(!CARD_DONATIONS_ENABLED || paymentMethod === 'bank') && (
                 <div style={{ maxWidth: 590, margin: '0 auto' }}>
                   <h3 style={{ fontFamily: 'Inter, sans-serif', fontSize: 24, fontWeight: 750, color: NAVY, margin: '0 0 8px' }}>{ui.bankTitle}</h3>
                   <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, color: '#68707c', margin: '0 0 26px' }}>{ui.bankSubtitle}</p>
@@ -877,6 +877,61 @@ function TextBlock({ s }: { s: TextSection }) {
         <FadeUp>
           {s.heading && <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: 'clamp(24px,5vw,36px)', fontWeight: 700, color, margin: '0 0 24px' }}>{s.heading}</h2>}
           <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 16, color: subColor, lineHeight: 1.75, whiteSpace: 'pre-wrap' }}>{s.text}</p>
+        </FadeUp>
+      </div>
+    </section>
+  );
+}
+
+function BankDonateBlock({ s, lang }: { s: DonateSection; lang: Lang }) {
+  const [copiedField, setCopiedField] = useState<string | null>(null);
+  const width = useWindowWidth();
+  const isMobile = width < 768;
+  const ui = UI_TRANSLATIONS[lang].donate;
+  const bankDetails = [
+    { key: 'bank', label: ui.bankName, value: s.bankName || 'Danske Bank' },
+    { key: 'registration', label: ui.bankRegistration, value: s.bankRegistration || '9570' },
+    { key: 'account', label: ui.bankAccount, value: s.bankAccount || '14146679' },
+    { key: 'iban', label: ui.bankIban, value: s.bankIban || 'DK2630000014146679' },
+    { key: 'swift', label: ui.bankSwift, value: s.bankSwift || 'DABADKKK' },
+  ];
+
+  const copyBankValue = async (key: string, value: string) => {
+    try {
+      await navigator.clipboard.writeText(value.replace(/\s/g, ''));
+      setCopiedField(key);
+      window.setTimeout(() => setCopiedField(current => current === key ? null : current), 1600);
+    } catch {
+      setCopiedField(null);
+    }
+  };
+
+  return (
+    <section id="donér" style={{ background: 'linear-gradient(180deg, #eef4ff 0%, #f7f4ef 100%)', padding: isMobile ? '64px 16px 80px' : '88px 24px 110px' }}>
+      <div style={{ maxWidth: 900, margin: '0 auto', textAlign: 'center' }}>
+        <FadeUp>
+          <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: 'clamp(30px,6vw,44px)', fontWeight: 700, color: NAVY, margin: '0 0 12px' }}>{s.heading}</h2>
+          <p style={{ maxWidth: 720, fontFamily: 'Inter, sans-serif', fontSize: isMobile ? 15 : 17, color: '#5f6673', lineHeight: 1.65, margin: '0 auto 38px' }}>{s.subtitle}</p>
+          <div role="region" aria-label={ui.bankTitle} style={{ background: '#fff', border: '1px solid #d9dee7', borderRadius: 14, boxShadow: '0 2px 8px rgba(13,27,62,0.08)', padding: isMobile ? '32px 18px 28px' : '34px 44px 36px' }}>
+            <div style={{ maxWidth: 590, margin: '0 auto' }}>
+              <Landmark size={28} color={BLUE} aria-hidden="true" style={{ marginBottom: 12 }} />
+              <h3 style={{ fontFamily: 'Inter, sans-serif', fontSize: 24, fontWeight: 750, color: NAVY, margin: '0 0 8px' }}>{ui.bankTitle}</h3>
+              <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, color: '#68707c', margin: '0 0 26px' }}>{ui.bankSubtitle}</p>
+              <div style={{ border: '1px solid #d9dee6', borderRadius: 9, overflow: 'hidden', textAlign: 'left' }}>
+                {bankDetails.map((detail, index) => (
+                  <div key={detail.key} style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '150px minmax(0, 1fr)', alignItems: 'center', gap: isMobile ? 6 : 20, padding: isMobile ? '12px 14px' : '12px 16px', borderBottom: index < bankDetails.length - 1 ? '1px solid #e2e5ea' : 'none' }}>
+                    <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, color: '#747b85' }}>{detail.label}</span>
+                    <span style={{ minWidth: 0, display: 'flex', justifyContent: isMobile ? 'space-between' : 'flex-end', alignItems: 'center', gap: 10 }}>
+                      <strong style={{ minWidth: 0, color: NAVY, fontFamily: 'Inter, sans-serif', fontSize: isMobile ? 14 : 15, textAlign: 'right', overflowWrap: 'anywhere' }}>{detail.value}</strong>
+                      <button type="button" onClick={() => copyBankValue(detail.key, detail.value)} title={copiedField === detail.key ? ui.copied : ui.copy} aria-label={`${ui.copy}: ${detail.label}`} style={{ flexShrink: 0, width: 30, height: 30, border: 'none', borderRadius: 6, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: copiedField === detail.key ? '#e7f7ef' : 'transparent', color: copiedField === detail.key ? '#059669' : '#8a919c', cursor: 'pointer' }}>
+                        {copiedField === detail.key ? <Check size={15} /> : <Copy size={15} />}
+                      </button>
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
         </FadeUp>
       </div>
     </section>
@@ -1224,7 +1279,7 @@ function SectionBlock({ section, lang }: { section: AnySection; lang: Lang }) {
     case 'stats':   return <StatsBlock s={section} />;
     case 'about':   return <AboutBlock s={section} lang={lang} />;
     case 'board':   return <BoardBlock s={section} />;
-    case 'donate':  return <DonateBlock s={section} lang={lang} />;
+    case 'donate':  return <BankDonateBlock s={section} lang={lang} />;
     case 'text':    return <TextBlock s={section} />;
     case 'news':    return <NewsBlock s={section} lang={lang} />;
     case 'contact': return <ContactBlock s={section} lang={lang} />;
