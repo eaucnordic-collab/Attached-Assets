@@ -5,6 +5,7 @@ import { logger } from "../lib/logger";
 
 const router: Router = Router();
 const notifiedSessions = new Set<string>();
+const STRIPE_DONATIONS_ENABLED = false;
 
 function isValidEmail(value: unknown): value is string {
   return typeof value === "string" && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
@@ -23,6 +24,10 @@ function getOrigin(req: any): string {
 }
 
 router.post("/checkout", async (req, res) => {
+  if (!STRIPE_DONATIONS_ENABLED) {
+    res.status(503).json({ error: "Card donations are temporarily unavailable. Please use bank transfer." });
+    return;
+  }
   const { amount, email, recurring } = req.body as { amount?: unknown; email?: unknown; recurring?: unknown };
   const amountInKr = typeof amount === "number" ? amount : Number(amount);
   const isRecurring = recurring === true;
@@ -77,6 +82,10 @@ router.post("/checkout", async (req, res) => {
 });
 
 router.get("/complete", async (req, res) => {
+  if (!STRIPE_DONATIONS_ENABLED) {
+    res.status(503).json({ error: "Card donations are temporarily unavailable." });
+    return;
+  }
   const sessionId = typeof req.query.session_id === "string" ? req.query.session_id : "";
   if (!/^cs_[A-Za-z0-9_]+$/.test(sessionId)) {
     res.status(400).json({ error: "Invalid checkout session." });

@@ -233,7 +233,7 @@ export const CONTENT_TRANSLATIONS: Partial<Record<Lang, SiteContent>> = {
         subtitle: 'Кожна пожертва допомагає втілювати відповідальні програми відповідно до реальних потреб. Оберіть суму або підтримайте нас довільним внеском.',
         amounts: [100, 250, 500, 1000],
         buttonLabel: 'Пожертвувати 250 DKK',
-        note: 'Пожертви безпечно обробляються через Stripe. Перегляньте наші звіти, щоб дізнатися, як використовуються кошти.',
+        note: 'Підтримайте нашу роботу банківським переказом. Перегляньте звіти, щоб дізнатися, як використовуються кошти.',
       },
       {
         id: 'news', type: 'news', visible: true,
@@ -321,7 +321,7 @@ export const CONTENT_TRANSLATIONS: Partial<Record<Lang, SiteContent>> = {
         subtitle: 'Every donation helps us deliver responsible programmes based on real needs. Choose an amount below or give what you can.',
         amounts: [100, 250, 500, 1000],
         buttonLabel: 'Donate DKK 250',
-        note: 'Donations are processed securely through Stripe. See our reports for information about how funds are used.',
+        note: 'Support our work by bank transfer. See our reports for information about how funds are used.',
       },
       {
         id: 'news', type: 'news', visible: true,

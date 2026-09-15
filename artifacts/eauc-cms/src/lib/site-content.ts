@@ -155,7 +155,7 @@ export const DEFAULT_CONTENT: SiteContent = {
       subtitle: 'Hver donation hjælper os med at gennemføre ansvarlige indsatser baseret på reelle behov. Vælg et beløb nedenfor, eller giv det, du kan.',
       amounts: [100, 250, 500, 1000],
       buttonLabel: 'Donér 250 DKK',
-      note: 'Donationer behandles sikkert via Stripe. Se vores rapporter for information om, hvordan midlerne anvendes.',
+      note: 'Støt vores arbejde via bankoverførsel. Se vores rapporter for information om, hvordan midlerne anvendes.',
       bankName: 'Danske Bank',
       bankRegistration: '9570',
       bankAccount: '14146679',

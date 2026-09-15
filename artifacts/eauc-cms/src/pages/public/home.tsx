@@ -22,6 +22,7 @@ const GOLD  = '#c8a84b';
 const NAVY  = '#0d1b3e';
 const BLUE  = '#1a4cdb';
 const CREAM = '#f7f4ef';
+const STRIPE_DONATIONS_ENABLED = false;
 
 const SEO_BY_LANG: Record<Lang, { title: string; description: string; locale: string }> = {
   da: {
@@ -634,7 +635,7 @@ function DonateBlock({ s, lang }: { s: DonateSection; lang: Lang }) {
   type DonationFrequency = 'once' | 'monthly';
 
   const suggestedAmounts = s.amounts.length ? s.amounts.slice(0, 3) : [100, 250, 500];
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('card');
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(STRIPE_DONATIONS_ENABLED ? 'card' : 'bank');
   const [frequency, setFrequency] = useState<DonationFrequency>('once');
   const [selectedAmount, setSelectedAmount] = useState(suggestedAmounts[1] ?? suggestedAmounts[0] ?? 250);
   const [customAmount, setCustomAmount] = useState('');
@@ -667,6 +668,7 @@ function DonateBlock({ s, lang }: { s: DonateSection; lang: Lang }) {
   }, [s.amounts]);
 
   useEffect(() => {
+    if (!STRIPE_DONATIONS_ENABLED) return;
     if (donationReturnHandled.current) return;
     const params = new URLSearchParams(window.location.search);
     const donationResult = params.get('donation');
@@ -742,7 +744,7 @@ function DonateBlock({ s, lang }: { s: DonateSection; lang: Lang }) {
           <p style={{ maxWidth: 720, fontFamily: 'Inter, sans-serif', fontSize: isMobile ? 15 : 17, color: '#5f6673', lineHeight: 1.65, margin: '0 auto 38px' }}>{s.subtitle}</p>
 
           <div style={{ background: '#fff', border: '1px solid #d9dee7', borderRadius: 14, boxShadow: '0 2px 8px rgba(13,27,62,0.08)', overflow: 'hidden' }}>
-            <div role="tablist" aria-label="Payment methods" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', background: '#f7f8fa', borderBottom: '1px solid #dfe3e9' }}>
+            {STRIPE_DONATIONS_ENABLED && <div role="tablist" aria-label="Payment methods" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', background: '#f7f8fa', borderBottom: '1px solid #dfe3e9' }}>
               {([
                 { id: 'card' as const, label: ui.paymentCard, icon: <CreditCard size={17} /> },
                 { id: 'bank' as const, label: ui.paymentBank, icon: <Landmark size={17} /> },
@@ -764,10 +766,10 @@ function DonateBlock({ s, lang }: { s: DonateSection; lang: Lang }) {
                   </button>
                 );
               })}
-            </div>
+            </div>}
 
-            <div id={`payment-panel-${paymentMethod}`} role="tabpanel" aria-labelledby={`payment-tab-${paymentMethod}`} tabIndex={0} style={{ minHeight: isMobile ? 420 : 455, padding: isMobile ? '32px 18px 28px' : '34px 44px 36px' }}>
-              {paymentMethod === 'card' && (
+            <div id={`payment-panel-${paymentMethod}`} role={STRIPE_DONATIONS_ENABLED ? 'tabpanel' : 'region'} aria-label={!STRIPE_DONATIONS_ENABLED ? ui.bankTitle : undefined} aria-labelledby={STRIPE_DONATIONS_ENABLED ? `payment-tab-${paymentMethod}` : undefined} tabIndex={0} style={{ minHeight: STRIPE_DONATIONS_ENABLED ? (isMobile ? 420 : 455) : 'auto', padding: isMobile ? '32px 18px 28px' : '34px 44px 36px' }}>
+              {STRIPE_DONATIONS_ENABLED && paymentMethod === 'card' && (
                 <div style={{ maxWidth: 560, margin: '0 auto' }}>
                   <h3 style={{ fontFamily: 'Inter, sans-serif', fontSize: isMobile ? 22 : 24, fontWeight: 750, color: NAVY, margin: '0 0 8px' }}>{ui.cardTitle}</h3>
                   <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, color: '#68707c', margin: '0 0 22px' }}>{ui.cardSubtitle}</p>
@@ -838,7 +840,7 @@ function DonateBlock({ s, lang }: { s: DonateSection; lang: Lang }) {
                 </div>
               )}
 
-              {paymentMethod === 'bank' && (
+              {(!STRIPE_DONATIONS_ENABLED || paymentMethod === 'bank') && (
                 <div style={{ maxWidth: 590, margin: '0 auto' }}>
                   <h3 style={{ fontFamily: 'Inter, sans-serif', fontSize: 24, fontWeight: 750, color: NAVY, margin: '0 0 8px' }}>{ui.bankTitle}</h3>
                   <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, color: '#68707c', margin: '0 0 26px' }}>{ui.bankSubtitle}</p>
