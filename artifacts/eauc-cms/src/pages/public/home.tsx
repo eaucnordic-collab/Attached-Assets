@@ -22,7 +22,7 @@ const GOLD  = '#c8a84b';
 const NAVY  = '#0d1b3e';
 const BLUE  = '#1a4cdb';
 const CREAM = '#f7f4ef';
-const CARD_DONATIONS_ENABLED = false;
+const CARD_DONATIONS_ENABLED = true;
 
 const SEO_BY_LANG: Record<Lang, { title: string; description: string; locale: string }> = {
   da: {
@@ -1279,7 +1279,7 @@ function SectionBlock({ section, lang }: { section: AnySection; lang: Lang }) {
     case 'stats':   return <StatsBlock s={section} />;
     case 'about':   return <AboutBlock s={section} lang={lang} />;
     case 'board':   return <BoardBlock s={section} />;
-    case 'donate':  return <BankDonateBlock s={section} lang={lang} />;
+    case 'donate':  return <DonateBlock s={section} lang={lang} />;
     case 'text':    return <TextBlock s={section} />;
     case 'news':    return <NewsBlock s={section} lang={lang} />;
     case 'contact': return <ContactBlock s={section} lang={lang} />;
