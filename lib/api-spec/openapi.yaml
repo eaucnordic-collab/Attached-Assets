@@ -1159,7 +1159,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/FormSubmission"
+                 $ref: "#/components/schemas/FormSubmitSuccess"
 
   # ─── SUBMISSIONS ─────────────────────────────────────────────────────────────
   /submissions:
@@ -2313,6 +2313,15 @@ components:
         ipAddress:
           type: ["string", "null"]
         createdAt:
+          type: string
+
+    FormSubmitSuccess:
+      type: object
+      required: [ok]
+      properties:
+        ok:
+          type: boolean
+        message:
           type: string
 
     # ─── SETTINGS ─────────────────────────────────────────────────────────────

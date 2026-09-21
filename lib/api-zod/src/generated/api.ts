@@ -1453,12 +1453,8 @@ export const SubmitFormBody = zod.object({
 })
 
 export const SubmitFormResponse = zod.object({
-  "id": zod.number(),
-  "formId": zod.number(),
-  "formName": zod.string().optional(),
-  "data": zod.record(zod.string(), zod.unknown()),
-  "ipAddress": zod.string().nullish(),
-  "createdAt": zod.string()
+  "ok": zod.boolean(),
+  "message": zod.string().optional()
 })
 
 

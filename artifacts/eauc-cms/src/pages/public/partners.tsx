@@ -4,10 +4,17 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { ExternalLink } from 'lucide-react';
 import { getPublicLang, localizedHref } from '@/lib/public-language';
 import { usePublicSeo } from '@/lib/public-seo';
+import type { Lang } from '@/lib/i18n';
+
+const SEO_BY_LANG: Record<Lang, { title: string; description: string }> = {
+  da: { title: 'Partnere | EAUC Nordic', description: 'Mød institutioner og organisationer, der arbejder sammen med EAUC Nordic for bæredygtighed i videregående uddannelser.' },
+  uk: { title: 'Партнери | EAUC Nordic', description: 'Познайомтеся з установами та організаціями, які співпрацюють з EAUC Nordic заради сталого розвитку освіти.' },
+  en: { title: 'Partners | EAUC Nordic', description: 'Meet the institutions and organisations working with EAUC Nordic for sustainability in higher education.' },
+};
 
 export default function PublicPartners() {
   const lang = getPublicLang();
-  usePublicSeo(lang, 'Partners | EAUC Nordic', 'Meet the institutions and organisations working with EAUC Nordic for sustainability in higher education.');
+  usePublicSeo(lang, SEO_BY_LANG[lang].title, SEO_BY_LANG[lang].description);
   const { data: partners, isLoading } = useListPartners();
 
   const byCategory = partners

@@ -10,6 +10,7 @@ import {
   UpdateThemeBody,
   UpdateThemeResponse,
 } from "@workspace/api-zod";
+import { readAdminSession } from "../lib/admin-auth";
 
 const router: IRouter = Router();
 
@@ -27,9 +28,28 @@ async function getOrCreateTheme() {
   return created;
 }
 
-router.get("/settings", async (_req, res): Promise<void> => {
+router.get("/settings", async (req, res): Promise<void> => {
   const settings = await getOrCreateSettings();
-  res.json(serialize(settings));
+  if (readAdminSession(req)) {
+    res.json(serialize(settings));
+    return;
+  }
+  res.json(serialize({
+    siteName: settings.siteName,
+    siteDescription: settings.siteDescription,
+    logo: settings.logo,
+    favicon: settings.favicon,
+    contactEmail: settings.contactEmail,
+    contactPhone: settings.contactPhone,
+    address: settings.address,
+    socialLinks: settings.socialLinks,
+    languages: settings.languages,
+    defaultLanguage: settings.defaultLanguage,
+    headerTransparent: settings.headerTransparent,
+    headerFixed: settings.headerFixed,
+    footerColumns: settings.footerColumns,
+    footerCopyright: settings.footerCopyright,
+  }));
 
 });
 

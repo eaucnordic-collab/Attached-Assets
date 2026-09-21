@@ -13,12 +13,16 @@ import {
   UpdateEventResponse,
   DeleteEventParams,
 } from "@workspace/api-zod";
+import { readAdminSession } from "../lib/admin-auth";
 
 const router: IRouter = Router();
 
 router.get("/events", async (req, res): Promise<void> => {
   const type = req.query.type as string | undefined;
   let events = await db.select().from(eventsTable).orderBy(asc(eventsTable.startDate));
+  if (!readAdminSession(req)) {
+    events = events.filter((event) => event.status === "published");
+  }
   const now = new Date().toISOString().split("T")[0]!;
   if (type === "upcoming") {
     events = events.filter((e) => e.startDate >= now);
@@ -64,6 +68,10 @@ router.get("/events/:id", async (req, res): Promise<void> => {
   }
   const [event] = await db.select().from(eventsTable).where(eq(eventsTable.id, params.data.id));
   if (!event) {
+    res.status(404).json({ error: "Event not found" });
+    return;
+  }
+  if (event.status !== "published" && !readAdminSession(req)) {
     res.status(404).json({ error: "Event not found" });
     return;
   }

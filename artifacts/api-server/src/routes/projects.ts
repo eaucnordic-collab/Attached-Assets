@@ -13,12 +13,16 @@ import {
   UpdateProjectResponse,
   DeleteProjectParams,
 } from "@workspace/api-zod";
+import { readAdminSession } from "../lib/admin-auth";
 
 const router: IRouter = Router();
 
 router.get("/projects", async (req, res): Promise<void> => {
   const featuredParam = req.query.featured as string | undefined;
   let projects = await db.select().from(projectsTable).orderBy(desc(projectsTable.createdAt));
+  if (!readAdminSession(req)) {
+    projects = projects.filter((project) => project.status === "active");
+  }
   if (featuredParam !== undefined) {
     const featured = featuredParam === "true";
     projects = projects.filter((p) => p.featured === featured);
@@ -61,6 +65,10 @@ router.get("/projects/:id", async (req, res): Promise<void> => {
   }
   const [project] = await db.select().from(projectsTable).where(eq(projectsTable.id, params.data.id));
   if (!project) {
+    res.status(404).json({ error: "Project not found" });
+    return;
+  }
+  if (project.status !== "active" && !readAdminSession(req)) {
     res.status(404).json({ error: "Project not found" });
     return;
   }

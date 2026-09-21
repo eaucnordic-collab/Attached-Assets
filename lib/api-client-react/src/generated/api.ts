@@ -35,6 +35,7 @@ import type {
   FormInput,
   FormSubmission,
   FormSubmitInput,
+  FormSubmitSuccess,
   FormUpdate,
   HealthStatus,
   ListEventsParams,
@@ -4248,9 +4249,9 @@ export const getSubmitFormUrl = (id: number,) => {
  * @summary Submit a form (public)
  */
 export const submitForm = async (id: number,
-    formSubmitInput: FormSubmitInput, options?: Parameters<typeof customFetch>[1]): Promise<FormSubmission> => {
+    formSubmitInput: FormSubmitInput, options?: Parameters<typeof customFetch>[1]): Promise<FormSubmitSuccess> => {
 
-  return customFetch<FormSubmission>(getSubmitFormUrl(id),
+  return customFetch<FormSubmitSuccess>(getSubmitFormUrl(id),
   {
     ...options,
     method: 'POST',

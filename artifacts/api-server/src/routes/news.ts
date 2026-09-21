@@ -61,7 +61,7 @@ router.post("/news", async (req, res): Promise<void> => {
       title: parsed.data.title,
       slug: parsed.data.slug,
       content: sanitizeNewsHtml(parsed.data.content) ?? null,
-      excerpt: parsed.data.excerpt?.trim() || generateNewsExcerpt(parsed.data.content),
+      excerpt: generateNewsExcerpt(parsed.data.excerpt) || generateNewsExcerpt(parsed.data.content),
       coverImage: parsed.data.coverImage ?? null,
       galleryImages: parsed.data.galleryImages ?? [],
       author: parsed.data.author ?? null,
@@ -111,9 +111,9 @@ router.patch("/news/:id", async (req, res): Promise<void> => {
     .set({
       ...parsed.data,
       content: parsed.data.content === undefined ? undefined : sanitizeNewsHtml(parsed.data.content),
-      excerpt: parsed.data.excerpt === undefined
-        ? undefined
-        : (parsed.data.excerpt?.trim() || generateNewsExcerpt(parsed.data.content)),
+       excerpt: parsed.data.excerpt === undefined
+         ? undefined
+         : (generateNewsExcerpt(parsed.data.excerpt) || generateNewsExcerpt(parsed.data.content)),
       ...(parsed.data.translationGroup === ""
         ? { translationGroup: parsed.data.slug || undefined }
         : {}),

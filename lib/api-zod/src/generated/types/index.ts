@@ -41,6 +41,7 @@ export * from './formSubmission';
 export * from './formSubmissionData';
 export * from './formSubmitInput';
 export * from './formSubmitInputData';
+export * from './formSubmitSuccess';
 export * from './formUpdate';
 export * from './healthStatus';
 export * from './listEventsParams';

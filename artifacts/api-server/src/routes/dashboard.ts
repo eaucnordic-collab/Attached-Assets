@@ -6,10 +6,11 @@ import {
   GetDashboardStatsResponse,
   GetDashboardActivityResponse,
 } from "@workspace/api-zod";
+import { requireAdmin } from "../lib/admin-auth";
 
 const router: IRouter = Router();
 
-router.get("/dashboard/stats", async (_req, res): Promise<void> => {
+router.get("/dashboard/stats", requireAdmin, async (_req, res): Promise<void> => {
   const [pages, news, events, projects, team, partners, submissions] = await Promise.all([
     db.select().from(pagesTable),
     db.select().from(newsTable),
@@ -40,7 +41,7 @@ router.get("/dashboard/stats", async (_req, res): Promise<void> => {
 
 });
 
-router.get("/dashboard/activity", async (_req, res): Promise<void> => {
+router.get("/dashboard/activity", requireAdmin, async (_req, res): Promise<void> => {
   let activity: { id: number; type: string; title: string; action: string; user: string | null; createdAt: Date }[] = [];
   try {
     activity = await db.select().from(auditLogTable).orderBy(desc(auditLogTable.createdAt)).limit(20);

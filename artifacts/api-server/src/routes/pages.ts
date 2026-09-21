@@ -19,13 +19,16 @@ import {
   DuplicatePageParams,
   DuplicatePageResponse,
 } from "@workspace/api-zod";
+import { readAdminSession } from "../lib/admin-auth";
 
 const router: IRouter = Router();
 
 router.get("/pages", async (req, res): Promise<void> => {
   const status = req.query.status as string | undefined;
   let pages = await db.select().from(pagesTable).orderBy(asc(pagesTable.order));
-  if (status && status !== "all") {
+  if (!readAdminSession(req)) {
+    pages = pages.filter((p) => p.status === "published");
+  } else if (status && status !== "all") {
     pages = pages.filter((p) => p.status === status);
   }
   res.json(serialize(pages));
@@ -56,6 +59,10 @@ router.get("/pages/:id", async (req, res): Promise<void> => {
   }
   const [page] = await db.select().from(pagesTable).where(eq(pagesTable.id, params.data.id));
   if (!page) {
+    res.status(404).json({ error: "Page not found" });
+    return;
+  }
+  if (page.status !== "published" && !readAdminSession(req)) {
     res.status(404).json({ error: "Page not found" });
     return;
   }

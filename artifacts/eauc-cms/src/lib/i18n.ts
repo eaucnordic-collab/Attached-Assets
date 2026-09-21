@@ -34,8 +34,6 @@ export type FooterFull = {
   legalTitle: string;
   cvr: string;
   registeredAs: string;
-  taxNote: string;
-  transparencyNote: string;
   followUs: string;
   privacy: string; cookies: string; copyright: string;
 };
@@ -81,8 +79,6 @@ export const UI_TRANSLATIONS: Record<Lang, UI> = {
       legalTitle: 'Juridisk information',
       cvr: 'CVR: 46329406',
       registeredAs: 'Registreret som almennyttig, non-profit forening i Danmark',
-      taxNote: '',
-      transparencyNote: '',
       followUs: 'Følg os',
       privacy: 'Privatlivspolitik', cookies: 'Cookiepolitik', copyright: '© 2026 European Association of Ukrainian Children – Nordic (EAUC Nordic) · CVR 46329406',
     },
@@ -109,8 +105,6 @@ export const UI_TRANSLATIONS: Record<Lang, UI> = {
       legalTitle: 'Юридична інформація',
       cvr: 'CVR: 46329406',
       registeredAs: 'Зареєстровано як некомерційна організація в Данії',
-      taxNote: '',
-      transparencyNote: '',
       followUs: 'Слідкуйте за нами',
       privacy: 'Політика конфіденційності', cookies: 'Політика cookies', copyright: '© 2026 European Association of Ukrainian Children – Nordic (EAUC Nordic) · CVR 46329406',
     },
@@ -137,8 +131,6 @@ export const UI_TRANSLATIONS: Record<Lang, UI> = {
       legalTitle: 'Legal information',
       cvr: 'CVR: 46329406',
       registeredAs: 'Registered as a non-profit organisation in Denmark',
-      taxNote: '',
-      transparencyNote: '',
       followUs: 'Follow us',
       privacy: 'Privacy policy', cookies: 'Cookie policy', copyright: '© 2026 European Association of Ukrainian Children – Nordic (EAUC Nordic) · CVR 46329406',
     },
@@ -222,8 +214,6 @@ export const CONTENT_TRANSLATIONS: Partial<Record<Lang, SiteContent>> = {
         members: [
           { name: 'Serhieiev Volodymyr', role: 'Голова',           photo: '' },
           { name: 'Khoren Pogossian',    role: 'Заступник голови', photo: '' },
-          { name: 'Імʼя буде',           role: 'Скарбник',         photo: '' },
-          { name: 'Імʼя буде',           role: 'Член ради',        photo: '' },
         ],
       },
       {
@@ -309,8 +299,6 @@ export const CONTENT_TRANSLATIONS: Partial<Record<Lang, SiteContent>> = {
         members: [
           { name: 'Serhieiev Volodymyr', role: 'Chairman',      photo: '' },
           { name: 'Khoren Pogossian',    role: 'Vice-chairman', photo: '' },
-          { name: 'Name pending',        role: 'Treasurer',     photo: '' },
-          { name: 'Name pending',        role: 'Board member',  photo: '' },
         ],
       },
       {

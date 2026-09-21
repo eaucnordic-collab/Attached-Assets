@@ -56,6 +56,7 @@ export function PublicLayout({ children }: { children: ReactNode }) {
           </div>
           <nav aria-label="Footer navigation" style={{ display: 'flex', gap: 20, flexWrap: 'wrap' }}>
             <Link href={localizedHref('/#om-os', lang)} style={{ color: 'rgba(255,255,255,0.68)', textDecoration: 'none', fontSize: 13 }}>{ui.about}</Link>
+            <Link href={localizedHref('/#vores-arbejde', lang)} style={{ color: 'rgba(255,255,255,0.68)', textDecoration: 'none', fontSize: 13 }}>{ui.work}</Link>
             <Link href={localizedHref('/contact', lang)} style={{ color: 'rgba(255,255,255,0.68)', textDecoration: 'none', fontSize: 13 }}>{ui.contact}</Link>
             <Link href={localizedHref('/privacy', lang)} style={{ color: 'rgba(255,255,255,0.68)', textDecoration: 'none', fontSize: 13 }}>{legal.privacy}</Link>
             <Link href={localizedHref('/cookies', lang)} style={{ color: 'rgba(255,255,255,0.68)', textDecoration: 'none', fontSize: 13 }}>{legal.cookies}</Link>

@@ -34,7 +34,7 @@ export type FooterLocaleContent = {
   tagline: string; followUs: string; navTitle: string;
   navMission: string; navHow: string; navAbout: string; navDonate: string; navContact: string;
   contactTitle: string; address: string; legalTitle: string; registeredAs: string;
-  taxNote: string; transparencyNote: string; privacyLabel: string; cookiesLabel: string; copyright: string;
+  privacyLabel: string; cookiesLabel: string; copyright: string;
 };
 export type FooterSection = SectionBase & {
   type: 'footer';
@@ -144,8 +144,6 @@ export const DEFAULT_CONTENT: SiteContent = {
       members: [
         { name: 'Serhieiev Volodymyr', role: 'Formand',     photo: '' },
         { name: 'Khoren Pogossian',   role: 'Næstformand', photo: '' },
-        { name: 'Navn kommer', role: 'Kasserer',            photo: '' },
-        { name: 'Navn kommer', role: 'Bestyrelsesmedlem',   photo: '' },
       ],
     },
     {
@@ -184,8 +182,6 @@ export const DEFAULT_CONTENT: SiteContent = {
           navAbout: 'Om os', navDonate: 'Donér', navContact: 'Kontakt', contactTitle: 'Kontakt os',
           address: 'Byparken 75, 1. 1\n5700 Svendborg\nDanmark', legalTitle: 'Juridisk information',
           registeredAs: 'Registreret som almennyttig, non-profit forening i Danmark',
-          taxNote: '',
-          transparencyNote: '',
           privacyLabel: 'Privatlivspolitik', cookiesLabel: 'Cookiepolitik',
           copyright: '© 2026 European Association of Ukrainian Children – Nordic (EAUC Nordic) · CVR 46329406',
         },
@@ -195,8 +191,6 @@ export const DEFAULT_CONTENT: SiteContent = {
           navAbout: 'Про нас', navDonate: 'Пожертвувати', navContact: 'Контакти', contactTitle: 'Звʼяжіться з нами',
           address: 'Byparken 75, 1. 1\n5700 Svendborg\nДанія', legalTitle: 'Юридична інформація',
           registeredAs: 'Зареєстровано як некомерційна організація в Данії',
-          taxNote: '',
-          transparencyNote: '',
           privacyLabel: 'Політика конфіденційності', cookiesLabel: 'Політика cookies',
           copyright: '© 2026 European Association of Ukrainian Children – Nordic (EAUC Nordic) · CVR 46329406',
         },
@@ -206,8 +200,6 @@ export const DEFAULT_CONTENT: SiteContent = {
           navAbout: 'About us', navDonate: 'Donate', navContact: 'Contact', contactTitle: 'Get in touch',
           address: 'Byparken 75, 1. 1\n5700 Svendborg\nDenmark', legalTitle: 'Legal information',
           registeredAs: 'Registered as a non-profit organisation in Denmark',
-          taxNote: '',
-          transparencyNote: '',
           privacyLabel: 'Privacy policy', cookiesLabel: 'Cookie policy',
           copyright: '© 2026 European Association of Ukrainian Children – Nordic (EAUC Nordic) · CVR 46329406',
         },
@@ -220,12 +212,39 @@ export const DEFAULT_CONTENT: SiteContent = {
 
 const KEY = 'eauc_site_content_v1';
 const CURRENT_COPY_REVISION = 3;
+const PLACEHOLDER_MEMBER_RE = /^(navn kommer|name pending|name coming|ім['’ʼ`´]?я(?: буде| буде пізніше| згодом))([\s.,!-].*)?$/iu;
+
+function removeLegacyClaimsAndPlaceholders(content: SiteContent): SiteContent {
+  const sections = content.sections.map(section => {
+    if (section.type === 'board') {
+      return { ...section, members: section.members.filter(member => !PLACEHOLDER_MEMBER_RE.test(member.name.trim())) };
+    }
+    if (section.type === 'footer') {
+      const cleanLocale = (locale: FooterLocaleContent) => {
+        const legacy = locale as FooterLocaleContent & { taxNote?: unknown; transparencyNote?: unknown };
+        const { taxNote: _taxNote, transparencyNote: _transparencyNote, ...clean } = legacy;
+        return clean as FooterLocaleContent;
+      };
+      return {
+        ...section,
+        locales: {
+          da: cleanLocale(section.locales.da),
+          uk: cleanLocale(section.locales.uk),
+          en: cleanLocale(section.locales.en),
+        },
+      };
+    }
+    return section;
+  });
+  return { ...content, sections };
+}
 
 function applyCurrentCopy(content: SiteContent): SiteContent {
-  if ((content.copyRevision ?? 0) >= CURRENT_COPY_REVISION) return content;
+  const normalized = removeLegacyClaimsAndPlaceholders(content);
+  if ((content.copyRevision ?? 0) >= CURRENT_COPY_REVISION) return normalized;
   const defaults = new Map(DEFAULT_CONTENT.sections.map(section => [section.id, section]));
 
-  const sections = content.sections.map(section => {
+  const sections = normalized.sections.map(section => {
     const source = defaults.get(section.id);
     if (!source || source.type !== section.type) return section;
 
@@ -270,9 +289,9 @@ function applyCurrentCopy(content: SiteContent): SiteContent {
           privacyUrl: copy.privacyUrl,
           cookiesUrl: copy.cookiesUrl,
           locales: {
-            da: { ...section.locales.da, tagline: copy.locales.da.tagline, navMission: copy.locales.da.navMission, navHow: copy.locales.da.navHow, navAbout: copy.locales.da.navAbout, navDonate: copy.locales.da.navDonate, navContact: copy.locales.da.navContact, taxNote: '', transparencyNote: '' },
-            uk: { ...section.locales.uk, tagline: copy.locales.uk.tagline, navMission: copy.locales.uk.navMission, navHow: copy.locales.uk.navHow, navAbout: copy.locales.uk.navAbout, navDonate: copy.locales.uk.navDonate, navContact: copy.locales.uk.navContact, taxNote: '', transparencyNote: '' },
-            en: { ...section.locales.en, tagline: copy.locales.en.tagline, navMission: copy.locales.en.navMission, navHow: copy.locales.en.navHow, navAbout: copy.locales.en.navAbout, navDonate: copy.locales.en.navDonate, navContact: copy.locales.en.navContact, taxNote: '', transparencyNote: '' },
+            da: { ...section.locales.da, tagline: copy.locales.da.tagline, navMission: copy.locales.da.navMission, navHow: copy.locales.da.navHow, navAbout: copy.locales.da.navAbout, navDonate: copy.locales.da.navDonate, navContact: copy.locales.da.navContact },
+            uk: { ...section.locales.uk, tagline: copy.locales.uk.tagline, navMission: copy.locales.uk.navMission, navHow: copy.locales.uk.navHow, navAbout: copy.locales.uk.navAbout, navDonate: copy.locales.uk.navDonate, navContact: copy.locales.uk.navContact },
+            en: { ...section.locales.en, tagline: copy.locales.en.tagline, navMission: copy.locales.en.navMission, navHow: copy.locales.en.navHow, navAbout: copy.locales.en.navAbout, navDonate: copy.locales.en.navDonate, navContact: copy.locales.en.navContact },
           },
         };
       }

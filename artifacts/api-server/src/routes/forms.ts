@@ -17,12 +17,22 @@ import {
   SubmitFormBody,
   SubmitFormResponse,
 } from "@workspace/api-zod";
+import { readAdminSession } from "../lib/admin-auth";
 
 const router: IRouter = Router();
 
-router.get("/forms", async (_req, res): Promise<void> => {
+router.get("/forms", async (req, res): Promise<void> => {
   const forms = await db.select().from(formsTable).orderBy(desc(formsTable.createdAt));
-  res.json(serialize(forms));
+  if (readAdminSession(req)) {
+    res.json(serialize(forms));
+    return;
+  }
+  res.json(serialize(forms.map(form => ({
+    id: form.id,
+    name: form.name,
+    fields: form.fields,
+    submitButtonLabel: form.submitButtonLabel,
+  }))));
 
 });
 
@@ -57,7 +67,16 @@ router.get("/forms/:id", async (req, res): Promise<void> => {
     res.status(404).json({ error: "Form not found" });
     return;
   }
-  res.json(serialize(form));
+  if (readAdminSession(req)) {
+    res.json(serialize(form));
+    return;
+  }
+  res.json(serialize({
+    id: form.id,
+    name: form.name,
+    fields: form.fields,
+    submitButtonLabel: form.submitButtonLabel,
+  }));
 
 });
 
@@ -112,7 +131,7 @@ router.post("/forms/:id/submit", async (req, res): Promise<void> => {
     return;
   }
   const ip = req.ip ?? null;
-  const [submission] = await db
+  await db
     .insert(submissionsTable)
     .values({
       formId: params.data.id,
@@ -166,7 +185,9 @@ router.post("/forms/:id/submit", async (req, res): Promise<void> => {
     }).catch((err) => console.error('[mailer] send error:', err));
   }
 
-  res.status(201).json(serialize(submission));
+  // Never return the stored submission object: it contains user-provided PII and
+  // the request IP. The admin-only submissions endpoint remains available to CMS users.
+  res.status(201).json(SubmitFormResponse.parse({ ok: true, message: form.successMessage ?? "Submitted" }));
 
 });
 

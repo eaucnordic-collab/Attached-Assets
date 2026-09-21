@@ -1,13 +1,20 @@
 import { useListTeamMembers } from '@workspace/api-client-react';
 import { PublicLayout } from '@/components/public-layout';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Mail, Linkedin, Facebook } from 'lucide-react';
+import { Mail, Linkedin, Facebook, Instagram } from 'lucide-react';
 import { getPublicLang } from '@/lib/public-language';
 import { usePublicSeo } from '@/lib/public-seo';
+import type { Lang } from '@/lib/i18n';
+
+const SEO_BY_LANG: Record<Lang, { title: string; description: string }> = {
+  da: { title: 'Om EAUC Nordic', description: 'Læs om EAUC Nordic, vores mission, værdier og team, der støtter en bæredygtig fremtid.' },
+  uk: { title: 'Про EAUC Nordic', description: 'Дізнайтеся про EAUC Nordic, нашу місію, цінності та команду, яка підтримує сталий розвиток.' },
+  en: { title: 'About EAUC Nordic', description: 'Learn about EAUC Nordic, our mission, values and team supporting sustainable higher education.' },
+};
 
 export default function PublicAbout() {
   const lang = getPublicLang();
-  usePublicSeo(lang, 'About EAUC Nordic', 'Learn about EAUC Nordic, our mission, values and team supporting sustainable higher education.');
+  usePublicSeo(lang, SEO_BY_LANG[lang].title, SEO_BY_LANG[lang].description);
   const { data: members, isLoading } = useListTeamMembers();
 
   return (
@@ -81,7 +88,7 @@ export default function PublicAbout() {
             </div>
           ) : members && members.length > 0 ? (
             <div className="grid md:grid-cols-3 gap-6">
-              {members.filter(m => m.visible && m.name.trim() && m.position?.trim()).map((member) => (
+              {members.filter(m => m.visible && m.name.trim() && m.position?.trim() && !/^(navn kommer|name pending|name coming|ім['’ʼ`´]?я (буде|буде пізніше|згодом))([\s.,!-].*)?$/iu.test(m.name.trim())).map((member) => (
                 <div key={member.id} className="bg-secondary/10 rounded-xl overflow-hidden border hover:shadow-md transition-shadow">
                   <div className="h-48 bg-primary/10 flex items-center justify-center">
                     {member.photo ? (
@@ -99,17 +106,22 @@ export default function PublicAbout() {
                     <div className="flex gap-2">
                       {member.email && (
                         <a href={`mailto:${member.email}`} className="text-muted-foreground hover:text-primary transition-colors">
-                          <Mail className="w-4 h-4" />
+                          <Mail className="w-4 h-4" aria-hidden="true" />
                         </a>
                       )}
                       {member.linkedin && (
                         <a href={member.linkedin} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
-                          <Linkedin className="w-4 h-4" />
+                          <Linkedin className="w-4 h-4" aria-hidden="true" />
                         </a>
                       )}
                       {member.facebook && (
-                        <a href={member.facebook} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
-                          <Facebook className="w-4 h-4" />
+                        <a href={member.facebook} aria-label={`Facebook: ${member.name}`} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
+                          <Facebook className="w-4 h-4" aria-hidden="true" />
+                        </a>
+                      )}
+                      {member.instagram && (
+                        <a href={member.instagram} aria-label={`Instagram: ${member.name}`} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
+                          <Instagram className="w-4 h-4" aria-hidden="true" />
                         </a>
                       )}
                     </div>

@@ -23,7 +23,7 @@ export default function AdminLogin() {
 
     loginMutation.mutate({ data: { email, password } }, {
       onSuccess: user => {
-        login(user, String(user.id));
+        login(user);
         setLocation('/admin');
       },
       onError: () => setError('Invalid credentials. Please check your email and password.'),

@@ -346,16 +346,6 @@ function SiteFooter({ lang, footer }: { lang: Lang; footer: FooterSection }) {
               <span style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.8)', letterSpacing: '0.02em' }}>CVR: {footer.cvr}</span>
             </div>
             <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', lineHeight: 1.6, margin: 0 }}>{f.registeredAs}</p>
-            {(f.taxNote || f.transparencyNote) && <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 4 }}>
-              {f.taxNote && <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                <span style={{ fontSize: 13 }}>✓</span>
-                <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)' }}>{f.taxNote}</span>
-              </div>}
-              {f.transparencyNote && <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                <span style={{ fontSize: 13 }}>✓</span>
-                <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)' }}>{f.transparencyNote}</span>
-              </div>}
-            </div>}
           </div>
         </div>
       </div>

@@ -35,9 +35,14 @@ router.post("/auth/login", async (req, res): Promise<void> => {
 });
 
 router.post("/auth/change-password", async (req, res): Promise<void> => {
-  const { email, currentPassword, newPassword } = req.body as Record<string, unknown>;
-  if (typeof email !== "string" || typeof currentPassword !== "string" || typeof newPassword !== "string") {
-    res.status(400).json({ error: "All password fields are required" });
+  const { currentPassword, newPassword } = req.body as Record<string, unknown>;
+  const userId = readAdminSession(req);
+  if (!userId) {
+    res.status(401).json({ error: "Admin authentication required" });
+    return;
+  }
+  if (typeof currentPassword !== "string" || typeof newPassword !== "string") {
+    res.status(400).json({ error: "Current and new password are required" });
     return;
   }
   if (newPassword.length < 10) {
@@ -49,7 +54,7 @@ router.post("/auth/change-password", async (req, res): Promise<void> => {
     return;
   }
 
-  const [user] = await db.select().from(usersTable).where(eq(usersTable.email, email));
+  const [user] = await db.select().from(usersTable).where(eq(usersTable.id, userId));
   if (!user || !verifyPassword(currentPassword, user.password)) {
     res.status(401).json({ error: "Current password is incorrect" });
     return;

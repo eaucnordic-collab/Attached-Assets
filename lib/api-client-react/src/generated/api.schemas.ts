@@ -722,6 +722,11 @@ export interface FormSubmission {
   createdAt: string;
 }
 
+export interface FormSubmitSuccess {
+  ok: boolean;
+  message?: string;
+}
+
 export type SiteSettingsSocialLinks = { [key: string]: unknown };
 
 export interface SiteSettings {

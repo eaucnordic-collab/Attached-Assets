@@ -3,15 +3,18 @@ import { useLocation } from 'wouter';
 import { useAuth } from '@/hooks/use-auth';
 
 export function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
   const [, setLocation] = useLocation();
 
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (!isLoading && !isAuthenticated) {
       setLocation('/admin/login');
     }
-  }, [isAuthenticated, setLocation]);
+  }, [isAuthenticated, isLoading, setLocation]);
 
+  if (isLoading) {
+    return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Checking session…</div>;
+  }
   if (!isAuthenticated) {
     return null;
   }

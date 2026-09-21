@@ -9,10 +9,17 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { PublicLayout } from '@/components/public-layout';
 import { getPublicLang, localizedHref, DATE_LOCALE } from '@/lib/public-language';
 import { usePublicSeo } from '@/lib/public-seo';
+import type { Lang } from '@/lib/i18n';
+
+const SEO_BY_LANG: Record<Lang, { title: string; description: string }> = {
+  da: { title: 'Arrangementer | EAUC Nordic', description: 'Se kommende konferencer, webinarer og workshops om bæredygtighed i Norden.' },
+  uk: { title: 'Події | EAUC Nordic', description: 'Дізнайтеся про майбутні конференції, вебінари та семінари зі сталого розвитку в країнах Північної Європи.' },
+  en: { title: 'Events | EAUC Nordic', description: 'Upcoming conferences, webinars and workshops focused on sustainability in the Nordics.' },
+};
 
 export default function Events() {
   const lang = getPublicLang();
-  usePublicSeo(lang, 'Events | EAUC Nordic', 'Upcoming conferences, webinars and workshops focused on sustainability in the Nordics.');
+  usePublicSeo(lang, SEO_BY_LANG[lang].title, SEO_BY_LANG[lang].description);
   const { data: events, isLoading } = useListEvents();
   
   const upcoming = events?.filter(e => new Date(e.startDate) >= new Date() && e.status === 'published') || [];

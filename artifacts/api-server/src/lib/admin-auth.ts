@@ -65,3 +65,11 @@ export function requireAdminForMutation(req: Request, res: Response, next: NextF
   }
   next();
 }
+
+export function requireAdmin(req: Request, res: Response, next: NextFunction) {
+  if (!readAdminSession(req)) {
+    res.status(401).json({ error: "Admin authentication required" });
+    return;
+  }
+  next();
+}

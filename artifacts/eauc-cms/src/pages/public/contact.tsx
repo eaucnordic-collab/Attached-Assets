@@ -10,10 +10,17 @@ import { Mail, Phone, MapPin, CheckCircle2 } from 'lucide-react';
 import { Link } from 'wouter';
 import { getPublicLang, localizedHref } from '@/lib/public-language';
 import { usePublicSeo } from '@/lib/public-seo';
+import type { Lang } from '@/lib/i18n';
+
+const SEO_BY_LANG: Record<Lang, { title: string; description: string }> = {
+  da: { title: 'Kontakt EAUC Nordic', description: 'Kontakt EAUC Nordic om frivillighed, partnerskaber og støtte til Ukraine.' },
+  uk: { title: 'Контакти EAUC Nordic', description: 'Зв’яжіться з EAUC Nordic щодо волонтерства, партнерства та підтримки України.' },
+  en: { title: 'Contact EAUC Nordic', description: 'Contact EAUC Nordic about volunteering, partnerships and support for Ukraine.' },
+};
 
 export default function PublicContact() {
   const lang = getPublicLang();
-  usePublicSeo(lang, 'Contact EAUC Nordic', 'Contact EAUC Nordic about volunteering, partnerships and support for Ukraine.');
+  usePublicSeo(lang, SEO_BY_LANG[lang].title, SEO_BY_LANG[lang].description);
   const { data: settings } = useGetSettings();
   const { data: forms } = useListForms();
   const contactForm = forms && forms.length > 0 ? forms[0] : null;
@@ -103,17 +110,15 @@ export default function PublicContact() {
           <div className="space-y-8">
             <h2 className="text-2xl font-bold">Get in Touch</h2>
             <div className="space-y-5">
-              {settings?.contactEmail && (
-                <div className="flex gap-4">
+              <div className="flex gap-4">
                   <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
                     <Mail className="w-5 h-5 text-primary" />
                   </div>
                   <div>
                     <div className="font-medium text-sm mb-0.5">Email</div>
-                    <a href={`mailto:${settings.contactEmail}`} className="text-primary hover:underline text-sm">{settings.contactEmail}</a>
+                    <a href="mailto:eaucnordic@gmail.com" className="text-primary hover:underline text-sm">eaucnordic@gmail.com</a>
                   </div>
                 </div>
-              )}
               {settings?.contactPhone && (
                 <div className="flex gap-4">
                   <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">

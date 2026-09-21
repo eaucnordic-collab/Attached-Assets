@@ -8,10 +8,17 @@ import { ArrowRight } from 'lucide-react';
 import { PublicLayout } from '@/components/public-layout';
 import { getPublicLang, localizedHref } from '@/lib/public-language';
 import { usePublicSeo } from '@/lib/public-seo';
+import type { Lang } from '@/lib/i18n';
+
+const SEO_BY_LANG: Record<Lang, { title: string; description: string }> = {
+  da: { title: 'Projekter | EAUC Nordic', description: 'Se EAUC Nordics projekter, der fremmer bæredygtighed og grøn energi i Norden.' },
+  uk: { title: 'Проєкти | EAUC Nordic', description: 'Дізнайтеся про проєкти EAUC Nordic, що розвивають сталий розвиток і зелену енергетику в країнах Північної Європи.' },
+  en: { title: 'Projects | EAUC Nordic', description: 'Discover EAUC Nordic projects advancing sustainability and green energy across the Nordic region.' },
+};
 
 export default function Projects() {
   const lang = getPublicLang();
-  usePublicSeo(lang, 'Projects | EAUC Nordic', 'Discover EAUC Nordic projects advancing sustainability and green energy across the Nordic region.');
+  usePublicSeo(lang, SEO_BY_LANG[lang].title, SEO_BY_LANG[lang].description);
   const { data: projects, isLoading } = useListProjects();
 
   return (
