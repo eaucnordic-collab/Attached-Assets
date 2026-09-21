@@ -53,7 +53,7 @@ export type SiteContent = { sections: AnySection[]; copyRevision?: number };
 // ─── Defaults ─────────────────────────────────────────────────────────────────
 
 export const DEFAULT_CONTENT: SiteContent = {
-  copyRevision: 2,
+  copyRevision: 3,
   sections: [
     {
       id: 'hero', type: 'hero', visible: true,
@@ -96,7 +96,6 @@ export const DEFAULT_CONTENT: SiteContent = {
         { value: '127',     label: 'BØRN HJULPET' },
         { value: '42',      label: 'OPLEVELSESTURE' },
         { value: '1.200+',  label: 'DONORER' },
-        { value: '98%',     label: 'GÅR DIREKTE TIL BØRNENE' },
       ],
     },
     {
@@ -122,7 +121,7 @@ export const DEFAULT_CONTENT: SiteContent = {
         },
         {
           id: 'news_3',
-          title: 'Årsrapport 2024: 127 børn hjulpet, 98% til børnene',
+          title: 'Årsrapport 2024: 127 børn hjulpet',
           date: 'Januar 2025',
           text: 'Vores årsrapport for 2024 er nu tilgængelig. Vi er stolte over resultaterne og klar til endnu et år fyldt med håb, oplevelser og kærlighed.',
           imageUrl: 'https://images.unsplash.com/photo-1536094908688-b0b7e8a57e60?q=80&w=2070&auto=format&fit=crop',
@@ -166,18 +165,18 @@ export const DEFAULT_CONTENT: SiteContent = {
       id: 'contact', type: 'contact', visible: true,
       heading: 'Kontakt og frivillighed',
       subtitle: 'Har du spørgsmål, ønsker du at blive frivillig, eller vil du drøfte et muligt partnerskab? Kontakt os – vi hører gerne fra dig.',
-      email: 'info@eaucnordic.com',
+      email: 'eaucnordic@gmail.com',
       phone: '+45 25 56 81 31',
     },
     {
       id: 'footer', type: 'footer', visible: true,
       logoUrl: '/logo.png',
-      email: 'info@eaucnordic.com',
+      email: 'eaucnordic@gmail.com',
       cvr: '46329406',
       facebookUrl: 'https://www.facebook.com/profile.php?id=61592491217605',
       instagramUrl: 'https://www.instagram.com/eaucnordic/',
-      privacyUrl: '#',
-      cookiesUrl: '#',
+      privacyUrl: '/privacy',
+      cookiesUrl: '/cookies',
       locales: {
         da: {
           tagline: 'Vi forbinder mennesker, ressourcer og muligheder for Ukraine.',
@@ -185,8 +184,8 @@ export const DEFAULT_CONTENT: SiteContent = {
           navAbout: 'Om os', navDonate: 'Donér', navContact: 'Kontakt', contactTitle: 'Kontakt os',
           address: 'Byparken 75, 1. 1\n5700 Svendborg\nDanmark', legalTitle: 'Juridisk information',
           registeredAs: 'Registreret som almennyttig, non-profit forening i Danmark',
-          taxNote: '🇩🇰 Donationer er fradragsberettigede iht. ligningslovens § 8A',
-          transparencyNote: '98% af alle midler går direkte til børnene',
+          taxNote: '',
+          transparencyNote: '',
           privacyLabel: 'Privatlivspolitik', cookiesLabel: 'Cookiepolitik',
           copyright: '© 2026 European Association of Ukrainian Children – Nordic (EAUC Nordic) · CVR 46329406',
         },
@@ -196,8 +195,8 @@ export const DEFAULT_CONTENT: SiteContent = {
           navAbout: 'Про нас', navDonate: 'Пожертвувати', navContact: 'Контакти', contactTitle: 'Звʼяжіться з нами',
           address: 'Byparken 75, 1. 1\n5700 Svendborg\nДанія', legalTitle: 'Юридична інформація',
           registeredAs: 'Зареєстровано як некомерційна організація в Данії',
-          taxNote: '🇩🇰 Пожертвування підлягають податковому вирахуванню в Данії',
-          transparencyNote: '98% усіх коштів іде безпосередньо дітям',
+          taxNote: '',
+          transparencyNote: '',
           privacyLabel: 'Політика конфіденційності', cookiesLabel: 'Політика cookies',
           copyright: '© 2026 European Association of Ukrainian Children – Nordic (EAUC Nordic) · CVR 46329406',
         },
@@ -207,8 +206,8 @@ export const DEFAULT_CONTENT: SiteContent = {
           navAbout: 'About us', navDonate: 'Donate', navContact: 'Contact', contactTitle: 'Get in touch',
           address: 'Byparken 75, 1. 1\n5700 Svendborg\nDenmark', legalTitle: 'Legal information',
           registeredAs: 'Registered as a non-profit organisation in Denmark',
-          taxNote: '🇩🇰 Donations are tax-deductible in Denmark',
-          transparencyNote: '98% of all funds go directly to the children',
+          taxNote: '',
+          transparencyNote: '',
           privacyLabel: 'Privacy policy', cookiesLabel: 'Cookie policy',
           copyright: '© 2026 European Association of Ukrainian Children – Nordic (EAUC Nordic) · CVR 46329406',
         },
@@ -220,7 +219,7 @@ export const DEFAULT_CONTENT: SiteContent = {
 // ─── Storage helpers ──────────────────────────────────────────────────────────
 
 const KEY = 'eauc_site_content_v1';
-const CURRENT_COPY_REVISION = 2;
+const CURRENT_COPY_REVISION = 3;
 
 function applyCurrentCopy(content: SiteContent): SiteContent {
   if ((content.copyRevision ?? 0) >= CURRENT_COPY_REVISION) return content;
@@ -245,7 +244,7 @@ function applyCurrentCopy(content: SiteContent): SiteContent {
       }
       case 'stats': {
         const copy = source as StatsSection;
-        return { ...section, heading: copy.heading, subtitle: copy.subtitle };
+        return { ...section, heading: copy.heading, subtitle: copy.subtitle, items: section.items.filter(item => item.value !== '98%' && !item.label.includes('98%')) };
       }
       case 'news': {
         const copy = source as NewsSection;
@@ -261,16 +260,19 @@ function applyCurrentCopy(content: SiteContent): SiteContent {
       }
       case 'contact': {
         const copy = source as ContactSection;
-        return { ...section, heading: copy.heading, subtitle: copy.subtitle };
+        return { ...section, heading: copy.heading, subtitle: copy.subtitle, email: copy.email };
       }
       case 'footer': {
         const copy = source as FooterSection;
         return {
           ...section,
+          email: copy.email,
+          privacyUrl: copy.privacyUrl,
+          cookiesUrl: copy.cookiesUrl,
           locales: {
-            da: { ...section.locales.da, tagline: copy.locales.da.tagline, navMission: copy.locales.da.navMission, navHow: copy.locales.da.navHow, navAbout: copy.locales.da.navAbout, navDonate: copy.locales.da.navDonate, navContact: copy.locales.da.navContact },
-            uk: { ...section.locales.uk, tagline: copy.locales.uk.tagline, navMission: copy.locales.uk.navMission, navHow: copy.locales.uk.navHow, navAbout: copy.locales.uk.navAbout, navDonate: copy.locales.uk.navDonate, navContact: copy.locales.uk.navContact },
-            en: { ...section.locales.en, tagline: copy.locales.en.tagline, navMission: copy.locales.en.navMission, navHow: copy.locales.en.navHow, navAbout: copy.locales.en.navAbout, navDonate: copy.locales.en.navDonate, navContact: copy.locales.en.navContact },
+            da: { ...section.locales.da, tagline: copy.locales.da.tagline, navMission: copy.locales.da.navMission, navHow: copy.locales.da.navHow, navAbout: copy.locales.da.navAbout, navDonate: copy.locales.da.navDonate, navContact: copy.locales.da.navContact, taxNote: '', transparencyNote: '' },
+            uk: { ...section.locales.uk, tagline: copy.locales.uk.tagline, navMission: copy.locales.uk.navMission, navHow: copy.locales.uk.navHow, navAbout: copy.locales.uk.navAbout, navDonate: copy.locales.uk.navDonate, navContact: copy.locales.uk.navContact, taxNote: '', transparencyNote: '' },
+            en: { ...section.locales.en, tagline: copy.locales.en.tagline, navMission: copy.locales.en.navMission, navHow: copy.locales.en.navHow, navAbout: copy.locales.en.navAbout, navDonate: copy.locales.en.navDonate, navContact: copy.locales.en.navContact, taxNote: '', transparencyNote: '' },
           },
         };
       }
@@ -427,6 +429,6 @@ export const CONTACT_SECTION_TEMPLATE: ContactSection = {
   id: '', type: 'contact', visible: true,
   heading: 'Kontakt os',
   subtitle: 'Vi hører gerne fra dig.',
-  email: 'info@eaucnordic.com',
+  email: 'eaucnordic@gmail.com',
   phone: '',
 };

@@ -57,7 +57,8 @@ export function sanitizeArticleHtml(value: string): string {
       }
     }
     children.forEach((child) => element.appendChild(child));
-    if (node.tagName === 'P' && !element.textContent?.trim() && !element.querySelector('img')) {
+    if ((node.tagName === 'P' || node.tagName === 'H2' || node.tagName === 'H3' || node.tagName === 'BLOCKQUOTE')
+      && !element.textContent?.trim() && !element.querySelector('img')) {
       return null;
     }
     return element;
@@ -69,6 +70,15 @@ export function sanitizeArticleHtml(value: string): string {
     if (clean) container.appendChild(clean);
   });
   return container.innerHTML;
+}
+
+export function generateArticleExcerpt(value: string | null | undefined, maxLength = 240): string {
+  if (!value) return '';
+  const html = /<[a-z][\s\S]*>/i.test(value) ? sanitizeArticleHtml(value) : value;
+  const container = document.createElement('div');
+  container.innerHTML = html;
+  const text = (container.textContent || '').replace(/\s+/g, ' ').trim();
+  return text.length > maxLength ? `${text.slice(0, maxLength - 1).trimEnd()}…` : text;
 }
 
 export function articleContentToHtml(value: string): string {

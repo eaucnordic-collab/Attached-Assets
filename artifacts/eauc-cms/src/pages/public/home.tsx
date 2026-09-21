@@ -16,6 +16,9 @@ import {
   Lang, UI_TRANSLATIONS, CONTACT_UI, NAV_UI,
   LANGUAGES, loadLang, saveLang, getTranslatedContent,
 } from '../../lib/i18n';
+import { getPublicLang, localizedHref, setPublicLang } from '../../lib/public-language';
+import { usePublicSeo } from '../../lib/public-seo';
+import { generateArticleExcerpt } from '@/lib/sanitize-article-html';
 
 // ─── Design tokens ────────────────────────────────────────────────────────────
 const GOLD  = '#c8a84b';
@@ -182,7 +185,7 @@ function SiteHeader({ lang, onLangChange }: { lang: Lang; onLangChange: (l: Lang
         height: isMobile ? 60 : 72,
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       }}>
-        <a href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
+        <a href={localizedHref('/', lang)} style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
           <img src="/logo-text.png" alt="EAUC Nordic" style={{ height: isMobile ? 87 : 116, width: 'auto', objectFit: 'contain' }} />
         </a>
 
@@ -343,16 +346,16 @@ function SiteFooter({ lang, footer }: { lang: Lang; footer: FooterSection }) {
               <span style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.8)', letterSpacing: '0.02em' }}>CVR: {footer.cvr}</span>
             </div>
             <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', lineHeight: 1.6, margin: 0 }}>{f.registeredAs}</p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 4 }}>
-              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            {(f.taxNote || f.transparencyNote) && <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 4 }}>
+              {f.taxNote && <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                 <span style={{ fontSize: 13 }}>✓</span>
                 <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)' }}>{f.taxNote}</span>
-              </div>
-              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+              </div>}
+              {f.transparencyNote && <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                 <span style={{ fontSize: 13 }}>✓</span>
                 <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)' }}>{f.transparencyNote}</span>
-              </div>
-            </div>
+              </div>}
+            </div>}
           </div>
         </div>
       </div>
@@ -365,11 +368,11 @@ function SiteFooter({ lang, footer }: { lang: Lang; footer: FooterSection }) {
       }}>
         <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.28)', lineHeight: 1.5 }}>{f.copyright}</span>
         <div style={{ display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap' }}>
-          <a href={footer.privacyUrl || '#'} style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', textDecoration: 'none', minHeight: 44, display: 'flex', alignItems: 'center' } as React.CSSProperties}
+          <a href={localizedHref(footer.privacyUrl || '/privacy', lang)} style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', textDecoration: 'none', minHeight: 44, display: 'flex', alignItems: 'center' } as React.CSSProperties}
             onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.7)'; }}
             onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.35)'; }}
           >{f.privacyLabel}</a>
-          <a href={footer.cookiesUrl || '#'} style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', textDecoration: 'none', minHeight: 44, display: 'flex', alignItems: 'center' } as React.CSSProperties}
+          <a href={localizedHref(footer.cookiesUrl || '/cookies', lang)} style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', textDecoration: 'none', minHeight: 44, display: 'flex', alignItems: 'center' } as React.CSSProperties}
             onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.7)'; }}
             onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.35)'; }}
           >{f.cookiesLabel}</a>
@@ -613,7 +616,7 @@ function BoardBlock({ s }: { s: BoardSection }) {
           <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: 24, fontWeight: 700, color: NAVY, textAlign: 'center', marginBottom: 32 }}>{s.heading}</h2>
         </FadeUp>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px,1fr))', gap: 16 }}>
-          {s.members.map((m, i) => (
+          {s.members.filter((m) => m.name.trim() && m.role.trim() && !/^(navn kommer|name coming|ім['’]?я.*згодом)$/i.test(m.name.trim())).map((m, i) => (
             <FadeUp key={i} delay={i * 60}>
               <div style={{ background: '#fff', border: '1px solid #e0dbd0', borderRadius: 14, padding: '24px 16px', textAlign: 'center' }}>
                 <div style={{ width: 64, height: 64, borderRadius: '50%', background: '#ede9e0', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
@@ -977,7 +980,7 @@ function NewsBlock({ s, lang }: { s: NewsSection; lang: Lang }) {
           <div style={{ textAlign: 'center', marginBottom: 56 }}>
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
               <Newspaper size={18} color={GOLD} />
-              <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, fontWeight: 700, letterSpacing: '0.12em', color: GOLD, textTransform: 'uppercase' }}>Nyheder</span>
+              <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, fontWeight: 700, letterSpacing: '0.12em', color: GOLD, textTransform: 'uppercase' }}>{NAV_UI[lang].news}</span>
             </div>
             <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: 'clamp(28px,6vw,42px)', fontWeight: 700, color: NAVY, margin: '0 0 16px' }}>{s.heading}</h2>
             <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 16, color: '#666', lineHeight: 1.65, maxWidth: 520, margin: '0 auto' }}>{s.subtitle}</p>
@@ -1056,7 +1059,7 @@ function NewsBlock({ s, lang }: { s: NewsSection; lang: Lang }) {
                     WebkitBoxOrient: 'vertical',
                     overflow: 'hidden',
                   }}>
-                    {article.excerpt || article.content}
+                     {article.excerpt || generateArticleExcerpt(article.content)}
                   </p>
                 </div>
               </article>
@@ -1108,6 +1111,7 @@ function ContactBlock({ s, lang }: { s: ContactSection; lang: Lang }) {
   const [subject, setSubject] = useState('');
   const [message, setMessage] = useState('');
   const [status, setStatus]   = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [privacyConsent, setPrivacyConsent] = useState(false);
   const ui = CONTACT_UI[lang];
   const width = useWindowWidth();
   const isMobile = width < 768;
@@ -1131,7 +1135,7 @@ function ContactBlock({ s, lang }: { s: ContactSection; lang: Lang }) {
     }
     setStatus('loading');
     submitMutation.mutate(
-      { id: contactForm.id, data: { data: { name, email, subject, message } } },
+      { id: contactForm.id, data: { data: { name, email, subject, message, privacyConsent: 'accepted', consentedAt: new Date().toISOString() } } },
       {
         onSuccess: () => setStatus('success'),
         onError: () => setStatus('error'),
@@ -1162,7 +1166,7 @@ function ContactBlock({ s, lang }: { s: ContactSection; lang: Lang }) {
                   <CheckCircle size={52} color="#059669" style={{ marginBottom: 20 }} />
                   <h3 style={{ fontFamily: 'Playfair Display, serif', fontSize: 22, color: NAVY, margin: '0 0 12px' }}>{ui.successTitle}</h3>
                   <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 15, color: '#666', margin: 0 }}>{ui.successMessage}</p>
-                  <button onClick={() => { setStatus('idle'); setName(''); setEmail(''); setSubject(''); setMessage(''); }}
+                  <button onClick={() => { setStatus('idle'); setName(''); setEmail(''); setSubject(''); setMessage(''); setPrivacyConsent(false); }}
                     style={{ marginTop: 24, background: 'none', border: '2px solid #d8d2c8', borderRadius: 999, padding: '10px 24px', fontFamily: 'Inter, sans-serif', fontSize: 14, color: NAVY, cursor: 'pointer' }}>
                     {ui.sendAnother}
                   </button>
@@ -1195,6 +1199,15 @@ function ContactBlock({ s, lang }: { s: ContactSection; lang: Lang }) {
                       onBlur={e => { (e.currentTarget as HTMLElement).style.borderColor = '#e0dbd0'; }}
                     />
                   </div>
+                  <label style={{ display: 'flex', alignItems: 'flex-start', gap: 10, fontFamily: 'Inter, sans-serif', fontSize: 13, lineHeight: 1.55, color: '#555' }}>
+                    <input name="privacyConsent" type="checkbox" checked={privacyConsent} onChange={event => setPrivacyConsent(event.target.checked)} required style={{ marginTop: 3, width: 16, height: 16, flexShrink: 0 }} />
+                    <span>
+                      {lang === 'da' ? 'Jeg accepterer behandling af mine personoplysninger som beskrevet i ' : lang === 'uk' ? 'Я погоджуюся на обробку моїх персональних даних відповідно до ' : 'I agree to the processing of my personal data as described in the '}
+                      <a href={localizedHref('/privacy', lang)} style={{ color: BLUE, fontWeight: 600 }}>
+                        {lang === 'da' ? 'privatlivspolitikken' : lang === 'uk' ? 'політики конфіденційності' : 'Privacy Policy'}
+                      </a>.
+                    </span>
+                  </label>
                   <div>
                     <label htmlFor="contact-message" style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, fontWeight: 600, color: '#555', display: 'block', marginBottom: 6 }}>{ui.messageLabel}</label>
                     <textarea id="contact-message" name="message" value={message} onChange={e => setMessage(e.target.value)} placeholder={ui.messagePlaceholder} rows={5} required
@@ -1290,7 +1303,7 @@ function SectionBlock({ section, lang }: { section: AnySection; lang: Lang }) {
 // ─── Page ─────────────────────────────────────────────────────────────────────
 export default function EaucHome() {
   const [daContent, setDaContent] = useState<SiteContent>(loadSiteContent);
-  const [lang, setLang] = useState<Lang>(loadLang);
+  const [lang, setLang] = useState<Lang>(getPublicLang);
 
   // Fetch authoritative content from server on mount (overrides localStorage cache)
   useEffect(() => {
@@ -1315,21 +1328,11 @@ export default function EaucHome() {
     };
   }, []);
 
-  const handleLangChange = (l: Lang) => { setLang(l); saveLang(l); };
+  const handleLangChange = (l: Lang) => { setLang(l); setPublicLang(l); };
   const content = getTranslatedContent(lang, daContent);
   const footer = content.sections.find((section): section is FooterSection => section.type === 'footer');
 
-  useEffect(() => {
-    const seo = SEO_BY_LANG[lang];
-    document.documentElement.lang = lang;
-    document.title = seo.title;
-    setMetaContent('meta[name="description"]', seo.description);
-    setMetaContent('meta[property="og:title"]', seo.title);
-    setMetaContent('meta[property="og:description"]', seo.description);
-    setMetaContent('meta[property="og:locale"]', seo.locale);
-    setMetaContent('meta[name="twitter:title"]', seo.title);
-    setMetaContent('meta[name="twitter:description"]', seo.description);
-  }, [lang]);
+  usePublicSeo(lang, SEO_BY_LANG[lang].title, SEO_BY_LANG[lang].description);
 
   return (
     <div style={{ fontFamily: 'Inter, sans-serif', background: CREAM }}>

@@ -16,11 +16,14 @@ import {
   PublishNewsPostBody,
   PublishNewsPostResponse,
 } from "@workspace/api-zod";
+import { generateNewsExcerpt, sanitizeNewsHtml } from "../lib/news-content";
+import { readAdminSession } from "../lib/admin-auth";
 
 const router: IRouter = Router();
 
 router.get("/news", async (req, res): Promise<void> => {
-  const status = req.query.status as string | undefined;
+  const requestedStatus = req.query.status as string | undefined;
+  const status = readAdminSession(req) ? requestedStatus : "published";
   const category = req.query.category as string | undefined;
   const language = req.query.language as string | undefined;
   const translationGroup = req.query.translationGroup as string | undefined;
@@ -57,9 +60,10 @@ router.post("/news", async (req, res): Promise<void> => {
     .values({
       title: parsed.data.title,
       slug: parsed.data.slug,
-      excerpt: parsed.data.excerpt ?? null,
-      content: parsed.data.content ?? null,
+      content: sanitizeNewsHtml(parsed.data.content) ?? null,
+      excerpt: parsed.data.excerpt?.trim() || generateNewsExcerpt(parsed.data.content),
       coverImage: parsed.data.coverImage ?? null,
+      galleryImages: parsed.data.galleryImages ?? [],
       author: parsed.data.author ?? null,
       category: parsed.data.category ?? null,
       language: parsed.data.language ?? "da",
@@ -83,6 +87,10 @@ router.get("/news/:id", async (req, res): Promise<void> => {
     res.status(404).json({ error: "News post not found" });
     return;
   }
+  if (post.status !== "published" && !readAdminSession(req)) {
+    res.status(404).json({ error: "News post not found" });
+    return;
+  }
   res.json(serialize(post));
 
 });
@@ -102,6 +110,10 @@ router.patch("/news/:id", async (req, res): Promise<void> => {
     .update(newsTable)
     .set({
       ...parsed.data,
+      content: parsed.data.content === undefined ? undefined : sanitizeNewsHtml(parsed.data.content),
+      excerpt: parsed.data.excerpt === undefined
+        ? undefined
+        : (parsed.data.excerpt?.trim() || generateNewsExcerpt(parsed.data.content)),
       ...(parsed.data.translationGroup === ""
         ? { translationGroup: parsed.data.slug || undefined }
         : {}),

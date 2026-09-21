@@ -1,84 +1,68 @@
-import { ReactNode } from 'react';
+import { ReactNode, useState } from 'react';
 import { Link, useLocation } from 'wouter';
-import { Heart } from 'lucide-react';
+import { Lang, NAV_UI } from '@/lib/i18n';
+import { getPublicLang, localizedHref } from '@/lib/public-language';
 
-const NAVY = '#0d1117';
-const GOLD = '#e8b400';
+const NAVY = '#0d1b3e';
+const GOLD = '#c8a84b';
+
+const LEGAL = {
+  da: { privacy: 'Privatlivspolitik', cookies: 'Cookiepolitik', language: 'Sprog' },
+  uk: { privacy: 'Політика конфіденційності', cookies: 'Політика cookies', language: 'Мова' },
+  en: { privacy: 'Privacy Policy', cookies: 'Cookie Policy', language: 'Language' },
+};
 
 export function PublicLayout({ children }: { children: ReactNode }) {
-  return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      <Header />
-      <main style={{ flex: 1 }}>{children}</main>
-      <Footer />
-    </div>
-  );
-}
-
-function Header() {
+  const [lang, setLang] = useState<Lang>(getPublicLang);
   const [location] = useLocation();
-  // On the home route, show minimal nav matching the original
-  return (
-    <header style={{
-      position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
-      background: 'rgba(10,12,20,0.95)',
-      backdropFilter: 'blur(8px)',
-      borderBottom: '1px solid rgba(255,255,255,0.06)',
-      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-      padding: '0 28px', height: 52,
-    }}>
-      <Link href="/" style={{ textDecoration: 'none' }}>
-        <img src="/logo.png" alt="EAUC Nordic" style={{ height: 36, width: 'auto', objectFit: 'contain' }} />
-      </Link>
+  const ui = NAV_UI[lang];
+  const legal = LEGAL[lang];
 
-      <nav style={{ display: 'flex', alignItems: 'center', gap: 28 }}>
-        <Link href="/#mission" style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: 'rgba(255,255,255,0.7)', textDecoration: 'none' }}>
-          Om os
-        </Link>
-        <Link href="/#donér" style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: 'rgba(255,255,255,0.7)', textDecoration: 'none' }}>
-          Donér
-        </Link>
-        <Link href="/admin/login" style={{
-          fontFamily: 'Inter, sans-serif', fontSize: 12, color: 'rgba(255,255,255,0.4)',
-          textDecoration: 'none', borderLeft: '1px solid rgba(255,255,255,0.15)', paddingLeft: 20,
-        }}>
-          Admin
-        </Link>
-        {/* Language toggle matching original */}
-        <div style={{
-          display: 'flex', alignItems: 'center', gap: 6,
-          border: '1px solid rgba(255,255,255,0.2)', borderRadius: 999,
-          padding: '5px 12px',
-        }}>
-          <span style={{ fontSize: 13, color: '#fff', fontFamily: 'Inter, sans-serif', fontWeight: 600 }}>🌐</span>
-          <span style={{ fontSize: 12, color: '#fff', fontFamily: 'Inter, sans-serif' }}>DA</span>
-          <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', fontFamily: 'Inter, sans-serif' }}>DK</span>
+  const changeLanguage = (next: Lang) => {
+    setLang(next);
+    window.location.assign(localizedHref(location, next));
+  };
+
+  return (
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#fff' }}>
+      <header style={{ position: 'sticky', top: 0, zIndex: 100, background: 'rgba(13,27,62,0.98)', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+        <div style={{ maxWidth: 1180, minHeight: 68, margin: '0 auto', padding: '8px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 24 }}>
+          <Link href={localizedHref('/', lang)} aria-label="EAUC Nordic — home">
+            <img src="/logo.png" alt="EAUC Nordic" style={{ height: 48, width: 'auto', objectFit: 'contain' }} />
+          </Link>
+          <nav aria-label="Main navigation" style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 18, flexWrap: 'wrap' }}>
+            <Link href={localizedHref('/#mission', lang)} className="hidden text-sm text-white/75 no-underline transition-colors hover:text-white md:inline">{ui.mission}</Link>
+            <Link href={localizedHref('/#vores-arbejde', lang)} className="hidden text-sm text-white/75 no-underline transition-colors hover:text-white md:inline">{ui.work}</Link>
+            <Link href={localizedHref('/news', lang)} className="hidden text-sm text-white/75 no-underline transition-colors hover:text-white sm:inline">{ui.news}</Link>
+            <Link href={localizedHref('/contact', lang)} className="hidden text-sm text-white/75 no-underline transition-colors hover:text-white sm:inline">{ui.contact}</Link>
+            <Link href={localizedHref('/#donér', lang)} style={{ color: NAVY, background: GOLD, borderRadius: 999, padding: '9px 15px', fontSize: 13, fontWeight: 700, textDecoration: 'none' }}>{ui.donateNow}</Link>
+            <label style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#fff', fontSize: 12 }}>
+              <span className="sr-only">{legal.language}</span>
+              <select value={lang} onChange={event => changeLanguage(event.target.value as Lang)} aria-label={legal.language} style={{ color: '#fff', background: 'transparent', border: '1px solid rgba(255,255,255,0.28)', borderRadius: 999, padding: '8px 10px' }}>
+                <option value="da" style={{ color: NAVY }}>DA</option>
+                <option value="uk" style={{ color: NAVY }}>UA</option>
+                <option value="en" style={{ color: NAVY }}>EN</option>
+              </select>
+            </label>
+          </nav>
         </div>
-      </nav>
-    </header>
-  );
-}
-
-function Footer() {
-  return (
-    <footer style={{
-      background: '#0d1117',
-      borderTop: '1px solid rgba(255,255,255,0.06)',
-      padding: '28px 40px',
-      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-      flexWrap: 'wrap', gap: 16,
-    }}>
-      <img src="/logo.png" alt="EAUC Nordic" style={{ height: 34, width: 'auto', objectFit: 'contain' }} />
-      <nav style={{ display: 'flex', gap: 24 }}>
-        {['Om os', 'Kontakt', 'Privatlivspolitik'].map(l => (
-          <a key={l} href="#" style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: 'rgba(255,255,255,0.55)', textDecoration: 'none' }}>
-            {l}
-          </a>
-        ))}
-      </nav>
-      <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: 'rgba(255,255,255,0.35)' }}>
-        © 2026 Håb for Ukraine. Alle rettigheder forbeholdes.
-      </span>
-    </footer>
+      </header>
+      <main style={{ flex: 1 }}>{children}</main>
+      <footer style={{ background: '#080c16', color: '#fff' }}>
+        <div style={{ maxWidth: 1180, margin: '0 auto', padding: '38px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 24 }}>
+          <div>
+            <img src="/logo.png" alt="EAUC Nordic" style={{ height: 54, width: 'auto', objectFit: 'contain', marginBottom: 10 }} />
+            <p style={{ margin: 0, color: 'rgba(255,255,255,0.55)', fontSize: 13 }}>CVR 46329406 · eaucnordic@gmail.com</p>
+          </div>
+          <nav aria-label="Footer navigation" style={{ display: 'flex', gap: 20, flexWrap: 'wrap' }}>
+            <Link href={localizedHref('/#om-os', lang)} style={{ color: 'rgba(255,255,255,0.68)', textDecoration: 'none', fontSize: 13 }}>{ui.about}</Link>
+            <Link href={localizedHref('/contact', lang)} style={{ color: 'rgba(255,255,255,0.68)', textDecoration: 'none', fontSize: 13 }}>{ui.contact}</Link>
+            <Link href={localizedHref('/privacy', lang)} style={{ color: 'rgba(255,255,255,0.68)', textDecoration: 'none', fontSize: 13 }}>{legal.privacy}</Link>
+            <Link href={localizedHref('/cookies', lang)} style={{ color: 'rgba(255,255,255,0.68)', textDecoration: 'none', fontSize: 13 }}>{legal.cookies}</Link>
+          </nav>
+          <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: 12 }}>© 2026 EAUC Nordic</span>
+        </div>
+      </footer>
+    </div>
   );
 }

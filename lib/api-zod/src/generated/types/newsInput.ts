@@ -13,6 +13,7 @@ export interface NewsInput {
   excerpt?: string;
   content?: string;
   coverImage?: string;
+  galleryImages?: string[];
   author?: string;
   category?: string;
   language?: NewsInputLanguage;

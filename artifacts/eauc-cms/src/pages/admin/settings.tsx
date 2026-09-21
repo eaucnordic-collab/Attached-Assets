@@ -180,7 +180,7 @@ export default function AdminSettings() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                   <Label>Contact Email</Label>
-                  <Input {...siteForm.register('contactEmail')} type="email" placeholder="info@eaucnordic.com" />
+                  <Input {...siteForm.register('contactEmail')} type="email" placeholder="eaucnordic@gmail.com" />
                 </div>
                 <div className="space-y-1.5">
                   <Label>Contact Phone</Label>

@@ -1665,6 +1665,10 @@ components:
           type: ["string", "null"]
         coverImage:
           type: ["string", "null"]
+        galleryImages:
+          type: array
+          items:
+            type: string
         author:
           type: ["string", "null"]
         category:
@@ -1723,6 +1727,10 @@ components:
           type: string
         coverImage:
           type: string
+        galleryImages:
+          type: array
+          items:
+            type: string
         author:
           type: string
         category:
@@ -1752,6 +1760,10 @@ components:
           type: ["string", "null"]
         coverImage:
           type: ["string", "null"]
+        galleryImages:
+          type: array
+          items:
+            type: string
         author:
           type: ["string", "null"]
         category:

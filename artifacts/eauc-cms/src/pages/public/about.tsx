@@ -2,8 +2,12 @@ import { useListTeamMembers } from '@workspace/api-client-react';
 import { PublicLayout } from '@/components/public-layout';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Mail, Linkedin, Facebook } from 'lucide-react';
+import { getPublicLang } from '@/lib/public-language';
+import { usePublicSeo } from '@/lib/public-seo';
 
 export default function PublicAbout() {
+  const lang = getPublicLang();
+  usePublicSeo(lang, 'About EAUC Nordic', 'Learn about EAUC Nordic, our mission, values and team supporting sustainable higher education.');
   const { data: members, isLoading } = useListTeamMembers();
 
   return (
@@ -77,7 +81,7 @@ export default function PublicAbout() {
             </div>
           ) : members && members.length > 0 ? (
             <div className="grid md:grid-cols-3 gap-6">
-              {members.filter(m => m.visible).map((member) => (
+              {members.filter(m => m.visible && m.name.trim() && m.position?.trim()).map((member) => (
                 <div key={member.id} className="bg-secondary/10 rounded-xl overflow-hidden border hover:shadow-md transition-shadow">
                   <div className="h-48 bg-primary/10 flex items-center justify-center">
                     {member.photo ? (

@@ -453,7 +453,7 @@ function ContactEditor({ s, onChange }: { s: ContactSection; onChange: (s: Conta
       <TextareaInput label="Undertekst" value={s.subtitle} onChange={v => u('subtitle', v)} rows={2} />
       <div className="border-t pt-5 space-y-4">
         <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Kontaktoplysninger</p>
-        <TextInput label="E-mail" value={s.email} onChange={v => u('email', v)} placeholder="info@eaucnordic.com" />
+        <TextInput label="E-mail" value={s.email} onChange={v => u('email', v)} placeholder="eaucnordic@gmail.com" />
         <TextInput label="Telefon (valgfrit)" value={s.phone} onChange={v => u('phone', v)} placeholder="+45 12 34 56 78" />
       </div>
       <div className="rounded-lg bg-blue-50 border border-blue-100 p-3 text-xs text-blue-700">
@@ -512,8 +512,6 @@ function FooterEditor({ s, onChange }: { s: FooterSection; onChange: (s: FooterS
         <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Juridisk information</p>
         <TextInput label="Kolonneoverskrift" value={locale.legalTitle} onChange={v => updateLocale('legalTitle', v)} />
         <TextareaInput label="Registreringstekst" value={locale.registeredAs} onChange={v => updateLocale('registeredAs', v)} rows={2} />
-        <TextareaInput label="Skattefradrag" value={locale.taxNote} onChange={v => updateLocale('taxNote', v)} rows={2} />
-        <TextareaInput label="Gennemsigtighed" value={locale.transparencyNote} onChange={v => updateLocale('transparencyNote', v)} rows={2} />
         <TextInput label="Privatliv — linktekst" value={locale.privacyLabel} onChange={v => updateLocale('privacyLabel', v)} />
         <TextInput label="Cookies — linktekst" value={locale.cookiesLabel} onChange={v => updateLocale('cookiesLabel', v)} />
         <TextareaInput label="Copyright" value={locale.copyright} onChange={v => updateLocale('copyright', v)} rows={2} />

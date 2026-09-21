@@ -7,8 +7,13 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { Mail, Phone, MapPin, CheckCircle2 } from 'lucide-react';
+import { Link } from 'wouter';
+import { getPublicLang, localizedHref } from '@/lib/public-language';
+import { usePublicSeo } from '@/lib/public-seo';
 
 export default function PublicContact() {
+  const lang = getPublicLang();
+  usePublicSeo(lang, 'Contact EAUC Nordic', 'Contact EAUC Nordic about volunteering, partnerships and support for Ukraine.');
   const { data: settings } = useGetSettings();
   const { data: forms } = useListForms();
   const contactForm = forms && forms.length > 0 ? forms[0] : null;
@@ -18,12 +23,13 @@ export default function PublicContact() {
     name: '', email: '', organization: '', message: ''
   });
   const [submitted, setSubmitted] = useState(false);
+  const [privacyConsent, setPrivacyConsent] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!contactForm) return;
     submitMutation.mutate(
-      { id: contactForm.id, data: { data: formData } },
+      { id: contactForm.id, data: { data: { ...formData, privacyConsent: 'accepted', consentedAt: new Date().toISOString() } } },
       {
         onSuccess: () => {
           setSubmitted(true);
@@ -55,7 +61,7 @@ export default function PublicContact() {
                 <p className="text-muted-foreground">
                   {contactForm?.successMessage || 'Thank you for your message. We will get back to you soon.'}
                 </p>
-                <Button variant="outline" onClick={() => { setSubmitted(false); setFormData({ name: '', email: '', organization: '', message: '' }); }}>
+                <Button variant="outline" onClick={() => { setSubmitted(false); setPrivacyConsent(false); setFormData({ name: '', email: '', organization: '', message: '' }); }}>
                   Send Another
                 </Button>
               </div>
@@ -63,21 +69,28 @@ export default function PublicContact() {
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-1.5">
                   <Label htmlFor="name">Full Name *</Label>
-                  <Input id="name" value={formData.name} onChange={e => setFormData(d => ({ ...d, name: e.target.value }))} required placeholder="Your name" />
+                  <Input id="name" name="name" autoComplete="name" value={formData.name} onChange={e => setFormData(d => ({ ...d, name: e.target.value }))} required placeholder="Your name" />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1.5">
                     <Label htmlFor="email">Email *</Label>
-                    <Input id="email" type="email" value={formData.email} onChange={e => setFormData(d => ({ ...d, email: e.target.value }))} required placeholder="your@email.com" />
+                    <Input id="email" name="email" autoComplete="email" type="email" value={formData.email} onChange={e => setFormData(d => ({ ...d, email: e.target.value }))} required placeholder="your@email.com" />
                   </div>
                   <div className="space-y-1.5">
                     <Label htmlFor="organization">Organization</Label>
-                    <Input id="organization" value={formData.organization} onChange={e => setFormData(d => ({ ...d, organization: e.target.value }))} placeholder="Your institution" />
+                    <Input id="organization" name="organization" autoComplete="organization" value={formData.organization} onChange={e => setFormData(d => ({ ...d, organization: e.target.value }))} placeholder="Your institution" />
                   </div>
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="message">Message *</Label>
-                  <Textarea id="message" value={formData.message} onChange={e => setFormData(d => ({ ...d, message: e.target.value }))} required placeholder="How can we help?" rows={5} />
+                  <Textarea id="message" name="message" value={formData.message} onChange={e => setFormData(d => ({ ...d, message: e.target.value }))} required placeholder="How can we help?" rows={5} />
+                </div>
+                <div className="flex items-start gap-3">
+                  <input id="privacy-consent" name="privacyConsent" type="checkbox" checked={privacyConsent} onChange={event => setPrivacyConsent(event.target.checked)} required className="mt-1 h-4 w-4" />
+                  <Label htmlFor="privacy-consent" className="text-sm font-normal leading-6">
+                    I agree to the processing of my personal data as described in the{' '}
+                    <Link href={localizedHref('/privacy', lang)} className="font-medium text-primary underline">Privacy Policy</Link>.
+                  </Label>
                 </div>
                 <Button type="submit" className="w-full" disabled={submitMutation.isPending || !contactForm}>
                   {submitMutation.isPending ? 'Sending...' : 'Send Message'}

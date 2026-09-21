@@ -320,7 +320,7 @@ function PartnersBlock({ content }: { content: Record<string, unknown> }) {
 
 function TeamBlock({ content }: { content: Record<string, unknown> }) {
   const { data: members } = useListTeamMembers();
-  const visible = (members || []).filter(m => m.visible).slice(0, 4);
+  const visible = (members || []).filter(m => m.visible && m.name.trim() && m.position?.trim()).slice(0, 4);
 
   return (
     <section className="py-16 bg-white">

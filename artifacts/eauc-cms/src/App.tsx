@@ -16,6 +16,7 @@ import PublicProjectDetail from '@/pages/public/project-detail';
 import PublicAbout from '@/pages/public/about';
 import PublicPartners from '@/pages/public/partners';
 import PublicContact from '@/pages/public/contact';
+import { LegalPage } from '@/pages/public/legal';
 
 // Admin pages
 import AdminLogin from '@/pages/admin/login';
@@ -57,6 +58,8 @@ function Router() {
       <Route path="/about" component={PublicAbout} />
       <Route path="/partners" component={PublicPartners} />
       <Route path="/contact" component={PublicContact} />
+      <Route path="/privacy"><LegalPage type="privacy" /></Route>
+      <Route path="/cookies"><LegalPage type="cookies" /></Route>
 
       {/* Admin auth */}
       <Route path="/admin/login" component={AdminLogin} />

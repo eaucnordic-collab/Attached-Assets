@@ -2,8 +2,12 @@ import { useListPartners } from '@workspace/api-client-react';
 import { PublicLayout } from '@/components/public-layout';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ExternalLink } from 'lucide-react';
+import { getPublicLang, localizedHref } from '@/lib/public-language';
+import { usePublicSeo } from '@/lib/public-seo';
 
 export default function PublicPartners() {
+  const lang = getPublicLang();
+  usePublicSeo(lang, 'Partners | EAUC Nordic', 'Meet the institutions and organisations working with EAUC Nordic for sustainability in higher education.');
   const { data: partners, isLoading } = useListPartners();
 
   const byCategory = partners
@@ -79,7 +83,7 @@ export default function PublicPartners() {
             Join EAUC Nordic's growing network and accelerate sustainability in your institution.
           </p>
           <a
-            href="/contact"
+             href={localizedHref('/contact', lang)}
             className="inline-block bg-primary text-primary-foreground px-6 py-3 rounded-lg font-medium hover:bg-primary/90 transition-colors"
           >
             Get in Touch

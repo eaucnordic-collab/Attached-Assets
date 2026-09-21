@@ -4,6 +4,7 @@ import { db, usersTable } from "@workspace/db";
 import { serialize } from "../lib/serialize";
 import { LoginBody, LoginResponse, GetMeResponse } from "@workspace/api-zod";
 import { hashPassword, verifyPassword } from "../lib/password";
+import { clearAdminSession, createAdminSession, readAdminSession, setAdminSession } from "../lib/admin-auth";
 
 const router: IRouter = Router();
 
@@ -28,6 +29,7 @@ router.post("/auth/login", async (req, res): Promise<void> => {
   }
 
   req.log.info({ userId: user.id }, "User logged in");
+  setAdminSession(res, createAdminSession(user.id));
   res.json(serialize({ id: user.id, email: user.email, name: user.name }));
 
 });
@@ -59,14 +61,13 @@ router.post("/auth/change-password", async (req, res): Promise<void> => {
 });
 
 router.post("/auth/logout", async (_req, res): Promise<void> => {
+  clearAdminSession(res);
   res.json({ ok: true });
 });
 
 router.get("/auth/me", async (req, res): Promise<void> => {
-  const authHeader = req.headers.authorization;
-  const userId = authHeader ? parseInt(authHeader.replace("Bearer ", ""), 10) : NaN;
-
-  if (!userId || isNaN(userId)) {
+  const userId = readAdminSession(req);
+  if (!userId) {
     res.status(401).json({ error: "Not authenticated" });
     return;
   }

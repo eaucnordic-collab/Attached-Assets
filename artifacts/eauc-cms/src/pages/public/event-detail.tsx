@@ -4,15 +4,24 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card } from '@/components/ui/card';
 import { ArrowLeft, Calendar, MapPin, Clock, Users, Building } from 'lucide-react';
+import { PublicLayout } from '@/components/public-layout';
+import { formatPublicDate, getPublicLang, localizedHref } from '@/lib/public-language';
+import { usePublicSeo } from '@/lib/public-seo';
 
 export default function EventDetail() {
+  const lang = getPublicLang();
   const params = useParams();
   const id = Number(params.id);
   const { data: event, isLoading } = useGetEvent(id, { query: { enabled: !!id, queryKey: ['/api/events', id] } });
+  usePublicSeo(
+    lang,
+    event ? `${event.title} | EAUC Nordic` : 'Event details | EAUC Nordic',
+    event?.description || 'Event details and registration information from EAUC Nordic.',
+  );
 
   if (isLoading) {
     return (
-      <div className="container mx-auto px-4 py-16 max-w-4xl">
+      <PublicLayout><div className="container mx-auto px-4 py-16 max-w-4xl">
         <Skeleton className="h-8 w-24 mb-8" />
         <Skeleton className="h-12 w-full mb-4" />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
@@ -23,23 +32,23 @@ export default function EventDetail() {
           </div>
           <Skeleton className="h-[300px] w-full rounded-2xl" />
         </div>
-      </div>
+      </div></PublicLayout>
     );
   }
 
   if (!event) {
     return (
-      <div className="container mx-auto px-4 py-24 text-center">
+      <PublicLayout><div className="container mx-auto px-4 py-24 text-center">
         <h1 className="text-3xl font-bold mb-4">Event Not Found</h1>
-        <Button asChild><Link href="/events">Back to Events</Link></Button>
-      </div>
+        <Button asChild><Link href={localizedHref('/events', lang)}>Back to Events</Link></Button>
+      </div></PublicLayout>
     );
   }
 
   const isPast = new Date(event.startDate) < new Date();
 
   return (
-    <div className="bg-gray-50 min-h-screen pb-24">
+    <PublicLayout><div className="bg-gray-50 min-h-screen pb-24">
       {event.image && (
         <div className="w-full h-[40vh] md:h-[50vh] relative overflow-hidden bg-gray-900">
           <img src={event.image} alt={event.title} className="w-full h-full object-cover opacity-60" />
@@ -49,7 +58,7 @@ export default function EventDetail() {
       
       <div className={`container mx-auto px-4 max-w-5xl ${event.image ? 'mt-[-100px] relative z-10' : 'pt-16'}`}>
         <Button variant={event.image ? "secondary" : "ghost"} size="sm" className="mb-8 gap-2" asChild>
-          <Link href="/events"><ArrowLeft className="w-4 h-4" /> All Events</Link>
+          <Link href={localizedHref('/events', lang)}><ArrowLeft className="w-4 h-4" /> All Events</Link>
         </Button>
         
         <h1 className={`text-4xl md:text-5xl font-bold tracking-tight mb-8 leading-tight ${event.image ? 'text-white drop-shadow-md' : 'text-gray-900'}`}>
@@ -83,8 +92,8 @@ export default function EventDetail() {
                   <div>
                     <div className="font-semibold text-gray-900 text-sm mb-1">Date</div>
                     <div className="text-gray-600">
-                      {new Date(event.startDate).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-                      {event.endDate && ` - ${new Date(event.endDate).toLocaleDateString()}`}
+                      {formatPublicDate(event.startDate, lang)}
+                      {event.endDate && ` - ${formatPublicDate(event.endDate, lang)}`}
                     </div>
                   </div>
                 </div>
@@ -156,6 +165,6 @@ export default function EventDetail() {
           </div>
         </div>
       </div>
-    </div>
+    </div></PublicLayout>
   );
 }

@@ -162,6 +162,16 @@ export function RichTextEditor({ value, onChange, onUploadImages }: RichTextEdit
           [&_a]:text-primary [&_a]:underline
           [&_p]:my-3 [&_img]:my-5 [&_img]:h-auto [&_img]:max-w-full [&_img]:rounded-xl"
         onInput={(event) => onChange(event.currentTarget.innerHTML)}
+        onPaste={(event) => {
+          event.preventDefault();
+          const clipboardHtml = event.clipboardData.getData('text/html');
+          const clipboardText = event.clipboardData.getData('text/plain');
+          const cleanHtml = clipboardHtml
+            ? sanitizeArticleHtml(clipboardHtml)
+            : articleContentToHtml(clipboardText);
+          document.execCommand('insertHTML', false, cleanHtml);
+          onChange(sanitizeArticleHtml(event.currentTarget.innerHTML));
+        }}
         onFocus={() => document.execCommand('defaultParagraphSeparator', false, 'p')}
         onMouseUp={saveSelection}
         onKeyUp={saveSelection}

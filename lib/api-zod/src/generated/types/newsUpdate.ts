@@ -16,6 +16,7 @@ export interface NewsUpdate {
   content?: string | null;
   /** @nullable */
   coverImage?: string | null;
+  galleryImages?: string[];
   /** @nullable */
   author?: string | null;
   /** @nullable */

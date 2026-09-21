@@ -5,12 +5,17 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
+import { PublicLayout } from '@/components/public-layout';
+import { getPublicLang, localizedHref } from '@/lib/public-language';
+import { usePublicSeo } from '@/lib/public-seo';
 
 export default function Projects() {
+  const lang = getPublicLang();
+  usePublicSeo(lang, 'Projects | EAUC Nordic', 'Discover EAUC Nordic projects advancing sustainability and green energy across the Nordic region.');
   const { data: projects, isLoading } = useListProjects();
 
   return (
-    <div className="bg-gray-50 min-h-screen pb-24">
+    <PublicLayout><div className="bg-gray-50 min-h-screen pb-24">
       <div className="bg-primary text-white py-16 md:py-24">
         <div className="container mx-auto px-4 max-w-5xl text-center">
           <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-6">Our Projects</h1>
@@ -58,7 +63,7 @@ export default function Projects() {
                 </CardContent>
                 <CardFooter>
                   <Button variant="ghost" className="w-full justify-between group-hover:bg-primary/5" asChild>
-                    <Link href={`/projects/${project.id}`}>
+                     <Link href={localizedHref(`/projects/${project.id}`, lang)}>
                       View Project <ArrowRight className="w-4 h-4 ml-2" />
                     </Link>
                   </Button>
@@ -68,6 +73,6 @@ export default function Projects() {
           )}
         </div>
       </div>
-    </div>
+    </div></PublicLayout>
   );
 }

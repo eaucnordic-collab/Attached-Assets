@@ -7,9 +7,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, Save, Globe, Upload } from 'lucide-react';
+import { ArrowLeft, Save, Globe, Upload, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { RichTextEditor } from '@/components/rich-text-editor';
+import { generateArticleExcerpt, sanitizeArticleHtml } from '@/lib/sanitize-article-html';
 
 type ArticleLanguage = 'da' | 'uk' | 'en';
 
@@ -41,6 +42,7 @@ export default function AdminNewsEdit() {
     coverImage: '',
     language: 'da' as ArticleLanguage,
     translationGroup: '',
+    galleryImages: [] as string[],
   });
 
   useEffect(() => {
@@ -55,13 +57,17 @@ export default function AdminNewsEdit() {
         coverImage: article.coverImage || '',
         language: article.language,
         translationGroup: article.translationGroup,
+        galleryImages: article.galleryImages ?? [],
       });
     }
   }, [article, isNew]);
 
   const handleSave = () => {
+    const content = sanitizeArticleHtml(formData.content);
+    const excerpt = formData.excerpt.trim() || generateArticleExcerpt(content);
+    const payload = { ...formData, content, excerpt };
     if (isNew) {
-      createMutation.mutate({ data: formData }, {
+      createMutation.mutate({ data: payload }, {
         onSuccess: (newArticle) => {
           toast.success('Article created');
           queryClient.invalidateQueries({ queryKey: ['/api/news'] });
@@ -70,7 +76,7 @@ export default function AdminNewsEdit() {
         onError: () => toast.error('Не удалось сохранить статью. Проверьте обязательные поля.'),
       });
     } else {
-      updateMutation.mutate({ id, data: formData }, {
+      updateMutation.mutate({ id, data: payload }, {
         onSuccess: () => {
           toast.success('Article updated');
           queryClient.invalidateQueries({ queryKey: ['/api/news', id] });
@@ -167,6 +173,16 @@ export default function AdminNewsEdit() {
             : 'Не вдалося завантажити зображення. Спробуйте ще раз.',
       );
       throw error;
+    }
+  };
+
+  const handleGalleryUpload = async (files: File[]) => {
+    try {
+      const imagePaths = await Promise.all(files.map(uploadImage));
+      setFormData((current) => ({ ...current, galleryImages: [...current.galleryImages, ...imagePaths] }));
+      toast.success(`${imagePaths.length} gallery image${imagePaths.length === 1 ? '' : 's'} added`);
+    } catch {
+      toast.error('Не удалось загрузить изображения галереи.');
     }
   };
 
@@ -338,6 +354,31 @@ export default function AdminNewsEdit() {
                 {formData.coverImage && (
                   <div className="mt-2 aspect-video rounded-md overflow-hidden bg-muted border">
                     <img src={formData.coverImage} alt="Cover preview" className="w-full h-full object-cover" />
+                  </div>
+                )}
+              </div>
+              <div className="space-y-2">
+                <Label>Article gallery</Label>
+                <Input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={(event) => {
+                    const files = Array.from(event.target.files ?? []);
+                    if (files.length) void handleGalleryUpload(files);
+                    event.currentTarget.value = '';
+                  }}
+                />
+                {formData.galleryImages.length > 0 && (
+                  <div className="grid grid-cols-3 gap-2">
+                    {formData.galleryImages.map((url, index) => (
+                      <div key={`${url}-${index}`} className="relative aspect-square overflow-hidden rounded-md border">
+                        <img src={url} alt={`Gallery image ${index + 1}`} className="h-full w-full object-cover" />
+                        <Button type="button" variant="destructive" size="icon" className="absolute right-1 top-1 h-6 w-6" onClick={() => setFormData((current) => ({ ...current, galleryImages: current.galleryImages.filter((_, i) => i !== index) }))}>
+                          <X className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    ))}
                   </div>
                 )}
               </div>

@@ -6,15 +6,20 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { Calendar, MapPin, Clock, ArrowRight } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { PublicLayout } from '@/components/public-layout';
+import { getPublicLang, localizedHref, DATE_LOCALE } from '@/lib/public-language';
+import { usePublicSeo } from '@/lib/public-seo';
 
 export default function Events() {
+  const lang = getPublicLang();
+  usePublicSeo(lang, 'Events | EAUC Nordic', 'Upcoming conferences, webinars and workshops focused on sustainability in the Nordics.');
   const { data: events, isLoading } = useListEvents();
   
   const upcoming = events?.filter(e => new Date(e.startDate) >= new Date() && e.status === 'published') || [];
   const past = events?.filter(e => new Date(e.startDate) < new Date() && e.status === 'published') || [];
 
   return (
-    <div className="bg-gray-50 min-h-screen pb-24">
+    <PublicLayout><div className="bg-gray-50 min-h-screen pb-24">
       <div className="bg-primary text-white py-16 md:py-24">
         <div className="container mx-auto px-4 max-w-5xl text-center">
           <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-6">Events</h1>
@@ -44,7 +49,7 @@ export default function Events() {
               </div>
             ) : (
               upcoming.map((event) => (
-                <EventCard key={event.id} event={event} />
+                <EventCard key={event.id} event={event} lang={lang} />
               ))
             )}
           </TabsContent>
@@ -56,24 +61,24 @@ export default function Events() {
               </div>
             ) : (
               past.map((event) => (
-                <EventCard key={event.id} event={event} past />
+                <EventCard key={event.id} event={event} past lang={lang} />
               ))
             )}
           </TabsContent>
         </Tabs>
       </div>
-    </div>
+    </div></PublicLayout>
   );
 }
 
-function EventCard({ event, past = false }: { event: any, past?: boolean }) {
+function EventCard({ event, past = false, lang }: { event: any, past?: boolean; lang: import('@/lib/i18n').Lang }) {
   const date = new Date(event.startDate);
   
   return (
     <Card className={`overflow-hidden border-0 shadow-sm hover:shadow-md transition-shadow flex flex-col md:flex-row group ${past ? 'opacity-80' : ''}`}>
       <div className="md:w-64 bg-primary/5 flex flex-col items-center justify-center p-6 border-b md:border-b-0 md:border-r border-gray-100 shrink-0">
         <div className="text-primary font-bold text-sm uppercase tracking-wider mb-1">
-          {date.toLocaleString('default', { month: 'short' })}
+          {date.toLocaleString(DATE_LOCALE[lang], { month: 'short' })}
         </div>
         <div className="text-5xl font-black text-gray-900 mb-1 leading-none">
           {date.getDate()}
@@ -96,12 +101,12 @@ function EventCard({ event, past = false }: { event: any, past?: boolean }) {
           )}
         </div>
         <h3 className="text-2xl font-bold text-gray-900 mb-3 group-hover:text-primary transition-colors">
-          <Link href={`/events/${event.id}`}>{event.title}</Link>
+           <Link href={localizedHref(`/events/${event.id}`, lang)}>{event.title}</Link>
         </h3>
         {event.description && <p className="text-gray-600 line-clamp-2 mb-6">{event.description}</p>}
         <div className="mt-auto">
           <Button variant={past ? "outline" : "default"} className="rounded-full px-6" asChild>
-            <Link href={`/events/${event.id}`}>
+             <Link href={localizedHref(`/events/${event.id}`, lang)}>
               {past ? 'View Recap' : 'Event Details'} <ArrowRight className="w-4 h-4 ml-2" />
             </Link>
           </Button>

@@ -4,15 +4,24 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ArrowLeft, Calendar, Users } from 'lucide-react';
+import { PublicLayout } from '@/components/public-layout';
+import { formatPublicDate, getPublicLang, localizedHref } from '@/lib/public-language';
+import { usePublicSeo } from '@/lib/public-seo';
 
 export default function ProjectDetail() {
+  const lang = getPublicLang();
   const params = useParams();
   const id = Number(params.id);
   const { data: project, isLoading } = useGetProject(id, { query: { enabled: !!id, queryKey: ['/api/projects', id] } });
+  usePublicSeo(
+    lang,
+    project ? `${project.title} | EAUC Nordic` : 'Project details | EAUC Nordic',
+    project?.shortDescription || 'Project details and opportunities to support EAUC Nordic sustainability initiatives.',
+  );
 
   if (isLoading) {
     return (
-      <div className="container mx-auto px-4 py-16">
+      <PublicLayout><div className="container mx-auto px-4 py-16">
         <Skeleton className="h-8 w-24 mb-8" />
         <Skeleton className="h-12 w-2/3 mb-4" />
         <Skeleton className="h-6 w-1/3 mb-12" />
@@ -22,25 +31,25 @@ export default function ProjectDetail() {
           <Skeleton className="h-4 w-full" />
           <Skeleton className="h-4 w-2/3" />
         </div>
-      </div>
+      </div></PublicLayout>
     );
   }
 
   if (!project) {
     return (
-      <div className="container mx-auto px-4 py-24 text-center">
+      <PublicLayout><div className="container mx-auto px-4 py-24 text-center">
         <h1 className="text-3xl font-bold mb-4">Project Not Found</h1>
-        <Button asChild><Link href="/projects">Back to Projects</Link></Button>
-      </div>
+        <Button asChild><Link href={localizedHref('/projects', lang)}>Back to Projects</Link></Button>
+      </div></PublicLayout>
     );
   }
 
   return (
-    <article className="pb-24">
+    <PublicLayout><article className="pb-24">
       <div className="bg-gray-50 py-12 md:py-16 border-b">
         <div className="container mx-auto px-4 max-w-4xl">
           <Button variant="ghost" size="sm" className="mb-8 -ml-3 gap-2" asChild>
-            <Link href="/projects"><ArrowLeft className="w-4 h-4" /> All Projects</Link>
+            <Link href={localizedHref('/projects', lang)}><ArrowLeft className="w-4 h-4" /> All Projects</Link>
           </Button>
           
           <div className="flex items-center gap-3 mb-6">
@@ -58,8 +67,8 @@ export default function ProjectDetail() {
               <div className="flex items-center gap-2">
                 <Calendar className="w-4 h-4 text-primary" />
                 <span>
-                  {new Date(project.startDate).toLocaleDateString()}
-                  {project.endDate ? ` - ${new Date(project.endDate).toLocaleDateString()}` : ' - Present'}
+                   {formatPublicDate(project.startDate, lang)}
+                   {project.endDate ? ` - ${formatPublicDate(project.endDate, lang)}` : ' - Present'}
                 </span>
               </div>
             )}
@@ -115,6 +124,6 @@ export default function ProjectDetail() {
           </div>
         </div>
       </div>
-    </article>
+    </article></PublicLayout>
   );
 }

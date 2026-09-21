@@ -6,6 +6,9 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, ArrowRight, Calendar, Home } from 'lucide-react';
 import { Lang, loadLang } from '@/lib/i18n';
+import { PublicLayout } from '@/components/public-layout';
+import { formatPublicDate, getPublicLang, localizedHref } from '@/lib/public-language';
+import { usePublicSeo } from '@/lib/public-seo';
 
 const NEWS_UI: Record<Lang, {
   home: string;
@@ -38,17 +41,19 @@ const NEWS_UI: Record<Lang, {
 };
 
 export default function News() {
-  const lang = loadLang();
+  const lang = getPublicLang();
   const ui = NEWS_UI[lang];
+  usePublicSeo(lang, `${ui.title} | EAUC Nordic`, ui.subtitle);
   const { data: newsData, isLoading } = useListNews({ status: 'published', language: lang });
   const news = newsData?.items || [];
 
   return (
+    <PublicLayout>
     <div className="bg-white min-h-screen pb-24">
       <div className="bg-gray-50 py-16 md:py-24 border-b">
         <div className="container mx-auto px-4 max-w-5xl">
           <Button variant="ghost" size="sm" className="mb-10 -ml-3 gap-2" asChild>
-            <Link href="/"><Home className="w-4 h-4" /> {ui.home}</Link>
+            <Link href={localizedHref('/', lang)}><Home className="w-4 h-4" /> {ui.home}</Link>
           </Button>
           <div className="text-center">
           <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-6 text-gray-900">{ui.title}</h1>
@@ -78,7 +83,7 @@ export default function News() {
           ) : (
             news.map((article) => (
               <article key={article.id} className="group flex flex-col">
-                <Link href={`/news/${article.id}`} className="block overflow-hidden rounded-2xl mb-6 bg-gray-100 aspect-[4/3] relative">
+                <Link href={localizedHref(`/news/${article.id}`, lang)} className="block overflow-hidden rounded-2xl mb-6 bg-gray-100 aspect-[4/3] relative">
                   {article.coverImage ? (
                     <img src={article.coverImage} alt={article.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                   ) : (
@@ -92,13 +97,13 @@ export default function News() {
                 </Link>
                 <div className="flex items-center gap-2 text-sm text-gray-500 mb-3 font-medium">
                   <Calendar className="w-4 h-4" />
-                  {new Date(article.publishedAt || article.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}
+                  {formatPublicDate(article.publishedAt || article.createdAt, lang)}
                 </div>
                 <h3 className="text-2xl font-bold text-gray-900 mb-3 group-hover:text-primary transition-colors leading-tight">
-                  <Link href={`/news/${article.id}`}>{article.title}</Link>
+                  <Link href={localizedHref(`/news/${article.id}`, lang)}>{article.title}</Link>
                 </h3>
                 <p className="text-gray-600 line-clamp-3 mb-4 flex-1">{article.excerpt}</p>
-                <Link href={`/news/${article.id}`} className="text-primary font-semibold flex items-center gap-1 group-hover:gap-2 transition-all mt-auto">
+                <Link href={localizedHref(`/news/${article.id}`, lang)} className="text-primary font-semibold flex items-center gap-1 group-hover:gap-2 transition-all mt-auto">
                   {ui.read} <ArrowRight className="w-4 h-4" />
                 </Link>
               </article>
@@ -107,5 +112,6 @@ export default function News() {
         </div>
       </div>
     </div>
+    </PublicLayout>
   );
 }
