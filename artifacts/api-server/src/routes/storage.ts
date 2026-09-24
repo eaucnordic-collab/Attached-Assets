@@ -4,15 +4,35 @@ import {
   RequestUploadUrlResponse,
 } from '@workspace/api-zod';
 import { Router, type IRouter, type Request, type Response } from 'express';
+import { eq } from 'drizzle-orm';
+import { db, newsTable } from '@workspace/db';
 
 import {
   ObjectNotFoundError,
   ObjectStorageService,
 } from '../lib/objectStorage';
-import { requireAdmin } from '../lib/admin-auth';
+import { readAdminSession, requireAdmin } from '../lib/admin-auth';
 
 const router: IRouter = Router();
 const objectStorageService = new ObjectStorageService();
+
+async function isPublishedNewsImage(url: string): Promise<boolean> {
+  const posts = await db
+    .select({
+      coverImage: newsTable.coverImage,
+      galleryImages: newsTable.galleryImages,
+      content: newsTable.content,
+    })
+    .from(newsTable)
+    .where(eq(newsTable.status, 'published'));
+
+  return posts.some(post =>
+    post.coverImage === url ||
+    post.galleryImages.includes(url) ||
+    post.content?.includes(`src="${url}"`) ||
+    post.content?.includes(`src='${url}'`),
+  );
+}
 
 /**
  * POST /storage/uploads/request-url
@@ -99,11 +119,18 @@ router.get(
  * These are served from a separate path from /public-objects and can optionally
  * be protected with authentication or ACL checks based on the use case.
  */
-router.get('/storage/objects/*path', requireAdmin, async (req: Request, res: Response) => {
+router.get('/storage/objects/*path', async (req: Request, res: Response) => {
   try {
     const raw = req.params.path;
     const wildcardPath = Array.isArray(raw) ? raw.join('/') : raw;
     const objectPath = `/objects/${wildcardPath}`;
+    // Editors may access all uploads, but visitors may only fetch images
+    // referenced by published news. Other uploads remain private.
+    if (!readAdminSession(req) &&
+        !await isPublishedNewsImage(`/api/storage${objectPath}`)) {
+      res.status(404).json({ error: 'Object not found' });
+      return;
+    }
     const objectFile =
       await objectStorageService.getObjectEntityFile(objectPath);
 
