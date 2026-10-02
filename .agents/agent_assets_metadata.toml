@@ -1,0 +1,72 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "78T4ioZlYDR5hCiKluu4o"
+uri = "file://exports/EAUC-Nordic-all-logos.zip"
+type = "unspecified"
+title = "Все логотипы EAUC Nordic — ZIP"
+description = "13 файлов: круглые и текстовые логотипы, исходники JPG/PNG, маленькие варианты и техническая маска. Дубликаты из сборки исключены."
+logical_id = "c44751d3-efa6-4d54-a382-34bb5d42161a"
+content_hash = "sha256:5564eacc0d3a96d7cc60584a06c39760ce98e67308921bda8ed49fa849f0d3cc"
+size = 6326872
+mtime_ms = 1790937619884
+storage_uri = "gcs://replit-rams-assets-riker/rams/assets/repl:c1426f4e-0cc9-4637-9987-628f77c5c0c2/c44751d3-efa6-4d54-a382-34bb5d42161a/dd3fe0d8-2dc3-4303-8c16-6c6c98f824a0"
+storage_version_token = "1790937629256995"
+content_type = "application/octet-stream"
+
+[[outputs]]
+id = "LWEi8pgT5v1xdO494oWD0"
+uri = "file://exports/eauc-logos/EAUC-round-current.png"
+type = "image"
+title = "Круглый логотип — текущий"
+description = "PNG, 1254 × 1254."
+logical_id = "8904a9b0-0f88-403c-a696-ff81ec2822b0"
+content_hash = "sha256:07009da154c65193861f9eb252dd2af6f4034d434460c4b78748acb2a3e20df3"
+size = 1380201
+mtime_ms = 1790937619008
+storage_uri = "gcs://replit-rams-assets-riker/rams/assets/repl:c1426f4e-0cc9-4637-9987-628f77c5c0c2/8904a9b0-0f88-403c-a696-ff81ec2822b0/ee8e768a-2ac9-4ea7-976d-208a00527d02"
+storage_version_token = "1790937629878807"
+content_type = "image/png"
+
+[[outputs]]
+id = "ZaM8ZPU5bPf6LZmI8BuUy"
+uri = "file://exports/eauc-logos/EAUC-round-previous.png"
+type = "image"
+title = "Круглый логотип — предыдущий"
+description = "PNG, 1254 × 1254, с фотографиями детей."
+logical_id = "4817a0a3-0c23-4f19-99e1-eb4971cf490d"
+content_hash = "sha256:e11a8c56dd39158a2f9ae4914dbe93cd0855f2a8398052e74224ee41756b5618"
+size = 1753196
+mtime_ms = 1790937619096
+storage_uri = "gcs://replit-rams-assets-riker/rams/assets/repl:c1426f4e-0cc9-4637-9987-628f77c5c0c2/4817a0a3-0c23-4f19-99e1-eb4971cf490d/1889e5b9-eafd-4616-88d0-f42ec77fd95f"
+storage_version_token = "1790937630482954"
+content_type = "image/png"
+
+[[outputs]]
+id = "KM828jgM_7KwmDtT9yOYv"
+uri = "file://exports/eauc-logos/EAUC-wordmark-dark-original.png"
+type = "image"
+title = "Текстовый логотип EAUC Nordic"
+description = "PNG, 1024 × 1024, тёмные буквы с золотыми символами."
+logical_id = "abb40975-82c1-41ec-80ce-8fef55d413ec"
+content_hash = "sha256:100ec918ecde4079cfbf6fbc282eda802921da900fc11014f0c1953f1f9a5546"
+size = 141558
+mtime_ms = 1790937619100
+storage_uri = "gcs://replit-rams-assets-riker/rams/assets/repl:c1426f4e-0cc9-4637-9987-628f77c5c0c2/abb40975-82c1-41ec-80ce-8fef55d413ec/7b95ce03-db87-4be7-8fb7-5e0e90ae81c0"
+storage_version_token = "1790937631176796"
+content_type = "image/png"
+
+[[outputs]]
+id = "ZH9gHPIVwuQfWUR0St6tK"
+uri = "file://exports/eauc-logos/EAUC-wordmark-on-white.png"
+type = "image"
+title = "Текстовый логотип на белом фоне"
+description = "PNG, 336 × 159."
+logical_id = "42dac8f7-3210-4a4e-b9b9-cd8c9455097b"
+content_hash = "sha256:2be9e764da967f3d1d60b21d320567acca390382d154351be467befef0c31a19"
+size = 28470
+mtime_ms = 1790937619104
+storage_uri = "gcs://replit-rams-assets-riker/rams/assets/repl:c1426f4e-0cc9-4637-9987-628f77c5c0c2/42dac8f7-3210-4a4e-b9b9-cd8c9455097b/7ac7733e-2bfd-4547-bf41-9ebc0fc617a5"
+storage_version_token = "1790937631745863"
+content_type = "image/png"
